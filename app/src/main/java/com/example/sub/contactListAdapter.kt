@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-class contactListAdapter(contactList: List<Contact>, onClickListener: ListItemClickListener) :
+class contactListAdapter(contactList: ArrayList<Contact>, onClickListener: profileFragment) :
     RecyclerView.Adapter<contactListAdapter.ViewHolder>() {
     interface ListItemClickListener {
         fun onListItemClick(position: Int)
@@ -43,28 +43,28 @@ class contactListAdapter(contactList: List<Contact>, onClickListener: ListItemCl
 
 
     override fun onBindViewHolder(
-        viewHolder: contactListAdapter.ViewHolder,
+        viewHolder: ViewHolder,
         position: Int
     ) {
-       // ((viewHolder..setText(localCommentList!![position].getText())
-       // viewHolder.getPostCreator()
-            //  .setText("Commenter: " + localCommentList!![position].getUser_name())
+        viewHolder.contactName.setText(contactList_!![position].number)
+        viewHolder.contactNumber
+              .setText(contactList_!![position].name)
     }
 
     override fun getItemCount(): Int {
-        return if (contactList == null) {
+        return if (contactList_ == null) {
             0
-        } else contactList!!.size
+        } else contactList_!!.size
     }
 
     companion object {
         private var mOnClickListener: ListItemClickListener? = null
-        private var contactList: List<Contact>? = null
+        private var contactList_: ArrayList<Contact>? = null
     }
 
     init {
         mOnClickListener = onClickListener
-        contactList =
+        contactList_ = contactList
     }
 }
 

@@ -4,29 +4,31 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.app.AppCompatActivity
 
-/**
- * A simple [Fragment] subclass.
- * Use the [profileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class profileFragment : Fragment() {
+
+
+class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     var navController: NavController? = null
+
     private lateinit var addContactBttn: View
     private lateinit var addContactText: View
     private lateinit var confirmContact: View
-    private lateinit var contactName: View
-    private lateinit var contactNumber: View
+    private lateinit var contactName: TextView
+    private lateinit var contactNumber: TextView
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
@@ -42,6 +44,25 @@ class profileFragment : Fragment() {
         contactName.visibility = View.GONE
         contactNumber.visibility = View.GONE
         addContactText.visibility = View.GONE
+
+        val contacts = ArrayList<Contact>()
+
+        var test = Contact("hej", "0506066")
+        contacts?.add(test)
+        print(contacts)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.contactList)
+        //val adapter = contacts?.let { contactListAdapter(it, this) }
+        //val adapter = contacts?.let { contactListAdapter(it,this) }
+        val adapter = contactListAdapter(contacts, this)
+//        val layoutManager: RecyclerView.LayoutManager =
+//            LinearLayoutManager(requireActivity().applicationContext)
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        //recyclerView!!.setItemAnimator(DefaultItemAnimator())
+        recyclerView.adapter = adapter
+        if (adapter != null) {
+            adapter.notifyDataSetChanged()
+        }
+
 
         navController = findNavController(view.findViewById(R.id.AnnaKnappen))
         view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
@@ -61,19 +82,22 @@ class profileFragment : Fragment() {
         view.findViewById<View>(R.id.confirmContact).setOnClickListener {
             addContactBttn.visibility = View.VISIBLE
             confirmContact.visibility = View.GONE
-            contactName.visibility = View.GONE
-            contactNumber.visibility = View.GONE
             addContactText.visibility = View.GONE
 
+            var newCont = Contact(contactName.text.toString(), contactNumber.text.toString())
+            contacts.add(newCont)
+            if (adapter != null) {
+                adapter.notifyDataSetChanged()
+            }
+            contactName.text = ""
+            contactNumber.text = ""
+            contactName.visibility = View.GONE
+            contactNumber.visibility = View.GONE
 
         }
-
-
     }
 
-    companion object {
-        fun newInstance(): callingFragment {
-            return callingFragment()
-        }
+    override fun onListItemClick(position: Int) {
+        TODO("Not yet implemented")
     }
 }

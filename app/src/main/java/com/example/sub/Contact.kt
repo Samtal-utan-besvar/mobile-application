@@ -1,6 +1,6 @@
 package com.example.sub
 
-class Contact {
-        var name: String? = null
-        var number: String? = null
+class Contact(name_: String, number_: String) {
+        var name: String? = name_
+        var number: String? = number_
 }

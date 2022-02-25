@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 
 /**
@@ -15,7 +18,6 @@ import androidx.navigation.Navigation.findNavController
  * create an instance of this fragment.
  */
 class callingFragment : Fragment() {
-    private var navController: NavController? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -24,7 +26,7 @@ class callingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = findNavController(view.findViewById(R.id.closeCall))
+        var navController = findNavController(view.findViewById(R.id.closeCall))
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
             navController!!.navigate(
                 R.id.action_callingFragment_to_userProfile
