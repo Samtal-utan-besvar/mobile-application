@@ -16,13 +16,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var layout: View
     private lateinit var binding: ActivityPermissionBinding
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPermissionBinding.inflate(layoutInflater)
-        val view = binding.root
+        //val view = binding.root
         layout = binding.permissionLayout
-        setContentView(view)
+        setContentView(R.layout.fragment_profile)
     }
+
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
