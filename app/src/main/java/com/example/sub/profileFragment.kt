@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
@@ -26,6 +28,13 @@ class profileFragment : Fragment() {
         navController = findNavController(view.findViewById(R.id.AnnaKnappen))
         view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
             navController!!.navigate(
+                R.id.action_profileFragment_to_userProfile
+            )
+        }
+        view.findViewById<View>(R.id.logout).setOnClickListener {
+            navController!!.navigate(
+                //This code is supposed to go to LoginFragment, does not work for some reason
+                //LoginFragment not done?
                 R.id.action_profileFragment_to_userProfile
             )
         }

@@ -5,6 +5,9 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
+import android.widget.Button
+import android.widget.Toast
+import com.example.sub.R
 import com.example.sub.data.model.LoggedInUser
 import com.google.gson.Gson
 import java.security.KeyStore
@@ -12,7 +15,6 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
-
 /**
  * Class that requests authentication and user information from the remote data source and
  * maintains an in-memory cache of login status and user credentials information.
@@ -39,9 +41,10 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
 //        Log.d("myDebug", "user:$user")
     }
 
+
     fun logout() {
-        user = null
-        dataSource.logout()
+            user = null
+            dataSource.logout()
     }
 
     fun login(username: String, password: String): Result<LoggedInUser> {
