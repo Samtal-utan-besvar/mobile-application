@@ -48,10 +48,10 @@ class callingFragment : Fragment() {
         toggleButtonSilentMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when speaker is on
-                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
+                // Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
             } else {
                 // TODO: Action when speaker is off
-                Toast.makeText(activity, "speaker of", Toast.LENGTH_LONG).show()    // remove
+                // Toast.makeText(activity, "speaker of", Toast.LENGTH_LONG).show()    // remove
             }
         }
 
@@ -60,10 +60,10 @@ class callingFragment : Fragment() {
         toggleButtonMute.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when un-muted
-                Toast.makeText(activity, "un-mute", Toast.LENGTH_LONG).show()       // remove
+                // Toast.makeText(activity, "un-mute", Toast.LENGTH_LONG).show()       // remove
             } else {
                 // TODO: Action when muted
-                Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
+                // Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
             }
         }
 
