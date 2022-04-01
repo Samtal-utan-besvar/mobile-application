@@ -11,7 +11,8 @@
     <string name="action_sign_in_short">Logga in</string>
     <string name="welcome">"Välkommen!"</string>
     <string name="invalid_username">Inte giltigt användarnamn</string>
-    <string name="invalid_password">Lösenord måste vara över 5 karaktärer</string>
+    <string name="invalid_phone_number">Inte giltigt telefonnummer</string>
+    <string name="invalid_password">Lösenord är för kort</string>
     <string name="login_failed">"Inloggning misslyckad"</string>
     <string name="title_activity_auto_login">AutoLoginActivity</string>
     <!-- Strings used for fragments for navigation -->

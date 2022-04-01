@@ -55,6 +55,15 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         return result
     }
 
+    fun register(username: String, password: String): Result<LoggedInUser> {
+        val result = dataSource.register(username, password)
+        if (result is Result.Success) {
+            setLoggedInUser(result.data)
+            saveCredentials("USER_TOKEN")   // TODO: change to actual USER_TOKEN given from successful login
+        }
+        return result
+    }
+
     private fun setLoggedInUser(loggedInUser: LoggedInUser) {
         this.user = loggedInUser
         saveLoggedInUser(loggedInUser)

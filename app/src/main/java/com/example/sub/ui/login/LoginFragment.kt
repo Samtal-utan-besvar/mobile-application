@@ -16,8 +16,8 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.navigation.Navigation
 import com.example.sub.databinding.FragmentLoginBinding
-import com.example.sub.R
 
+import com.example.sub.R
 
 
 const val AUTOLOGIN_DISABLED = true  // for debugging purposes
@@ -26,9 +26,8 @@ class LoginFragment : Fragment() {
 
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding!!    // This property is only valid between onCreateView and onDestroyView.
 
-    // This property is only valid between onCreateView and onDestroyView.
-    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,14 +48,15 @@ class LoginFragment : Fragment() {
         val loadingProgressBar = binding.loading
         val toRegistrationButton = binding.toRegistration
 
-        if (loginViewModel.isLoggedIn()) {
-            Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_profileFragment);
-        }
-
         if (AUTOLOGIN_DISABLED) {
             val sharedPref = context?.getSharedPreferences("user_token", Context.MODE_PRIVATE)
             sharedPref!!.edit().clear().apply()
         }
+
+        if (loginViewModel.isLoggedIn()) {
+            Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_profileFragment)
+        }
+
 
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
             Observer { loginFormState ->
@@ -64,7 +64,7 @@ class LoginFragment : Fragment() {
                     return@Observer
                 }
                 loginButton.isEnabled = loginFormState.isDataValid
-                loginFormState.usernameError?.let {
+                loginFormState.phoneNumberError?.let {
                     usernameEditText.error = getString(it)
                 }
                 loginFormState.passwordError?.let {
@@ -100,6 +100,7 @@ class LoginFragment : Fragment() {
                 )
             }
         }
+
         usernameEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
@@ -121,11 +122,10 @@ class LoginFragment : Fragment() {
         }
 
         toRegistrationButton.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_registrationFragment);
+            Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_registrationFragment)
             Log.d("myDebug", "To registration")
         }
     }
-
 
     private fun updateUiWithUser(model: LoggedInUserView, view: View) {
         val welcome = getString(R.string.welcome) + model.displayName
@@ -133,8 +133,7 @@ class LoginFragment : Fragment() {
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
 
-        Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_profileFragment);
-
+        Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_profileFragment)
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {

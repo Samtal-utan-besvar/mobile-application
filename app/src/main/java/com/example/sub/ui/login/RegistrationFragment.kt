@@ -1,6 +1,5 @@
 package com.example.sub.ui.login
 
-import android.content.Context
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.annotation.StringRes
@@ -8,25 +7,22 @@ import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.sub.databinding.FragmentRegistrationBinding
 
 import com.example.sub.R
 
+
 class RegistrationFragment : Fragment() {
 
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentRegistrationBinding? = null
-
-    // This property is only valid between onCreateView and onDestroyView.
-    private val binding get() = _binding!!
+    private val binding get() = _binding!!  // This property is only valid between onCreateView and onDestroyView.
 
 
     override fun onCreateView(
@@ -54,7 +50,7 @@ class RegistrationFragment : Fragment() {
                     return@Observer
                 }
                 loginButton.isEnabled = loginFormState.isDataValid
-                loginFormState.usernameError?.let {
+                loginFormState.phoneNumberError?.let {
                     usernameEditText.error = getString(it)
                 }
                 loginFormState.passwordError?.let {
@@ -90,11 +86,12 @@ class RegistrationFragment : Fragment() {
                 )
             }
         }
+
         usernameEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                loginViewModel.login(
+                loginViewModel.register(
                     usernameEditText.text.toString(),
                     passwordEditText.text.toString()
                 )
@@ -104,17 +101,16 @@ class RegistrationFragment : Fragment() {
 
         loginButton.setOnClickListener {
             loadingProgressBar.visibility = View.VISIBLE
-            loginViewModel.login(
+            loginViewModel.register(
                 usernameEditText.text.toString(),
                 passwordEditText.text.toString()
             )
         }
 
         toRegistrationButton.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_loginFragment);
+            Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_loginFragment)
         }
     }
-
 
     private fun updateUiWithUser(model: LoggedInUserView, view: View) {
         val welcome = getString(R.string.welcome) + model.displayName
@@ -122,8 +118,7 @@ class RegistrationFragment : Fragment() {
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
 
-        Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_profileFragment);
-
+        Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_profileFragment)
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
