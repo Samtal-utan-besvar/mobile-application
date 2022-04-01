@@ -3,6 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Martin/Documents/TDDD96/PUM/mobile-application/app/src/main/res/layout/activity_main.xml" value="0.2793819655521783" />
+        <entry key="..\:/Users/Martin/Documents/TDDD96/PUM/mobile-application/app/src/main/res/layout/activity_permission.xml" value="0.32760416666666664" />
+        <entry key="..\:/Users/Martin/Documents/TDDD96/PUM/mobile-application/app/src/main/res/layout/fragment_calling.xml" value="0.2793819655521783" />
+        <entry key="..\:/Users/Martin/Documents/TDDD96/PUM/mobile-application/app/src/main/res/layout/fragment_permission.xml" value="0.4569746376811594" />
+        <entry key="..\:/Users/Martin/Documents/TDDD96/PUM/mobile-application/app/src/main/res/layout/fragment_profile.xml" value="0.32760416666666664" />
+        <entry key="..\:/Users/Martin/Documents/TDDD96/PUM/mobile-application/app/src/main/res/layout/fragment_user_profile.xml" value="0.32760416666666664" />
+        <entry key="..\:/Users/Martin/Documents/TDDD96/PUM/mobile-application/app/src/main/res/layout/permission.xml" value="0.2793819655521783" />
         <entry key="..\:/Users/Maxiboi/mobile-application/app/src/main/res/layout/activity_main.xml" value="0.24954710144927536" />
         <entry key="..\:/Users/Maxiboi/mobile-application/app/src/main/res/layout/fragment_calling.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/Maxiboi/mobile-application/app/src/main/res/layout/fragment_profile.xml" value="0.36666666666666664" />

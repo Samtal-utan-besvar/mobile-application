@@ -10,13 +10,14 @@
         android:id="@+id/imageView"
         android:layout_width="140dp"
         android:layout_height="107dp"
-        android:src="@drawable/employee_image_jonwa77"
         app:layout_constraintBottom_toTopOf="@+id/profileName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.351"
         app:layout_constraintStart_toEndOf="@+id/profile"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.721" />
+    <!--android:src="@drawable/employee_image_jonwa77"-->
+
 
     <ImageButton
         android:id="@+id/profile"
