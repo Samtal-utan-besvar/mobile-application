@@ -31,7 +31,10 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
 
-        sharedPref!!.edit().clear().apply()
+        //This line of code makes it so that sharedPref doesn't work as intended
+        //Guessing it's because you run this every time you initiate the app
+        //sharedPref!!.edit().clear().apply()
+
         val savedUserInfo = sharedPref.getString("user_token", "NO_USER_LOGIN_SAVED")
 
         user = if (savedUserInfo == "NO_USER_LOGIN_SAVED") {
