@@ -1,13 +1,15 @@
 package com.example.sub.data
 
 import android.content.Context
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
 import com.example.sub.data.model.LoggedInUser
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import java.security.KeyStore
 import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
 
@@ -25,27 +27,16 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         private set
 
     val isLoggedIn: Boolean
-        get() = user != null
+        get() = sharedPref.getString("user_token", "NO_USER_LOGIN_SAVED") != "NO_USER_LOGIN_SAVED"
 
     init {
-        // If user credentials will be cached in local storage, it is recommended it be encrypted
-        // @see https://developer.android.com/training/articles/keystore
-
-        //This line of code makes it so that sharedPref doesn't work as intended
-        //Guessing it's because you run this every time you initiate the app
-        //sharedPref!!.edit().clear().apply()
-
-        val savedUserInfo = sharedPref.getString("user_token", "NO_USER_LOGIN_SAVED")
-
-        user = if (savedUserInfo == "NO_USER_LOGIN_SAVED") {
-            null
+        generateKey()
+        user = if (isLoggedIn) {
+            readLoggedInUser()
         } else {
-            // TODO: Change to relevant data based on token
-            val userID = "1"
-            val displayName = "JO"
-            LoggedInUser(userID, displayName)
+            null
         }
-
+//        Log.d("myDebug", "user:$user")
     }
 
     fun logout() {
@@ -54,26 +45,19 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     }
 
     fun login(username: String, password: String): Result<LoggedInUser> {
-        // handle login
         val result = dataSource.login(username, password)
 
         if (result is Result.Success) {
             setLoggedInUser(result.data)
-            saveCredentials("USER_TOKEN")   // TODO: change to actual USER_TOKEN
+            saveCredentials("USER_TOKEN")   // TODO: change to actual USER_TOKEN given from successful login
         }
-
-        Log.d("myDebug", "readCredentials:" + readCredentials())
-
-
+//        Log.d("myDebug", "readCredentials:" + readCredentials())
         return result
     }
 
     private fun setLoggedInUser(loggedInUser: LoggedInUser) {
         this.user = loggedInUser
-        // If user credentials will be cached in local storage, it is recommended it be encrypted
-        // @see https://developer.android.com/training/articles/keystore
         saveLoggedInUser(loggedInUser)
-
     }
 
     private fun saveLoggedInUser(loggedInUser: LoggedInUser) {
@@ -100,40 +84,43 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     private fun readCredentials(): String {
         val savedUserIV = sharedPref.getString("iv_bytes", "NO_USER_LOGIN_SAVED")
         val savedUserToken = sharedPref.getString("user_token", "NO_USER_LOGIN_SAVED")
-        Log.d("myDebug", "IV dencrypted:" + decryptData(Base64.decode(savedUserIV, Base64.DEFAULT), Base64.decode(savedUserToken, Base64.DEFAULT)))
+        Log.d("myDebug", "dencrypted:" + decryptData(Base64.decode(savedUserIV, Base64.DEFAULT), Base64.decode(savedUserToken, Base64.DEFAULT)))
         return decryptData(Base64.decode(savedUserIV, Base64.DEFAULT), Base64.decode(savedUserToken, Base64.DEFAULT))
     }
 
     private fun getKey(): SecretKey {
         val keystore = KeyStore.getInstance("AndroidKeyStore")
         keystore.load(null)
-
         val secretKeyEntry = keystore.getEntry("MyKeyAlias", null) as KeyStore.SecretKeyEntry
         return secretKeyEntry.secretKey
     }
 
+    private fun generateKey() {
+        val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+        val keyGenParameterSpec = KeyGenParameterSpec.Builder("MyKeyAlias",
+            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+            .build()
+        keyGenerator.init(keyGenParameterSpec)
+        keyGenerator.generateKey()
+    }
+
     private fun encryptData(data: String): Pair<ByteArray, ByteArray> {
         val cipher = Cipher.getInstance("AES/CBC/NoPadding")
-
         var temp = data
         while (temp.toByteArray().size % 16 != 0)
             temp += "\u0020"
-
         cipher.init(Cipher.ENCRYPT_MODE, getKey())
-
         val ivBytes = cipher.iv
         val encryptedBytes = cipher.doFinal(temp.toByteArray(Charsets.UTF_8))
-
         return Pair(ivBytes, encryptedBytes)
     }
 
     private fun decryptData(ivBytes: ByteArray, data: ByteArray): String{
         val cipher = Cipher.getInstance("AES/CBC/NoPadding")
         val spec = IvParameterSpec(ivBytes)
-
         cipher.init(Cipher.DECRYPT_MODE, getKey(), spec)
         return cipher.doFinal(data).toString(Charsets.UTF_8).trim()
     }
-
-
 }

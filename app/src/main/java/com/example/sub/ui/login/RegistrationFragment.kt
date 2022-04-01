@@ -24,44 +24,29 @@ class RegistrationFragment : Fragment() {
 
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentRegistrationBinding? = null
-    private var navController: NavController? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
-
 
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-
+    ): View {
         _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))
-            .get(LoginViewModel::class.java)
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
 
         val usernameEditText = binding.username
         val passwordEditText = binding.password
         val loginButton = binding.login
         val loadingProgressBar = binding.loading
         val toRegistrationButton = binding.toLogin
-
-        val sharedPref = activity?.getSharedPreferences(getString(R.string.preference_file_key), Context.MODE_PRIVATE)
-        val savedUserInfo = sharedPref!!.getString(getString(R.string.preference_file_key), "NO_USER_LOGIN_SAVED")
-
-//        if (savedUserInfo != "NO_USER_LOGIN_SAVED") {
-//            Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_profileFragment);
-//        }
-
-        Log.d("myDebug", "USER_TOKEN saved")
 
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
             Observer { loginFormState ->
@@ -117,29 +102,17 @@ class RegistrationFragment : Fragment() {
             false
         }
 
-//        navController = Navigation.findNavController(view.findViewById(R.id.login))
-
-
         loginButton.setOnClickListener {
             loadingProgressBar.visibility = View.VISIBLE
             loginViewModel.login(
                 usernameEditText.text.toString(),
                 passwordEditText.text.toString()
             )
-
-            // TODO: save the actually USER_TOKEN that are used to verify the user to the dataBase
-            with(sharedPref!!.edit()) {
-                putString(getString(R.string.preference_file_key), "USER_TOKEN")
-                apply()
-            }
-            Log.d("myDebug", "USER_TOKEN saved")
         }
 
         toRegistrationButton.setOnClickListener {
             Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_loginFragment);
         }
-
-
     }
 
 
