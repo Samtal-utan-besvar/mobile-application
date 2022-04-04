@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityPermissionBinding.inflate(layoutInflater)
         //val view = binding.root
         layout = binding.permissionLayout
-        setContentView(R.layout.fragment_profile)
+        setContentView(R.layout.activity_main)
     }
 
     private val requestPermissionLauncher =
