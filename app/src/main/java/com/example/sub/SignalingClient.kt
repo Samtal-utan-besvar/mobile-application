@@ -36,8 +36,8 @@ class SignalingClient {
     private val _signalingCommandFlow = MutableSharedFlow<Pair<SignalingCommand, String>>()
     val signalingCommandFlow: SharedFlow<Pair<SignalingCommand, String>> = _signalingCommandFlow
 
-    fun sendCommand(signalingCommand: SignalingCommand, message: String) {
-        ws.send("$signalingCommand $message")
+    fun sendCommand(message: String) {
+        ws.send(message)
     }
 
     private inner class SignalingWebSocketListener : WebSocketListener() {
