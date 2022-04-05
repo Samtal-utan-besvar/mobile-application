@@ -1,5 +1,6 @@
 package com.example.sub
 
+import com.example.sub.SignalingClient
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -11,6 +12,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.databinding.ActivityPermissionBinding
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var layout: View
@@ -64,8 +67,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-
+    fun onClickSignalServer(view: View){
+        println("Here")
+        val sc = SignalingClient()
+        sc.sendCommand(SignalingCommand.OFFER, "test-message")
+    }
 }
 
 fun View.showSnackbar(
