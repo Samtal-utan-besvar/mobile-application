@@ -1,10 +1,11 @@
 package com.example.sub
 
+import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -16,10 +17,10 @@ import com.example.sub.ui.login.LoginViewModelFactory
 
 /**
  * A simple [Fragment] subclass.
- * Use the [profileFragment.newInstance] factory method to
+ * Use the [ProfileFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class profileFragment : Fragment() {
+class ProfileFragment : Fragment() {
     private var navController: NavController? = null
     private lateinit var loginViewModel: LoginViewModel
 
@@ -32,10 +33,6 @@ class profileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
-        Log.d("myDebug", "(ProfileFragment) Credentials :  " + loginViewModel.loginRepository.readCredentials())
-        Log.d("myDebug", "(ProfileFragment) User memory :  " + loginViewModel.loginRepository.user)
-
-
         navController = findNavController(view)
         view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
             navController!!.navigate(
@@ -54,9 +51,23 @@ class profileFragment : Fragment() {
         return loginViewModel.loginRepository.user
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        val callback: OnBackPressedCallback =
+            object : OnBackPressedCallback(true)
+            {
+                override fun handleOnBackPressed() {}
+            }
+            requireActivity().onBackPressedDispatcher.addCallback(
+                this,
+                callback
+            )
+    }
+
+
     companion object {
-        fun newInstance(): callingFragment {
-            return callingFragment()
+        fun newInstance(): CallingFragment {
+            return CallingFragment()
         }
     }
 }

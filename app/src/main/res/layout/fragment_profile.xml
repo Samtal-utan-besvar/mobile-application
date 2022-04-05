@@ -5,7 +5,7 @@
     android:id="@+id/permission_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".profileFragment">
+    tools:context=".ProfileFragment">
 
     <ImageButton
         android:id="@+id/imageButton"

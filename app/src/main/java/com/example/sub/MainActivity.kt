@@ -63,9 +63,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-
-
 }
 
 fun View.showSnackbar(

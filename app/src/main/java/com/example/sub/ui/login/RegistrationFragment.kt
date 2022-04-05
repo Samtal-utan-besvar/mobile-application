@@ -1,9 +1,5 @@
 package com.example.sub.ui.login
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.annotation.StringRes
-import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,17 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.annotation.StringRes
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
-import com.example.sub.databinding.FragmentRegistrationBinding
-
 import com.example.sub.R
+import com.example.sub.databinding.FragmentRegistrationBinding
 
 
 class RegistrationFragment : Fragment() {
 
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentRegistrationBinding? = null
-    private val binding get() = _binding!!  // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
 
 
     override fun onCreateView(

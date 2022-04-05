@@ -1,10 +1,6 @@
 package com.example.sub.ui.login
 
 import android.content.Context
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.annotation.StringRes
-import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,18 +10,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.annotation.StringRes
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.example.sub.R
 import com.example.sub.databinding.FragmentLoginBinding
 
-import com.example.sub.R
 
-
-const val AUTOLOGIN_DISABLED = true  // for debugging purposes
+const val AUTOLOGIN_DISABLED = false     // for debugging purposes
+const val LOGIN_DISABLED = false         // for debugging purposes
 
 class LoginFragment : Fragment() {
+
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentLoginBinding? = null
-    private val binding get() = _binding!!    // This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
+    private var navController: NavController? = null
+
 
 
     override fun onCreateView(
@@ -39,7 +44,9 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
+        navController = Navigation.findNavController(view)
+        loginViewModel =
+            ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
 
         val usernameEditText = binding.username
         val passwordEditText = binding.password
@@ -48,12 +55,12 @@ class LoginFragment : Fragment() {
         val toRegistrationButton = binding.toRegistration
 
         if (AUTOLOGIN_DISABLED) {
-            val sharedPref = context?.getSharedPreferences("user_token", Context.MODE_PRIVATE)
+            val sharedPref = context?.getSharedPreferences("UserSharedPref", Context.MODE_PRIVATE)
             sharedPref!!.edit().clear().apply()
         }
 
-        if (loginViewModel.isLoggedIn()) {
-            Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_profileFragment)
+        if (loginViewModel.isLoggedIn() || LOGIN_DISABLED) {
+            navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
         }
 
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
@@ -120,7 +127,7 @@ class LoginFragment : Fragment() {
         }
 
         toRegistrationButton.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_registrationFragment)
+            navController!!.navigate(R.id.action_loginFragment_to_registrationFragment)
             Log.d("myDebug", "To registration")
         }
     }
@@ -130,8 +137,7 @@ class LoginFragment : Fragment() {
         // TODO : initiate successful logged in experience
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
-
-        Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_profileFragment)
+        navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
@@ -142,5 +148,18 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        val callback: OnBackPressedCallback =
+            object : OnBackPressedCallback(true)
+            {
+                override fun handleOnBackPressed() {}
+            }
+        requireActivity().onBackPressedDispatcher.addCallback(
+            this,
+            callback
+        )
     }
 }

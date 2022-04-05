@@ -2,7 +2,6 @@ package com.example.sub.data
 
 import android.content.Context
 import android.util.Base64
-import android.util.Log
 import com.example.sub.data.model.LoggedInUser
 import com.google.gson.Gson
 import java.security.KeyStore
@@ -37,29 +36,19 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     }
 
     fun logout() {
-        Log.d("myDebug", "(LOG-OUT) Credentials in sharedPref   : " + readCredentials())
-        Log.d("myDebug", "(LOG-OUT) LoggedInUser in memory      : $user")
-        Log.d("myDebug", "(LOG-OUT) LoggedInUser in sharedPref  : " + readLoggedInUser())
-        Log.d("myDebug", "_________________________________")
         user = null
         dataSource.logout()
         removeLoggedInUser()
-        removeCredentials()
-        Log.d("myDebug", "(LOG-OUT) Credentials in sharedPref   : " + readCredentials())
-        Log.d("myDebug", "(LOG-OUT) LoggedInUser in memory      : $user")
-        Log.d("myDebug", "(LOG-OUT) LoggedInUser in sharedPref  : " + readLoggedInUser())
+        removeUserToken()
     }
 
     fun login(username: String, password: String): Result<LoggedInUser> {
         val result = dataSource.login(username, password)
         if (result is Result.Success) {
             setLoggedInUser(result.data)
-            saveCredentials("USER_TOKEN")   // TODO: change to actual USER_TOKEN given from successful login
+            // TODO: change to actual USER_TOKEN given from successful login
+            saveUserToken("USER_TOKEN")
         }
-        Log.d("myDebug", "_________________________________")
-        Log.d("myDebug", "(LOG-IN) Credentials in sharedPref    : " + readCredentials())
-        Log.d("myDebug", "(LOG-IN) User in memory               : $user")
-        Log.d("myDebug", "(LOG-IN) LoggedInUser in sharedPref   : " + readLoggedInUser())
         return result
     }
 
@@ -67,7 +56,8 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         val result = dataSource.register(username, password)
         if (result is Result.Success) {
             setLoggedInUser(result.data)
-            saveCredentials("USER_TOKEN")   // TODO: change to actual USER_TOKEN given from successful login
+            // TODO: change to actual USER_TOKEN given from successful registration
+            saveUserToken("USER_TOKEN")
         }
         return result
     }
@@ -93,7 +83,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         sharedPref.edit().remove("LOGGED_IN_USER").apply()
     }
 
-    private fun saveCredentials(data: String) {
+    private fun saveUserToken(data: String) {
         val encryptedData = encryptData(data)
         with(sharedPref.edit()) {
             putString("IV_BYTES", Base64.encodeToString(encryptedData.first, Base64.DEFAULT))
@@ -102,7 +92,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         }
     }
 
-    fun readCredentials(): String? {
+    fun readUserToken(): String? {
         val savedUserIV = sharedPref.getString("IV_BYTES", null) ?: return null
         val savedUserToken = sharedPref.getString("USER_TOKEN", null) ?: return null
         return decryptData(
@@ -111,14 +101,14 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         )
     }
 
-    private fun removeCredentials() {
+    private fun removeUserToken() {
         sharedPref.edit().remove("IV_BYTES").apply()
         sharedPref.edit().remove("USER_TOKEN").apply()
         sharedPref.edit().remove("KEY").apply()
         deleteKey()
     }
 
-    private fun generateSecretKey(): SecretKey? {
+    private fun generateKey(): SecretKey? {
         val keyGenerator = KeyGenerator.getInstance("AES")
         keyGenerator?.init(128, SecureRandom())
         return keyGenerator?.generateKey()
@@ -133,7 +123,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     private fun getKey(): SecretKey {
         val key = sharedPref.getString("KEY", null)
         if (key == null) {
-            val secretKey = generateSecretKey()
+            val secretKey = generateKey()
             saveKey(secretKey!!)
             return secretKey
         }

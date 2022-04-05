@@ -1,16 +1,13 @@
 package com.example.sub.ui.login
 
 import android.telephony.PhoneNumberUtils
-import android.util.Log
+import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import android.util.Patterns
-import androidx.lifecycle.ViewModelProvider
+import com.example.sub.R
 import com.example.sub.data.LoginRepository
 import com.example.sub.data.Result
-
-import com.example.sub.R
 
 class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
@@ -22,26 +19,21 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
     fun login(username: String, password: String) {
         val result = loginRepository.login(username, password)
-
         if (result is Result.Success) {
             _loginResult.value =
                 LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
         } else {
             _loginResult.value = LoginResult(error = R.string.login_failed)
         }
-
-//        Log.d("myDebugg", "loginResult:   " + loginResult.value.toString())
-
     }
 
     fun register(username: String, password: String) {
         val result = loginRepository.register(username, password)
-
         if (result is Result.Success) {
             _loginResult.value =
                 LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
         } else {
-            _loginResult.value = LoginResult(error = R.string.login_failed)
+            _loginResult.value = LoginResult(error = R.string.registration_failed)
         }
     }
 

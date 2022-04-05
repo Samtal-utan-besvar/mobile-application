@@ -1,6 +1,5 @@
 package com.example.sub
 
-import android.R.attr.data
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,12 +8,8 @@ import android.widget.Chronometer
 import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
-import com.example.sub.data.model.LoggedInUser
-import com.example.sub.ui.login.LoginViewModel
-import com.example.sub.ui.login.LoginViewModelFactory
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -24,10 +19,10 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [callingFragment.newInstance] factory method to
+ * Use the [CallingFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class callingFragment : Fragment() {
+class CallingFragment : Fragment() {
     private var navController: NavController? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,11 +32,9 @@ class callingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = findNavController(view.findViewById(R.id.closeCall))
+        navController = findNavController(view)
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
-
-            // TODO: Action when close call, disconnect call from server??
-
+            // TODO: Action when close call, disconnect call from server?
             navController!!.navigate(
                 R.id.action_callingFragment_to_userProfile
             )
@@ -52,7 +45,7 @@ class callingFragment : Fragment() {
         toggleButtonSilentMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when speaker is on
-                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
+                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()     // remove
             } else {
                 // TODO: Action when speaker is off
                 Toast.makeText(activity, "speaker off", Toast.LENGTH_LONG).show()    // remove
@@ -79,8 +72,8 @@ class callingFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(): callingFragment {
-            return callingFragment()
+        fun newInstance(): CallingFragment {
+            return CallingFragment()
         }
     }
 }
