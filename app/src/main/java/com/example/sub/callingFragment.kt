@@ -51,7 +51,7 @@ class callingFragment : Fragment() {
                 Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
             } else {
                 // TODO: Action when speaker is off
-                Toast.makeText(activity, "speaker of", Toast.LENGTH_LONG).show()    // remove
+                Toast.makeText(activity, "speaker off", Toast.LENGTH_LONG).show()    // remove
             }
         }
 
