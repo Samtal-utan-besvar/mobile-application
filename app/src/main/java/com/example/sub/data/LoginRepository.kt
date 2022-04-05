@@ -1,20 +1,18 @@
 package com.example.sub.data
 
 import android.content.Context
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
-import android.widget.Button
-import android.widget.Toast
-import com.example.sub.R
 import com.example.sub.data.model.LoggedInUser
 import com.google.gson.Gson
 import java.security.KeyStore
+import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
+
 /**
  * Class that requests authentication and user information from the remote data source and
  * maintains an in-memory cache of login status and user credentials information.
@@ -22,39 +20,46 @@ import javax.crypto.spec.IvParameterSpec
 
 class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
 
-    private val sharedPref = context!!.getSharedPreferences("user_token", Context.MODE_PRIVATE)
+    private val sharedPref = context!!.getSharedPreferences("UserSharedPref", Context.MODE_PRIVATE)
 
-    // in-memory cache of the loggedInUser object
     var user: LoggedInUser? = null
         private set
 
     val isLoggedIn: Boolean
-        get() = sharedPref.getString("user_token", "NO_USER_LOGIN_SAVED") != "NO_USER_LOGIN_SAVED"
+        get() = sharedPref.getString("USER_TOKEN", null) != null
 
     init {
-        generateKey()
         user = if (isLoggedIn) {
             readLoggedInUser()
         } else {
             null
         }
-//        Log.d("myDebug", "user:$user")
     }
 
-
     fun logout() {
-            user = null
-            dataSource.logout()
+        Log.d("myDebug", "(LOG-OUT) Credentials in sharedPref   : " + readCredentials())
+        Log.d("myDebug", "(LOG-OUT) LoggedInUser in memory      : $user")
+        Log.d("myDebug", "(LOG-OUT) LoggedInUser in sharedPref  : " + readLoggedInUser())
+        Log.d("myDebug", "_________________________________")
+        user = null
+        dataSource.logout()
+        removeLoggedInUser()
+        removeCredentials()
+        Log.d("myDebug", "(LOG-OUT) Credentials in sharedPref   : " + readCredentials())
+        Log.d("myDebug", "(LOG-OUT) LoggedInUser in memory      : $user")
+        Log.d("myDebug", "(LOG-OUT) LoggedInUser in sharedPref  : " + readLoggedInUser())
     }
 
     fun login(username: String, password: String): Result<LoggedInUser> {
         val result = dataSource.login(username, password)
-
         if (result is Result.Success) {
             setLoggedInUser(result.data)
             saveCredentials("USER_TOKEN")   // TODO: change to actual USER_TOKEN given from successful login
         }
-//        Log.d("myDebug", "readCredentials:" + readCredentials())
+        Log.d("myDebug", "_________________________________")
+        Log.d("myDebug", "(LOG-IN) Credentials in sharedPref    : " + readCredentials())
+        Log.d("myDebug", "(LOG-IN) User in memory               : $user")
+        Log.d("myDebug", "(LOG-IN) LoggedInUser in sharedPref   : " + readLoggedInUser())
         return result
     }
 
@@ -75,47 +80,71 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     private fun saveLoggedInUser(loggedInUser: LoggedInUser) {
         val gson = Gson()
         val json = gson.toJson(loggedInUser)
-        sharedPref.edit().putString("loggedInUser", json).apply()
+        sharedPref.edit().putString("LOGGED_IN_USER", json).apply()
     }
 
     private fun readLoggedInUser(): LoggedInUser? {
         val gson = Gson()
-        val json = sharedPref.getString("loggedInUser", "NO_LOGGED_IN_USER")
+        val json = sharedPref.getString("LOGGED_IN_USER", null) ?: return null
         return gson.fromJson(json, LoggedInUser::class.java)
+    }
+
+    private fun removeLoggedInUser() {
+        sharedPref.edit().remove("LOGGED_IN_USER").apply()
     }
 
     private fun saveCredentials(data: String) {
         val encryptedData = encryptData(data)
         with(sharedPref.edit()) {
-            putString("iv_bytes", Base64.encodeToString(encryptedData.first, Base64.DEFAULT))
-            putString("user_token", Base64.encodeToString(encryptedData.second, Base64.DEFAULT))
+            putString("IV_BYTES", Base64.encodeToString(encryptedData.first, Base64.DEFAULT))
+            putString("USER_TOKEN", Base64.encodeToString(encryptedData.second, Base64.DEFAULT))
             apply()
         }
     }
 
-    private fun readCredentials(): String {
-        val savedUserIV = sharedPref.getString("iv_bytes", "NO_USER_LOGIN_SAVED")
-        val savedUserToken = sharedPref.getString("user_token", "NO_USER_LOGIN_SAVED")
-        Log.d("myDebug", "dencrypted:" + decryptData(Base64.decode(savedUserIV, Base64.DEFAULT), Base64.decode(savedUserToken, Base64.DEFAULT)))
-        return decryptData(Base64.decode(savedUserIV, Base64.DEFAULT), Base64.decode(savedUserToken, Base64.DEFAULT))
+    fun readCredentials(): String? {
+        val savedUserIV = sharedPref.getString("IV_BYTES", null) ?: return null
+        val savedUserToken = sharedPref.getString("USER_TOKEN", null) ?: return null
+        return decryptData(
+            Base64.decode(savedUserIV, Base64.DEFAULT),
+            Base64.decode(savedUserToken, Base64.DEFAULT)
+        )
+    }
+
+    private fun removeCredentials() {
+        sharedPref.edit().remove("IV_BYTES").apply()
+        sharedPref.edit().remove("USER_TOKEN").apply()
+        sharedPref.edit().remove("KEY").apply()
+        deleteKey()
+    }
+
+    private fun generateSecretKey(): SecretKey? {
+        val keyGenerator = KeyGenerator.getInstance("AES")
+        keyGenerator?.init(128, SecureRandom())
+        return keyGenerator?.generateKey()
+    }
+
+    private fun saveKey(secretKey: SecretKey): String {
+        val encodedKey = Base64.encodeToString(secretKey.encoded, Base64.NO_WRAP)
+        sharedPref.edit().putString("KEY", encodedKey).apply()
+        return encodedKey
     }
 
     private fun getKey(): SecretKey {
-        val keystore = KeyStore.getInstance("AndroidKeyStore")
-        keystore.load(null)
-        val secretKeyEntry = keystore.getEntry("MyKeyAlias", null) as KeyStore.SecretKeyEntry
-        return secretKeyEntry.secretKey
+        val key = sharedPref.getString("KEY", null)
+        if (key == null) {
+            val secretKey = generateSecretKey()
+            saveKey(secretKey!!)
+            return secretKey
+        }
+        val decodedKey = Base64.decode(key, Base64.NO_WRAP)
+        return SecretKeySpec(decodedKey, 0, decodedKey.size, "AES")
     }
 
-    private fun generateKey() {
-        val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-        val keyGenParameterSpec = KeyGenParameterSpec.Builder("MyKeyAlias",
-            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-            .build()
-        keyGenerator.init(keyGenParameterSpec)
-        keyGenerator.generateKey()
+    private fun deleteKey() {
+        val keystore = KeyStore.getInstance("AndroidKeyStore")
+        keystore.load(null)
+        keystore.deleteEntry("MyKeyAlias")
     }
 
     private fun encryptData(data: String): Pair<ByteArray, ByteArray> {
@@ -136,3 +165,5 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         return cipher.doFinal(data).toString(Charsets.UTF_8).trim()
     }
 }
+
+

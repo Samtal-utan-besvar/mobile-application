@@ -9,8 +9,12 @@ import android.widget.Chronometer
 import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import com.example.sub.data.model.LoggedInUser
+import com.example.sub.ui.login.LoginViewModel
+import com.example.sub.ui.login.LoginViewModelFactory
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -48,10 +52,10 @@ class callingFragment : Fragment() {
         toggleButtonSilentMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when speaker is on
-                // Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
+                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
             } else {
                 // TODO: Action when speaker is off
-                // Toast.makeText(activity, "speaker of", Toast.LENGTH_LONG).show()    // remove
+                Toast.makeText(activity, "speaker off", Toast.LENGTH_LONG).show()    // remove
             }
         }
 
@@ -60,10 +64,10 @@ class callingFragment : Fragment() {
         toggleButtonMute.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when un-muted
-                // Toast.makeText(activity, "un-mute", Toast.LENGTH_LONG).show()       // remove
+                Toast.makeText(activity, "un-mute", Toast.LENGTH_LONG).show()       // remove
             } else {
                 // TODO: Action when muted
-                // Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
+                Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
             }
         }
 
@@ -74,7 +78,7 @@ class callingFragment : Fragment() {
         simpleChronometer.start() // start a chronometer
     }
 
-        companion object {
+    companion object {
         fun newInstance(): callingFragment {
             return callingFragment()
         }

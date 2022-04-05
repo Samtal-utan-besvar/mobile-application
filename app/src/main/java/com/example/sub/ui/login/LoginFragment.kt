@@ -23,7 +23,6 @@ import com.example.sub.R
 const val AUTOLOGIN_DISABLED = true  // for debugging purposes
 
 class LoginFragment : Fragment() {
-
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!    // This property is only valid between onCreateView and onDestroyView.
@@ -56,7 +55,6 @@ class LoginFragment : Fragment() {
         if (loginViewModel.isLoggedIn()) {
             Navigation.findNavController(view).navigate(R.id.action_loginFragment_to_profileFragment)
         }
-
 
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
             Observer { loginFormState ->

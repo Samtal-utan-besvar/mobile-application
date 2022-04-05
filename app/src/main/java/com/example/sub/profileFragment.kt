@@ -1,14 +1,18 @@
 package com.example.sub
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import com.example.sub.ui.login.LoginViewModel
+import com.example.sub.data.model.LoggedInUser
+import com.example.sub.ui.login.LoginViewModelFactory
+
 
 /**
  * A simple [Fragment] subclass.
@@ -16,7 +20,9 @@ import androidx.navigation.Navigation.findNavController
  * create an instance of this fragment.
  */
 class profileFragment : Fragment() {
-    var navController: NavController? = null
+    private var navController: NavController? = null
+    private lateinit var loginViewModel: LoginViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -25,19 +31,27 @@ class profileFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = findNavController(view.findViewById(R.id.AnnaKnappen))
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
+        Log.d("myDebug", "(ProfileFragment) Credentials :  " + loginViewModel.loginRepository.readCredentials())
+        Log.d("myDebug", "(ProfileFragment) User memory :  " + loginViewModel.loginRepository.user)
+
+
+        navController = findNavController(view)
         view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
             navController!!.navigate(
                 R.id.action_profileFragment_to_userProfile
             )
         }
         view.findViewById<View>(R.id.logout).setOnClickListener {
+            loginViewModel.loginRepository.logout()
             navController!!.navigate(
-                //This code is supposed to go to LoginFragment, does not work for some reason
-                //LoginFragment not done?
-                R.id.action_profileFragment_to_userProfile
+                R.id.action_profileFragment_to_loginFragment
             )
         }
+    }
+
+    private fun getLoggedInUser(): LoggedInUser? {
+        return loginViewModel.loginRepository.user
     }
 
     companion object {
