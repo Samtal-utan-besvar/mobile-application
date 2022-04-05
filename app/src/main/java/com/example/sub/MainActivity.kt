@@ -12,6 +12,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.databinding.ActivityPermissionBinding
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import kotlinx.serialization.Serializable
+import org.json.JSONObject
 import kotlinx.coroutines.launch
 
 
@@ -67,10 +71,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Serializable
+    data class User(val Reason : String, val Email : String, val PhoneNumber : String, val Name: String, val Password: String)
+
     fun onClickSignalServer(view: View){
-        println("Here")
+
+        val data = User("connect", "test@domain.com", "222333", "Edward Blom", "password123")
+        val dataString = Json.encodeToString(data)
         val sc = SignalingClient()
-        sc.sendCommand(SignalingCommand.OFFER, "test-message")
+        sc.sendCommand(dataString)
     }
 }
 
@@ -90,6 +99,3 @@ fun View.showSnackbar(
         snackbar.show()
     }
 }
-
-
-
