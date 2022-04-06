@@ -6,13 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.appcompat.app.AppCompatActivity
-
 
 
 class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
@@ -23,8 +22,8 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     private lateinit var confirmContact: View
     private lateinit var contactName: TextView
     private lateinit var contactNumber: TextView
-    private val contacts = ArrayList<Contact>()
-
+    private val contacts = ArrayList<User>()
+    private val profileFragmentViewModel : ProfileFragmentViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,9 +45,9 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         contactNumber.visibility = View.GONE
         addContactText.visibility = View.GONE
 
+        profileFragmentViewModel.getUsers()
 
-
-        var test = Contact("hej", "0506066")
+        var test = User("hej", "då", "01235460")
         contacts?.add(test)
         print(contacts)
         val recyclerView = view.findViewById<RecyclerView>(R.id.contactList)
@@ -85,7 +84,7 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
             confirmContact.visibility = View.GONE
             addContactText.visibility = View.GONE
 
-            var newCont = Contact(contactName.text.toString(), contactNumber.text.toString())
+            var newCont = User(contactName.text.toString(), "dådådå", contactNumber.text.toString())
             contacts.add(newCont)
             if (adapter != null) {
                 adapter.notifyDataSetChanged()

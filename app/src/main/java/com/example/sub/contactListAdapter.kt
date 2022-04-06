@@ -1,6 +1,5 @@
 package com.example.sub
 
-import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-class contactListAdapter(contactList: ArrayList<Contact>, onClickListener: profileFragment) :
+class contactListAdapter(userList: ArrayList<User>, onClickListener: profileFragment) :
     RecyclerView.Adapter<contactListAdapter.ViewHolder>() {
     interface ListItemClickListener {
         fun onListItemClick(position: Int)
@@ -44,25 +43,25 @@ class contactListAdapter(contactList: ArrayList<Contact>, onClickListener: profi
         viewHolder: ViewHolder,
         position: Int
     ) {
-        viewHolder.contactName.setText(contactList_!![position].number)
+        viewHolder.contactName.setText(userList_!![position].number)
         viewHolder.contactNumber
-              .setText(contactList_!![position].name)
+              .setText(userList_!![position].firstName)
     }
 
     override fun getItemCount(): Int {
-        return if (contactList_ == null) {
+        return if (userList_ == null) {
             0
-        } else contactList_!!.size
+        } else userList_!!.size
     }
 
     companion object {
         private var mOnClickListener: ListItemClickListener? = null
-        private var contactList_: ArrayList<Contact>? = null
+        private var userList_: ArrayList<User>? = null
     }
 
     init {
         mOnClickListener = onClickListener
-        contactList_ = contactList
+        userList_ = userList
     }
 }
 
