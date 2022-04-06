@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity() {
 
         val data = User("connect", "test@domain.com", "222333", "Edward Blom", "password123")
         val dataString = Json.encodeToString(data)
+        println(dataString)
         val sc = SignalingClient()
         sc.sendCommand(dataString)
     }
