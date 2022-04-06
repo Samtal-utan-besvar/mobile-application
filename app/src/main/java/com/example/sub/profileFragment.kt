@@ -23,6 +23,7 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     private lateinit var confirmContact: View
     private lateinit var contactName: TextView
     private lateinit var contactNumber: TextView
+    private val contacts = ArrayList<Contact>()
 
 
     override fun onCreateView(
@@ -45,7 +46,7 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         contactNumber.visibility = View.GONE
         addContactText.visibility = View.GONE
 
-        val contacts = ArrayList<Contact>()
+
 
         var test = Contact("hej", "0506066")
         contacts?.add(test)
@@ -98,6 +99,6 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     }
 
     override fun onListItemClick(position: Int) {
-        TODO("Not yet implemented")
+        System.out.print(position)
     }
 }

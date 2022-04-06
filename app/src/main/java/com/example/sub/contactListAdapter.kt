@@ -40,8 +40,6 @@ class contactListAdapter(contactList: ArrayList<Contact>, onClickListener: profi
         return ViewHolder(view)
     }
 
-
-
     override fun onBindViewHolder(
         viewHolder: ViewHolder,
         position: Int
