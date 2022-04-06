@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.databinding.ActivityPermissionBinding
+import com.example.sub.session.ServiceLocator
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -75,12 +76,15 @@ class MainActivity : AppCompatActivity() {
     data class User(val Reason : String, val Email : String, val PhoneNumber : String, val Name: String, val Password: String)
 
     fun onClickSignalServer(view: View){
+        val webRtcSessionManager = ServiceLocator.webRtcSessionManager
 
+        /*
         val data = User("connect", "test@domain.com", "222333", "Edward Blom", "password123")
         val dataString = Json.encodeToString(data)
         println(dataString)
         val sc = SignalingClient()
         sc.sendCommand(dataString)
+        */
     }
 }
 
