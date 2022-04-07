@@ -1,5 +1,6 @@
 package com.example.sub.ui.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import com.example.sub.MainActivity
 import com.example.sub.R
 import com.example.sub.databinding.FragmentRegistrationBinding
 
@@ -107,7 +109,7 @@ class RegistrationFragment : Fragment() {
         }
 
         toRegistrationButton.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_loginFragment)
+            Navigation.findNavController(view).navigate(R.id.action_registrationFragment2_to_loginFragment2)
         }
     }
 
@@ -117,7 +119,11 @@ class RegistrationFragment : Fragment() {
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
 
-        Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_profileFragment)
+        activity?.let{
+            val intent = Intent (it, MainActivity::class.java)
+            it.startActivity(intent)
+        }
+        requireActivity().finish()
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {

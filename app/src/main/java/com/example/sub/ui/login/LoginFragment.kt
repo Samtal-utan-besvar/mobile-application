@@ -1,6 +1,7 @@
 package com.example.sub.ui.login
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -17,6 +18,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.example.sub.CallingFragment
+import com.example.sub.MainActivity
 import com.example.sub.R
 import com.example.sub.databinding.FragmentLoginBinding
 
@@ -60,7 +63,7 @@ class LoginFragment : Fragment() {
         }
 
         if (loginViewModel.isLoggedIn() || LOGIN_DISABLED) {
-            navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
+//            navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
         }
 
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
@@ -127,7 +130,7 @@ class LoginFragment : Fragment() {
         }
 
         toRegistrationButton.setOnClickListener {
-            navController!!.navigate(R.id.action_loginFragment_to_registrationFragment)
+            navController!!.navigate(R.id.action_loginFragment2_to_registrationFragment2)
             Log.d("myDebug", "To registration")
         }
     }
@@ -137,7 +140,13 @@ class LoginFragment : Fragment() {
         // TODO : initiate successful logged in experience
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
-        navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
+//        navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
+
+        activity?.let{
+            val intent = Intent (it, MainActivity::class.java)
+            it.startActivity(intent)
+        }
+        requireActivity().finish()
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
@@ -150,16 +159,9 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        val callback: OnBackPressedCallback =
-            object : OnBackPressedCallback(true)
-            {
-                override fun handleOnBackPressed() {}
-            }
-        requireActivity().onBackPressedDispatcher.addCallback(
-            this,
-            callback
-        )
+    companion object {
+        fun newInstance(): CallingFragment {
+            return CallingFragment()
+        }
     }
 }

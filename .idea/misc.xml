@@ -3,6 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Josef/StudioProjects/mobile-application/app/src/main/res/layout-w1240dp/activity_login.xml" value="0.2001338688085676" />
+        <entry key="..\:/Users/Josef/StudioProjects/mobile-application/app/src/main/res/layout-w936dp/activity_login.xml" value="0.23359375" />
+        <entry key="..\:/Users/Josef/StudioProjects/mobile-application/app/src/main/res/layout/activity_login.xml" value="0.5163043478260869" />
+        <entry key="..\:/Users/Josef/StudioProjects/mobile-application/app/src/main/res/layout/activity_login_reg.xml" value="0.379981884057971" />
+        <entry key="..\:/Users/Josef/StudioProjects/mobile-application/app/src/main/res/layout/activity_main.xml" value="0.31145833333333334" />
+        <entry key="..\:/Users/Josef/StudioProjects/mobile-application/app/src/main/res/layout/fragment_login.xml" value="0.25226449275362317" />
         <entry key="..\:/Users/Josef/StudioProjects/mobile-application/app/src/main/res/layout/fragment_profile.xml" value="0.16666666666666666" />
         <entry key="..\:/Users/Maxiboi/mobile-application/app/src/main/res/layout/activity_main.xml" value="0.24954710144927536" />
         <entry key="..\:/Users/Maxiboi/mobile-application/app/src/main/res/layout/fragment_calling.xml" value="0.36666666666666664" />

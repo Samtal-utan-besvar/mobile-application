@@ -1,6 +1,7 @@
 package com.example.sub
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import com.example.sub.ui.login.LoginViewModel
 import com.example.sub.data.model.LoggedInUser
+import com.example.sub.ui.login.LoginActivity
 import com.example.sub.ui.login.LoginViewModelFactory
 
 
@@ -41,29 +43,17 @@ class ProfileFragment : Fragment() {
         }
         view.findViewById<View>(R.id.logout).setOnClickListener {
             loginViewModel.loginRepository.logout()
-            navController!!.navigate(
-                R.id.action_profileFragment_to_loginFragment
-            )
+            activity?.let{
+                val intent = Intent (it, LoginActivity::class.java)
+                it.startActivity(intent)
+            }
+            requireActivity().finish()
         }
     }
 
     private fun getLoggedInUser(): LoggedInUser? {
         return loginViewModel.loginRepository.user
     }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        val callback: OnBackPressedCallback =
-            object : OnBackPressedCallback(true)
-            {
-                override fun handleOnBackPressed() {}
-            }
-            requireActivity().onBackPressedDispatcher.addCallback(
-                this,
-                callback
-            )
-    }
-
 
     companion object {
         fun newInstance(): CallingFragment {
