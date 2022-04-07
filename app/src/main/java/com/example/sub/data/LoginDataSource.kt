@@ -1,6 +1,5 @@
 package com.example.sub.data
 
-import com.example.sub.data.model.LoggedInUser
 import java.io.IOException
 
 /**
@@ -9,22 +8,24 @@ import java.io.IOException
 class LoginDataSource {
 
     fun register(username: String, password: String): Result<LoggedInUser> {
-        try {
+        return try {
             // TODO: handle loggedInUser authentication
             val fakeUser = LoggedInUser("1", "Jane Registration")
-            return Result.Success(fakeUser)
+            Result.Success(fakeUser)
         } catch (e: Throwable) {
-            return Result.Error(IOException("Error logging in", e))
+            Result.Error(IOException("Error logging in", e))
         }
     }
 
     fun login(username: String, password: String): Result<LoggedInUser> {
-        try {
+        return try {
             // TODO: handle loggedInUser authentication
-            val fakeUser = LoggedInUser("1", "Jane Login")
-            return Result.Success(fakeUser)
+            var userToken = "PLACEHOLDER TOKEN FROM DATA SOURCE"
+
+            val fakeUser = LoggedInUser(userToken, "Jane Login")
+            Result.Success(fakeUser)
         } catch (e: Throwable) {
-            return Result.Error(IOException("Error logging in", e))
+            Result.Error(IOException("Error logging in", e))
         }
     }
 

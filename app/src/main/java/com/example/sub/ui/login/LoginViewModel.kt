@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.example.sub.R
 import com.example.sub.data.LoginRepository
 import com.example.sub.data.Result
+import com.example.sub.data.LoggedInUser
 
 class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
@@ -65,5 +66,9 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
     fun isLoggedIn(): Boolean {
         return loginRepository.isLoggedIn
+    }
+
+    fun getUser(): LoggedInUser? {
+        return loginRepository.user
     }
 }

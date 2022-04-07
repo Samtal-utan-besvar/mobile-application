@@ -1,7 +1,6 @@
 package com.example.sub.ui.login
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,21 +10,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import com.example.sub.CallingFragment
-import com.example.sub.MainActivity
 import com.example.sub.R
 import com.example.sub.databinding.FragmentLoginBinding
 
 
 const val AUTOLOGIN_DISABLED = false     // for debugging purposes
-const val LOGIN_DISABLED = false         // for debugging purposes
 
 class LoginFragment : Fragment() {
 
@@ -33,7 +28,6 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private var navController: NavController? = null
-
 
 
     override fun onCreateView(
@@ -48,8 +42,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-        loginViewModel =
-            ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
 
         val usernameEditText = binding.username
         val passwordEditText = binding.password
@@ -62,8 +55,8 @@ class LoginFragment : Fragment() {
             sharedPref!!.edit().clear().apply()
         }
 
-        if (loginViewModel.isLoggedIn() || LOGIN_DISABLED) {
-//            navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
+        if (loginViewModel.isLoggedIn()) {
+            (activity as LoginActivity?)!!.startMainActivity()
         }
 
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
@@ -137,16 +130,9 @@ class LoginFragment : Fragment() {
 
     private fun updateUiWithUser(model: LoggedInUserView, view: View) {
         val welcome = getString(R.string.welcome) + model.displayName
-        // TODO : initiate successful logged in experience
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
-//        navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
-
-        activity?.let{
-            val intent = Intent (it, MainActivity::class.java)
-            it.startActivity(intent)
-        }
-        requireActivity().finish()
+        (activity as LoginActivity?)!!.startMainActivity()
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
@@ -157,11 +143,5 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        fun newInstance(): CallingFragment {
-            return CallingFragment()
-        }
     }
 }

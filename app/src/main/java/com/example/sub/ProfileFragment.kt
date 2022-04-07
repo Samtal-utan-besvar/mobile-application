@@ -1,19 +1,16 @@
 package com.example.sub
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import com.example.sub.ui.login.LoginViewModel
-import com.example.sub.data.model.LoggedInUser
-import com.example.sub.ui.login.LoginActivity
+import com.example.sub.data.LoggedInUser
 import com.example.sub.ui.login.LoginViewModelFactory
 
 
@@ -43,16 +40,18 @@ class ProfileFragment : Fragment() {
         }
         view.findViewById<View>(R.id.logout).setOnClickListener {
             loginViewModel.loginRepository.logout()
-            activity?.let{
-                val intent = Intent (it, LoginActivity::class.java)
-                it.startActivity(intent)
-            }
-            requireActivity().finish()
+            (activity as MainActivity?)!!.startLoginActivity()
         }
+
+        Log.d("myDebug", "getUserToken(): " + getUserToken())
     }
 
-    private fun getLoggedInUser(): LoggedInUser? {
-        return loginViewModel.loginRepository.user
+    private fun getUserName(): String? {
+        return loginViewModel.loginRepository.user?.displayName
+    }
+
+    private fun getUserToken(): String? {
+        return loginViewModel.loginRepository.user?.userToken
     }
 
     companion object {

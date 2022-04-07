@@ -1,9 +1,9 @@
-package com.example.sub.data.model
+package com.example.sub.data
 
 /**
  * Data class that captures user information for logged in users retrieved from LoginRepository
  */
 data class LoggedInUser(
-    val userId: String,
+    val userToken: String,
     val displayName: String
 )
