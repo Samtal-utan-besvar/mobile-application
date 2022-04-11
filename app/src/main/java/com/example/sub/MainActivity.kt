@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.databinding.ActivityPermissionBinding
-import com.example.sub.session.ServiceLocator
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -19,6 +18,9 @@ import kotlinx.serialization.Serializable
 import org.json.JSONObject
 import kotlinx.coroutines.launch
 
+import com.example.sub.session.Websocket
+import okhttp3.*
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     private lateinit var layout: View
@@ -76,7 +78,17 @@ class MainActivity : AppCompatActivity() {
     data class User(val Reason : String, val Email : String, val PhoneNumber : String, val Name: String, val Password: String)
 
     fun onClickSignalServer(view: View){
-        val webRtcSessionManager = ServiceLocator.webRtcSessionManager
+        // wss test
+        val client = OkHttpClient.Builder()
+            .readTimeout(3, TimeUnit.SECONDS)
+            //.sslSocketFactory()
+            .build()
+        val request = Request.Builder()
+            .url("ws://144.24.171.133:4000") // 'ws'
+            .build()
+        val wsListener = Websocket ()
+        val webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
+
 
         /*
         val data = User("connect", "test@domain.com", "222333", "Edward Blom", "password123")
