@@ -18,7 +18,7 @@ import kotlinx.serialization.Serializable
 import org.json.JSONObject
 import kotlinx.coroutines.launch
 
-import com.example.sub.session.Websocket
+import com.example.sub.session.SignalWebsocketListener
 import okhttp3.*
 import java.util.concurrent.TimeUnit
 
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         val request = Request.Builder()
             .url("ws://144.24.171.133:4000") // 'ws'
             .build()
-        val wsListener = Websocket ()
+        val wsListener = SignalWebsocketListener ()
         val webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
 
 
