@@ -11,6 +11,8 @@ import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import com.example.sub.session.CallMessage
+import com.example.sub.session.ClientFactory
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -72,12 +74,25 @@ class callingFragment : Fragment() {
         val simpleChronometer =
             view.findViewById(R.id.simpleChronometer) as Chronometer // initiate a chronometer
         simpleChronometer.start() // start a chronometer
+
+        test()
     }
 
-        companion object {
+    companion object {
         fun newInstance(): callingFragment {
             return callingFragment()
         }
+    }
+
+    fun test() {
+        val sc = ClientFactory.getSignalClient()
+
+        val num1 = "1319131313"
+        val num2 = "1319151313"
+
+        val callData = CallMessage(num1, num2, "")
+
+        sc.sendMessage(callData)
     }
 }
 

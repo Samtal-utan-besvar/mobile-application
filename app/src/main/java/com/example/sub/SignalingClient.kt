@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
@@ -37,8 +39,8 @@ class SignalingClient {
         webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
     }
 
-    fun sendMessage() {
-        val msg = ConnectMessage("connect", TOKEN)
+    fun sendMessage(message: Message) {
+        webSocket?.send(Json.encodeToString(Message))
     }
 
 }

@@ -1,11 +1,22 @@
 package com.example.sub.session
 
-abstract class Message {
-    abstract var REASON: String
+import kotlinx.serialization.Serializable
+
+@Serializable
+abstract class Message(var REASON: String) {
+    var reason: String = REASON
 }
 
+@Serializable
 data class ConnectMessage(
-    override var REASON: String = "connect",
     var TOKEN: String
-) : Message()
+) : Message("connect")
+
+
+@Serializable
+data class CallMessage(
+    var CALLER_PHONE_NUMBER: String,
+    var TARGET_PHONE_NUMBER: String,
+    var SDP: String
+) : Message("call")
 
