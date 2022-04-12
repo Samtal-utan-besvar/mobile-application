@@ -12,6 +12,7 @@
     <string name="action_sign_in_short">Logga in</string>
     <string name="welcome">"Välkommen!"</string>
     <string name="invalid_username">Inte giltigt användarnamn</string>
+    <string name="invalid_mail">Inte giltig e-postadress</string>
     <string name="invalid_phone_number">Inte giltigt telefonnummer</string>
     <string name="invalid_password">Lösenord är för kort</string>
     <string name="login_failed">"Inloggning misslyckad"</string>

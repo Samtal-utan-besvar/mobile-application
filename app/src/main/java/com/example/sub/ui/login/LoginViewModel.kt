@@ -39,7 +39,7 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
     fun loginDataChanged(email: String, password: String) {
         if (!isEmailValid(email)) {
-            _loginForm.value = LoginFormState(phoneNumberError = R.string.invalid_phone_number)
+            _loginForm.value = LoginFormState(phoneNumberError = R.string.invalid_mail)
         } else if (!isPasswordValid(password)) {
             _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
         } else {

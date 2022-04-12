@@ -138,6 +138,9 @@ class LoginFragment : Fragment() {
     }
 
     private fun updateUiWithUser(model: LoggedInUserView, view: View) {
+        val welcome = getString(R.string.welcome)
+        val appContext = context?.applicationContext ?: return
+        Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
         (activity as LoginActivity?)!!.startMainActivity()
     }
 

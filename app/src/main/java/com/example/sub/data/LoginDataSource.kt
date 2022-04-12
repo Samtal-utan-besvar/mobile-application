@@ -12,6 +12,9 @@ import java.io.IOException
  */
 class LoginDataSource {
 
+    private val url = "http://144.24.171.133:8080/"
+    private val urlLocal = "http://10.0.2.2:8080/"
+
     fun register(username: String, password: String): Result<LoggedInUser> {
         return try {
             // TODO: handle loggedInUser authentication
@@ -25,10 +28,9 @@ class LoginDataSource {
     suspend fun login(email: String, password: String): Result<LoggedInUser> {
         return try {
             withContext(Dispatchers.IO) {
-                val user = loginCredentials(email, password)
-
-//                val (_, _, result) = "http://10.0.2.2:8080/login".httpPost()  // local database
-                val (_, _, result) = "http://144.24.171.133:8080/login".httpPost()
+                val loginURL = urlLocal + "login"
+                val user = LoginCredentials(email, password)
+                val (_, _, result) = loginURL.httpPost()
                     .jsonBody(Gson().toJson(user).toString())
                     .responseString()
 
@@ -52,7 +54,7 @@ class LoginDataSource {
     }
 }
 
-data class loginCredentials(
+data class LoginCredentials(
     val email: String,
     val password: String
 )
