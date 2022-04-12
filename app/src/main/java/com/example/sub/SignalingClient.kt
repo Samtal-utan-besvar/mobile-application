@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 private const val SIGNALING_URL = "ws://144.24.171.133:4000" // use local ip for devices in local network
 
 class SignalingClient {
-    private var TOKEN : String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVuaWNlMkBkb21haWFzZGFkbi5wb2ciLCJpYXQiOjE2NDk2ODE4MTIsImV4cCI6MTY1MDI4NjYxMn0.vZbWIhaegXrfpOyZ7qvId7xhwuMHserwFoHFVI0k5_g"
+    private var TOKEN : String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWV0aGNlM0Bkb21haW4ucG9nIiwiaWF0IjoxNjQ5NzY3NTc3LCJleHAiOjE2NTAzNzIzNzd9.XdSdDyQoNgPsglMteisgicvGQZBmnWFeVVmo4S8ZGUs"
     private var webSocket: WebSocket? = null
 
     fun connect(){
