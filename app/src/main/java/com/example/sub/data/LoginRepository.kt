@@ -32,10 +32,10 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         user = null
         dataSource.logout()
         removeLoggedInUser()
-        Log.d("myDebug", "(LOGOUT):\t" + user.toString())
+        Log.d("myDebug", "(LOGOUT):\t" + user.toString())   // For debugging, should log null
     }
 
-    fun login(username: String, password: String): Result<LoggedInUser> {
+    suspend fun login(username: String, password: String): Result<LoggedInUser> {
         val result = dataSource.login(username, password)
         if (result is Result.Success) {
             setLoggedInUser(result.data)

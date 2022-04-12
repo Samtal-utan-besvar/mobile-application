@@ -14,13 +14,17 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.sub.R
 import com.example.sub.databinding.FragmentLoginBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
-const val AUTOLOGIN_DISABLED = false     // for debugging purposes
+const val AUTOLOGIN_DISABLED = true     // for debugging purposes
 
 class LoginFragment : Fragment() {
 
@@ -106,20 +110,25 @@ class LoginFragment : Fragment() {
         passwordEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                loginViewModel.login(
-                    usernameEditText.text.toString(),
-                    passwordEditText.text.toString()
-                )
+                viewLifecycleOwner.lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        loginViewModel.login(usernameEditText.text.toString(),passwordEditText.text.toString())
+                    }
+                }
             }
             false
         }
 
         loginButton.setOnClickListener {
             loadingProgressBar.visibility = View.VISIBLE
-            loginViewModel.login(
-                usernameEditText.text.toString(),
-                passwordEditText.text.toString()
-            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    loginViewModel.login(
+                        usernameEditText.text.toString(),
+                        passwordEditText.text.toString()
+                    )
+                }
+            }
         }
 
         toRegistrationButton.setOnClickListener {
@@ -129,9 +138,6 @@ class LoginFragment : Fragment() {
     }
 
     private fun updateUiWithUser(model: LoggedInUserView, view: View) {
-        val welcome = getString(R.string.welcome) + model.displayName
-        val appContext = context?.applicationContext ?: return
-        Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
         (activity as LoginActivity?)!!.startMainActivity()
     }
 
