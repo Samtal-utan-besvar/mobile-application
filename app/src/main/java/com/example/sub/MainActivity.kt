@@ -74,19 +74,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @Serializable
-    data class User(val Reason : String, val Email : String, val PhoneNumber : String, val Name: String, val Password: String)
-
+    // Test Button
     fun onClickSignalServer(view: View){
-        val sc = SignalingClient()
-        sc.connect()
-        /*
-        val data = User("connect", "test@domain.com", "222333", "Edward Blom", "password123")
-        val dataString = Json.encodeToString(data)
-        println(dataString)
-        val sc = SignalingClient()
-        sc.sendCommand(dataString)
-        */
+        val websocketClient = SignalingClient()
+        websocketClient.connect()
     }
 }
 

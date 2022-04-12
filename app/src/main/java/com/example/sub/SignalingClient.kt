@@ -1,6 +1,7 @@
 package com.example.sub
 
 import android.util.Log
+import com.example.sub.session.ConnectMessage
 import com.example.sub.session.Message
 import com.example.sub.session.SignalWebsocketListener
 import kotlinx.coroutines.CoroutineScope
@@ -18,10 +19,9 @@ import okhttp3.WebSocketListener
 import java.util.concurrent.TimeUnit
 
 private const val SIGNALING_URL = "ws://144.24.171.133:4000" // use local ip for devices in local network
-private const val TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVuaWNlMkBkb21haWFzZGFkbi5wb2ciLCJpYXQiOjE2NDk2ODE4MTIsImV4cCI6MTY1MDI4NjYxMn0.vZbWIhaegXrfpOyZ7qvId7xhwuMHserwFoHFVI0k5_g"
 
 class SignalingClient {
-
+    private var TOKEN : String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVuaWNlMkBkb21haWFzZGFkbi5wb2ciLCJpYXQiOjE2NDk2ODE4MTIsImV4cCI6MTY1MDI4NjYxMn0.vZbWIhaegXrfpOyZ7qvId7xhwuMHserwFoHFVI0k5_g"
     private var webSocket: WebSocket? = null
 
     fun connect(){
@@ -38,7 +38,7 @@ class SignalingClient {
     }
 
     fun sendMessage() {
-        val msg = Message("test")
+        val msg = ConnectMessage("connect", TOKEN)
     }
 
 }
