@@ -64,5 +64,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
     androidTestImplementation 'androidx.test:rules:1.4.1-alpha05'
 
+    androidTestImplementation('androidx.test.espresso:espresso-intents:3.4.0')
+
 
 }
