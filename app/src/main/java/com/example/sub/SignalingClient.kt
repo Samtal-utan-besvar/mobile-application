@@ -41,12 +41,8 @@ class SignalingClient {
         webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
     }
 
-    fun sendMessage(message: CallMessage) {
+    fun sendCallMessage(message: CallMessage) {
         val msg = Json.encodeToString(message)
-        val message2: Message = message
-        val msg2 = Json.encodeToString(message2)
-        Log.d("test", msg)
-        Log.d("test", msg2)
         webSocket?.send(msg)
     }
 

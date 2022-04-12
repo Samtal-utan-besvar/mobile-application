@@ -30,6 +30,8 @@ private const val ARG_PARAM2 = "param2"
  */
 class callingFragment : Fragment() {
     private var navController: NavController? = null
+    private var signalingClient: SignalingClient? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -78,7 +80,10 @@ class callingFragment : Fragment() {
             view.findViewById(R.id.simpleChronometer) as Chronometer // initiate a chronometer
         simpleChronometer.start() // start a chronometer
 
-        test()
+        // Initiate a call request to the contact
+        signalingClient = ClientFactory.getSignalClient()
+        var contactPhoneNumber = "1319151313"
+        callContact(contactPhoneNumber)
     }
 
     companion object {
@@ -87,17 +92,12 @@ class callingFragment : Fragment() {
         }
     }
 
-    fun test() {
-        val sc = ClientFactory.getSignalClient()
+    // Call contact based on phone number
+    fun callContact(phoneNumber: String) {
+        val userPhoneNumber = "1319131313"
+        val callData = CallMessage(userPhoneNumber, phoneNumber, "rick roll")
 
-        val num1 = "1319131313"
-        val num2 = "1319151313"
-
-        val callData = CallMessage(num1, num2, "rick roll")
-
-        Log.d("hej" ,Json.encodeToString(callData))
-
-        sc.sendMessage(callData)
+        signalingClient?.sendCallMessage(callData)
     }
 }
 
