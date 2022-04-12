@@ -11,9 +11,12 @@ import kotlinx.serialization.json.*
 @Serializable
 data class testData(val REASON: String, val TOKEN: String);
 
-public class SignalWebsocketListener : WebSocketListener() {
+public class SignalWebsocketListener(val TOKEN: String) : WebSocketListener() {
+
+
+
     override fun onOpen(webSocket: WebSocket, response: Response) {
-        webSocket.send(Json.encodeToString(testData("connect", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVuaWNlMkBkb21haWFzZGFkbi5wb2ciLCJpYXQiOjE2NDk2ODE4MTIsImV4cCI6MTY1MDI4NjYxMn0.vZbWIhaegXrfpOyZ7qvId7xhwuMHserwFoHFVI0k5_g")));
+        webSocket.send(Json.encodeToString(testData("connect", TOKEN)));
         Log.d("WS-Listener: ", "Websocket Opened!")
     }
 
