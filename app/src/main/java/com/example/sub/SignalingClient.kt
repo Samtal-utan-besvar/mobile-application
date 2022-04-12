@@ -1,6 +1,7 @@
 package com.example.sub
 
 import android.util.Log
+import com.example.sub.session.CallMessage
 import com.example.sub.session.ConnectMessage
 import com.example.sub.session.Message
 import com.example.sub.session.SignalWebsocketListener
@@ -24,6 +25,7 @@ private const val SIGNALING_URL = "ws://144.24.171.133:4000" // use local ip for
 
 class SignalingClient {
     private var TOKEN : String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWV0aGNlM0Bkb21haW4ucG9nIiwiaWF0IjoxNjQ5NzY3NTc3LCJleHAiOjE2NTAzNzIzNzd9.XdSdDyQoNgPsglMteisgicvGQZBmnWFeVVmo4S8ZGUs"
+
     private var webSocket: WebSocket? = null
 
     fun connect(){
@@ -39,8 +41,13 @@ class SignalingClient {
         webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
     }
 
-    fun sendMessage(message: Message) {
-        webSocket?.send(Json.encodeToString(Message))
+    fun sendMessage(message: CallMessage) {
+        val msg = Json.encodeToString(message)
+        val message2: Message = message
+        val msg2 = Json.encodeToString(message2)
+        Log.d("test", msg)
+        Log.d("test", msg2)
+        webSocket?.send(msg)
     }
 
 }
