@@ -2,6 +2,7 @@ package com.example.sub
 
 import android.R.attr.data
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,8 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import com.example.sub.session.CallMessage
 import com.example.sub.session.ClientFactory
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -90,7 +93,9 @@ class callingFragment : Fragment() {
         val num1 = "1319131313"
         val num2 = "1319151313"
 
-        val callData = CallMessage(num1, num2, "")
+        val callData = CallMessage(num1, num2, "rick roll")
+
+        Log.d("hej" ,Json.encodeToString(callData))
 
         sc.sendMessage(callData)
     }
