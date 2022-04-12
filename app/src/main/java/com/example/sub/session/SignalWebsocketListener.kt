@@ -14,7 +14,8 @@ data class testData(val REASON: String, val TOKEN: String);
 public class SignalWebsocketListener(val TOKEN: String) : WebSocketListener() {
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
-        webSocket.send(Json.encodeToString(testData("connect", TOKEN)));
+        val v = ConnectMessage(TOKEN)
+        webSocket.send(Json.encodeToString(v));
         Log.d("WS-Listener: ", "Websocket Opened!")
     }
 

@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.databinding.ActivityPermissionBinding
+import com.example.sub.session.ClientFactory
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         //val view = binding.root
         layout = binding.permissionLayout
         setContentView(R.layout.activity_main)
+        ClientFactory.getSignalClient().connect()
     }
 
     private val requestPermissionLauncher =
@@ -76,8 +78,12 @@ class MainActivity : AppCompatActivity() {
 
     // Test Button
     fun onClickSignalServer(view: View){
-        val websocketClient = SignalingClient()
-        websocketClient.connect()
+        //val websocketClient = SignalingClient()
+        //websocketClient.connect()
+        val sc1 = ClientFactory.getSignalClient()
+        val sc2 = ClientFactory.getSignalClient()
+        Log.d("", sc1.toString())
+        Log.d("", sc2.toString())
     }
 }
 
