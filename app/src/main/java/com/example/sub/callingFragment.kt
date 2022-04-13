@@ -71,7 +71,7 @@ class callingFragment : Fragment() {
         adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
         adapter.add(ChatFromItem("blablablablabla"))
         adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
 
 
 
