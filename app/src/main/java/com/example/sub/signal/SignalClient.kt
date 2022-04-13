@@ -14,6 +14,11 @@ class SignalClient {
     private var TOKEN : String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWV0aGNlM0Bkb21haW4ucG9nIiwiaWF0IjoxNjQ5NzY3NTc3LCJleHAiOjE2NTAzNzIzNzd9.XdSdDyQoNgPsglMteisgicvGQZBmnWFeVVmo4S8ZGUs"
 
     private var webSocket: WebSocket? = null
+    var signalListeners = ArrayList<SignalListener>()
+
+    init{
+        connect()
+    }
 
     fun connect(){
         // wss test
@@ -37,9 +42,6 @@ class SignalClient {
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-
-            Log.d("test", text)
-
             val jsonObject = JSONObject(text)
 
             if (jsonObject.has("REASON")) {
@@ -47,13 +49,13 @@ class SignalClient {
                 Log.d("reason", reason)
 
                 when {
-                    text.startsWith(ReasonCommand.CALL.toString(), true) ->
+                    reason.startsWith(ReasonCommand.CALL.toString(), true) ->
                         handleCallMessage(text)
-                    text.startsWith(ReasonCommand.CALLRESPONSE.toString(), true) ->
+                    reason.startsWith(ReasonCommand.CALLRESPONSE.toString(), true) ->
                         handleCallResponseCommand(text)
-                    text.startsWith(ReasonCommand.ICECANDIDATE.toString(), true) ->
+                    reason.startsWith(ReasonCommand.ICECANDIDATE.toString(), true) ->
                         handleICECandidateCommand(text)
-                    text.startsWith(ReasonCommand.HANGUP.toString(), true) ->
+                    reason.startsWith(ReasonCommand.HANGUP.toString(), true) ->
                         handleHangUpCommand(text)
                 }
 
@@ -81,23 +83,39 @@ class SignalClient {
     }
 
     private fun handleHangUpCommand(text: String) {
-
+        val hangupMessage = Json.decodeFromString(HangupSignalMessage.serializer(), text)
+        signalListeners.forEach {
+            it.onHangupMessageReceived(hangupMessage)
+        }
     }
 
     private fun handleICECandidateCommand(text: String) {
-
+        val iceCandidateMessage = Json.decodeFromString(IceCandidateSignalMessage.serializer(), text)
+        signalListeners.forEach {
+            it.onIceCandidateMessageReceived(iceCandidateMessage)
+        }
     }
 
     private fun handleCallResponseCommand(text: String) {
-
+        val callResponseMessage = Json.decodeFromString(CallResponseSignalMessage.serializer(), text)
+        signalListeners.forEach {
+            it.onCallResponseMessageReceived(callResponseMessage)
+        }
     }
 
     private fun handleCallMessage(text: String) {
         val callMessage = Json.decodeFromString(CallSignalMessage.serializer(), text)
+        signalListeners.forEach {
+            it.onCallMessageReceived(callMessage)
+        }
     }
 
-
     fun sendCallMessage(message: CallSignalMessage) {
+        val msg = Json.encodeToString(message)
+        webSocket?.send(msg)
+    }
+
+    fun sendCallResponseMessage(message: CallResponseSignalMessage) {
         val msg = Json.encodeToString(message)
         webSocket?.send(msg)
     }

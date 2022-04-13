@@ -1,29 +1,47 @@
 package com.example.sub.session
 
+import android.util.Log
+import com.example.sub.signal.*
+
 // This class handles incoming and outgoing calls
-class CallHandler {
+class CallHandler(signalClient: SignalClient) : SignalListener{
 
-    private var onReceivingCallFunction: ((CallSession) -> Unit)? = null
+    var callReceivedListener = ArrayList<(CallSession) -> Unit>()
+    private var activeSession: CallSession? = null
+    private var signalClient: SignalClient = signalClient
 
-
-    fun setOnReceivingCall(func: (CallSession) -> Unit) {
-        onReceivingCallFunction = func
+    init{
+        signalClient.signalListeners.add(this)
     }
 
+    //fun Call(phoneNumber: String): CallSession {
+        //val call: CallSession = CallSession()
+        //return call
+    //}
 
-    private fun onReceivingCall() {
+    override fun onCallMessageReceived(callSignalMessage: CallSignalMessage) {
+        // Call session already active
+        if(activeSession != null){
+            signalClient.sendCallResponseMessage(callSignalMessage.toResponse(false));
+        } else {
+            activeSession = CallSession(signalClient, callSignalMessage, false)
 
-        val call: CallSession = CallSession()
-
-        onReceivingCallFunction?.invoke(call)
+            callReceivedListener.forEach {
+                it.invoke(activeSession!!)
+            }
+        }
     }
 
+    override fun onCallResponseMessageReceived(callResponseSignalMessage: CallResponseSignalMessage) {
+        TODO("Not yet implemented")
+    }
 
-    fun Call(phoneNumber: String): CallSession {
+    override fun onIceCandidateMessageReceived(iceCandidateSignalMessage: IceCandidateSignalMessage) {
+        TODO("Not yet implemented")
+    }
 
-        val call: CallSession = CallSession()
-
-        return call
+    override fun onHangupMessageReceived(hangupSignalMessage: HangupSignalMessage) {
+        TODO("Not yet implemented")
     }
 
 

@@ -83,7 +83,7 @@ class callingFragment : Fragment() {
 
         // Initiate a call request to the contact
         signalingClient = ClientFactory.getSignalClient()
-        var contactPhoneNumber = "1319151313"
+        var contactPhoneNumber = "1319131313"
         callContact(contactPhoneNumber)
     }
 
@@ -95,7 +95,7 @@ class callingFragment : Fragment() {
 
     // Call contact based on phone number
     fun callContact(phoneNumber: String) {
-        val userPhoneNumber = "1319131313"
+        val userPhoneNumber = "1319151313"
         val callData = CallSignalMessage(userPhoneNumber, phoneNumber, "rick roll")
 
         signalingClient?.sendCallMessage(callData)
