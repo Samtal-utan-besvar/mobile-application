@@ -1,6 +1,5 @@
 package com.example.sub
 
-import com.example.sub.SignalingClient
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -11,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.databinding.ActivityPermissionBinding
+import com.example.sub.session.CallHandler
 import com.example.sub.session.ClientFactory
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.*
@@ -19,7 +19,6 @@ import kotlinx.serialization.Serializable
 import org.json.JSONObject
 import kotlinx.coroutines.launch
 
-import com.example.sub.session.SignalWebsocketListener
 import okhttp3.*
 import java.util.concurrent.TimeUnit
 
@@ -35,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         layout = binding.permissionLayout
         setContentView(R.layout.activity_main)
         ClientFactory.getSignalClient().connect()
+
     }
 
     private val requestPermissionLauncher =

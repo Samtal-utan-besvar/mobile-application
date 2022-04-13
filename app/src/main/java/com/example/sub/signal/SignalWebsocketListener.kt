@@ -1,4 +1,4 @@
-package com.example.sub.session
+package com.example.sub.signal
 
 import android.util.Log
 import kotlinx.serialization.json.Json
@@ -14,7 +14,7 @@ data class testData(val REASON: String, val TOKEN: String);
 public class SignalWebsocketListener(val TOKEN: String) : WebSocketListener() {
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
-        val v = ConnectMessage(TOKEN)
+        val v = ConnectSignalMessage(TOKEN)
         webSocket.send(Json.encodeToString(v));
         Log.d("WS-Listener: ", "Websocket Opened!")
     }

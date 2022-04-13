@@ -12,8 +12,9 @@ import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
-import com.example.sub.session.CallMessage
+import com.example.sub.signal.CallSignalMessage
 import com.example.sub.session.ClientFactory
+import com.example.sub.signal.SignalClient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -30,7 +31,7 @@ private const val ARG_PARAM2 = "param2"
  */
 class callingFragment : Fragment() {
     private var navController: NavController? = null
-    private var signalingClient: SignalingClient? = null
+    private var signalingClient: SignalClient? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -95,7 +96,7 @@ class callingFragment : Fragment() {
     // Call contact based on phone number
     fun callContact(phoneNumber: String) {
         val userPhoneNumber = "1319131313"
-        val callData = CallMessage(userPhoneNumber, phoneNumber, "rick roll")
+        val callData = CallSignalMessage(userPhoneNumber, phoneNumber, "rick roll")
 
         signalingClient?.sendCallMessage(callData)
     }

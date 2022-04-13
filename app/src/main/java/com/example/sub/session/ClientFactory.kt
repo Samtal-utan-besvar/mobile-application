@@ -1,15 +1,15 @@
 package com.example.sub.session
 
 import android.util.Log
-import com.example.sub.SignalingClient
+import com.example.sub.signal.SignalClient
 
 object ClientFactory {
 
-    private var _signalClient: SignalingClient? = null
+    private var _signalClient: SignalClient? = null
 
-    fun getSignalClient(): SignalingClient {
+    fun getSignalClient(): SignalClient {
         if (_signalClient == null) {
-            _signalClient = SignalingClient()
+            _signalClient = SignalClient()
             Log.d("", "Create new client!")
         }
         return _signalClient!!
