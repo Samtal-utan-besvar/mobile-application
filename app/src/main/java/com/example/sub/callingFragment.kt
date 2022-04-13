@@ -6,11 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Chronometer
+import android.widget.TextView
 import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import androidx.recyclerview.widget.RecyclerView
+import com.xwray.groupie.GroupieAdapter
+import com.xwray.groupie.GroupieViewHolder
+import com.xwray.groupie.Item
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -24,7 +29,13 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class callingFragment : Fragment() {
+
+    private var adapter = GroupieAdapter()
+
+
     private var navController: NavController? = null
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,7 +52,28 @@ class callingFragment : Fragment() {
             navController!!.navigate(
                 R.id.action_callingFragment_to_userProfile
             )
+
+
         }
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
+        recyclerView.adapter = adapter
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+
+
+
 
         // onClick for Speaker toggleButton
         val toggleButtonSilentMode: ToggleButton = view.findViewById(R.id.toggleButtonSilentMode)
@@ -80,4 +112,21 @@ class callingFragment : Fragment() {
         }
     }
 }
+
+class ChatFromItem(val text: String): Item<GroupieViewHolder>(){
+    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+        viewHolder.itemView.findViewById<TextView>(R.id.text_view_from).text = text
+
+    }
+
+    override fun getLayout() = R.layout.chat_from_row
+}
+class ChatToItem(val text:String): Item<GroupieViewHolder>(){
+    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+        viewHolder.itemView.findViewById<TextView>(R.id.text_view_to).text = text
+    }
+
+    override fun getLayout() = R.layout.chat_to_row
+}
+
 
