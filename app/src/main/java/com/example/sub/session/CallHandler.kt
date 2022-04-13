@@ -24,7 +24,8 @@ class CallHandler(signalClient: SignalClient) : SignalListener{
         if(activeSession != null){
             signalClient.sendCallResponseMessage(callSignalMessage.toResponse(false));
         } else {
-            activeSession = CallSession(signalClient, callSignalMessage, false)
+            activeSession = CallSession(signalClient)
+            activeSession!!.answerCall(callSignalMessage)
 
             callReceivedListener.forEach {
                 it.invoke(activeSession!!)
