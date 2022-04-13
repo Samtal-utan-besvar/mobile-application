@@ -5,13 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+
 
 
 class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
@@ -20,8 +22,11 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     private lateinit var addContactBttn: View
     private lateinit var addContactText: View
     private lateinit var confirmContact: View
-    private lateinit var contactName: TextView
+    private lateinit var contactFirstName: TextView
+    private lateinit var contactLastName: TextView
     private lateinit var contactNumber: TextView
+    private lateinit var contactList: RecyclerView
+    private lateinit var contactGroup: Group
     private val contacts = ArrayList<User>()
     private val profileFragmentViewModel : ProfileFragmentViewModel by activityViewModels()
 
@@ -37,13 +42,16 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         addContactBttn = view.findViewById(R.id.addContact)
         addContactText = view.findViewById(R.id.addContactText)
         confirmContact = view.findViewById(R.id.confirmContact)
-        contactName = view.findViewById(R.id.contactName)
+        contactFirstName = view.findViewById(R.id.contactFirstName)
+        contactLastName = view.findViewById(R.id.contactLastName)
         contactNumber = view.findViewById(R.id.contactNr)
-
-        confirmContact.visibility = View.GONE
-        contactName.visibility = View.GONE
-        contactNumber.visibility = View.GONE
-        addContactText.visibility = View.GONE
+        contactGroup = view.findViewById(R.id.addContactGroup)
+        contactList = view.findViewById(R.id.contactList)
+        contactGroup.visibility = View.GONE
+        //confirmContact.visibility = View.GONE
+        //contactName.visibility = View.GONE
+        //contactNumber.visibility = View.GONE
+        //addContactText.visibility = View.GONE
 
         profileFragmentViewModel.getUsers()
 
@@ -72,32 +80,43 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         }
 
         view.findViewById<View>(R.id.addContact).setOnClickListener {
-            addContactBttn.visibility = View.GONE
-            confirmContact.visibility = View.VISIBLE
-            contactName.visibility = View.VISIBLE
-            contactNumber.visibility = View.VISIBLE
-            addContactText.visibility = View.VISIBLE
+            contactGroup.visibility = View.VISIBLE
+            contactList.visibility = View.GONE
+            //addContactBttn.visibility = View.GONE
+            //confirmContact.visibility = View.VISIBLE
+            //contactName.visibility = View.VISIBLE
+            //contactNumber.visibility = View.VISIBLE
+            //addContactText.visibility = View.VISIBLE
+
         }
 
         view.findViewById<View>(R.id.confirmContact).setOnClickListener {
-            addContactBttn.visibility = View.VISIBLE
-            confirmContact.visibility = View.GONE
-            addContactText.visibility = View.GONE
+            //addContactBttn.visibility = View.VISIBLE
 
-            var newCont = User(contactName.text.toString(), "dådådå", contactNumber.text.toString())
+            //confirmContact.visibility = View.GONE
+            //addContactText.visibility = View.GONE
+
+            var newCont = User(contactFirstName.text.toString(), contactLastName.text.toString(), contactNumber.text.toString())
             contacts.add(newCont)
             if (adapter != null) {
                 adapter.notifyDataSetChanged()
             }
-            contactName.text = ""
+            contactFirstName.text = ""
+            contactLastName.text = ""
             contactNumber.text = ""
-            contactName.visibility = View.GONE
-            contactNumber.visibility = View.GONE
+            contactGroup.visibility = View.GONE
+            contactList.visibility = View.VISIBLE
+            //contactName.visibility = View.GONE
+            //contactNumber.visibility = View.GONE
 
         }
     }
 
     override fun onListItemClick(position: Int) {
-        System.out.print(position)
+        println(position)
+        val bundle = Bundle()
+        val gson = Gson()
+        bundle.putSerializable("user", gson.toJson(contacts[position]))
+        println(bundle)
     }
 }

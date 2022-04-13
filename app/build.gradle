@@ -50,6 +50,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
     implementation 'com.android.volley:volley:1.2.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
     testImplementation 'junit:junit:4.13.2'

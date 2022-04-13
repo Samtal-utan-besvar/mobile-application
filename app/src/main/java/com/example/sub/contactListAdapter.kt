@@ -15,7 +15,8 @@ class contactListAdapter(userList: ArrayList<User>, onClickListener: profileFrag
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view),
         View.OnClickListener {
-        val contactName: TextView
+        val contactFirstName: TextView
+        val contactLastName: TextView
         val contactNumber: TextView
 
         override fun onClick(v: View) {
@@ -24,8 +25,9 @@ class contactListAdapter(userList: ArrayList<User>, onClickListener: profileFrag
         }
 
         init {
-            contactName = view.findViewById<View>(R.id.contactListName) as TextView
-            contactNumber = view.findViewById<View>(R.id.contactListNumber) as TextView
+            contactFirstName = view.findViewById<View>(R.id.contactListFirstName) as TextView
+            contactLastName = view.findViewById<View>(R.id.contactListLastName) as TextView
+            contactNumber = view.findViewById<View>(R.id.contactListPhoneNumber) as TextView
             view.setOnClickListener(this)
         }
     }
@@ -35,7 +37,7 @@ class contactListAdapter(userList: ArrayList<User>, onClickListener: profileFrag
         viewType: Int
     ): ViewHolder {
         val view: View = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.row_contact_list, viewGroup, false)
+            .inflate(R.layout.row_contact_list2, viewGroup, false)
         return ViewHolder(view)
     }
 
@@ -43,9 +45,10 @@ class contactListAdapter(userList: ArrayList<User>, onClickListener: profileFrag
         viewHolder: ViewHolder,
         position: Int
     ) {
-        viewHolder.contactName.setText(userList_!![position].number)
+        viewHolder.contactFirstName.setText(userList_!![position].firstName)
+        viewHolder.contactLastName.setText(userList_!![position].lastName)
         viewHolder.contactNumber
-              .setText(userList_!![position].firstName)
+              .setText(userList_!![position].number)
     }
 
     override fun getItemCount(): Int {

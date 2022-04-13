@@ -57,34 +57,50 @@
         tools:listitem="@android:layout/list_content" />
 
     <EditText
-        android:id="@+id/contactName"
+        android:id="@+id/contactFirstName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:hint="First name"
         android:inputType="textPersonName"
-        android:text="Name"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.24" />
+        app:layout_constraintVertical_bias="0.218" />
+
+    <EditText
+        android:id="@+id/contactLastName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Last name"
+        android:inputType="textPersonName"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/contactNr"
+        app:layout_constraintEnd_toEndOf="@+id/contactFirstName"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/contactFirstName"
+        app:layout_constraintTop_toBottomOf="@+id/contactFirstName"
+        app:layout_constraintVertical_bias="0.0" />
 
     <EditText
         android:id="@+id/contactNr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="45dp"
         android:ems="10"
+        android:hint="Phone number"
         android:inputType="phone"
-        android:text="Phone number"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.322" />
+        app:layout_constraintTop_toBottomOf="@+id/contactFirstName"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/addContactText"
@@ -98,7 +114,7 @@
         app:layout_constraintHorizontal_bias="0.342"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.166" />
+        app:layout_constraintVertical_bias="0.174" />
 
     <Button
         android:id="@+id/confirmContact"
@@ -117,13 +133,24 @@
 
     <Button
         android:id="@+id/buttonPerm"
-        android:layout_width="wrap_content"
+        android:layout_width="148dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="464dp"
-        android:layout_marginEnd="120dp"
+        android:layout_marginTop="84dp"
         android:onClick="onClickRequestPermission"
         android:text="@string/ReqPermission"
+        app:layout_constraintBottom_toTopOf="@+id/addContactText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.943"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/addContactGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/cardview_dark_background"
+        android:visibility="invisible"
+        app:constraint_referenced_ids="contactFirstName,contactLastName,contactNr,addContactText,confirmContact" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

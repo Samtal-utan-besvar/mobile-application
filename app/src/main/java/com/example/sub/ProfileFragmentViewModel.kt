@@ -31,17 +31,17 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
     }
 
     private fun loadUsers(): String {
-        print("akjdhawhkdawkhdakhwdjkawkadkjwbnkdakbjdbjk")
-        val url = "https://webhook.site/82101914-6041-4d2f-b3f1-76be55c4c38e";
+        println("akjdhawhkdawkhdakhwdjkawkadkjwbnkdakbjdbjk")
+        val url = "http://144.24.171.133:8080/get_contacts"
         val queue = Volley.newRequestQueue(context)
         val stringRequest = StringRequest(Request.Method.GET, url,
              Response.Listener<String> { response ->
-                 testuser = response.toString()
+                 testuser = response.substring(0,500)
         },
         Response.ErrorListener { testuser = "Theres an error"})
         queue.add(stringRequest)
-        print(testuser)
+        
+        println(testuser)
         return testuser
 }
-
 }
