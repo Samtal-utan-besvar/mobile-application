@@ -10,6 +10,7 @@ import com.example.sub.data.LoginRepository
 import com.example.sub.data.Result
 import com.example.sub.data.LoggedInUser
 
+
 class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
     private val _loginForm = MutableLiveData<LoginFormState>()
@@ -30,10 +31,9 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
     suspend fun register(username: String, password: String) {
         val result = loginRepository.register(username, password)
         if (result is Result.Success) {
-            _loginResult.value =
-                LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+            _loginResult.postValue(LoginResult(success = LoggedInUserView(displayName = result.data.displayName)))
         } else {
-            _loginResult.value = LoginResult(error = R.string.registration_failed)
+            _loginResult.postValue(LoginResult(error = R.string.registration_failed))
         }
     }
 

@@ -29,12 +29,12 @@ class LoginDataSource {
     /**
      * Function that handle loggedInUser authentication with database server.
      * <p>
-     * Returns a Result<LoggedInUser> object that specifies if a login HTTP
-     * Post request succeeded or received an error. The created LoggedInUser
-     * contains a userToken that is received from the Post request.
+     * Returns a Result<LoggedInUser> object that specifies if a login HTTP Post request succeeded
+     * or received an error. The created LoggedInUser contains a userToken that is received from
+     * the Post request.
      * <p>
-     * The function is using CoroutineScope, so that the HTTP Request is not
-     * running on the main thread, the function is for that reason suspended.
+     * The function is using CoroutineScope, so that the HTTP Request is not running on the main
+     * thread, the function is for that reason suspended.
      */
     suspend fun login(email: String, password: String): Result<LoggedInUser> {
         return try {
@@ -45,8 +45,8 @@ class LoginDataSource {
                     .jsonBody(Gson().toJson(user).toString())
                     .responseString()
 
-                // result.component1(): Value from a successful result
-                // result.component2(): Value from a error
+                // result.component1(): Value of a successful result
+                // result.component2(): Value of a error
 
                 if (result.component1() == null) {
                     Result.Error(IOException("Error logging in"))
