@@ -1,14 +1,14 @@
 package com.example.sub.session
 
+import android.content.Context
+import android.util.Log
 import com.example.sub.RTC.PeerConnectionObserver
 import com.example.sub.RTC.RTCClient
 import com.example.sub.signal.*
-import org.webrtc.PeerConnection
-import org.webrtc.PeerConnectionFactory
-import org.webrtc.SdpObserver
+import org.webrtc.*
 
 // Class representing an existing or pending call session
-class CallSession(signalClient: SignalClient): SignalListener {
+class CallSession(signalClient: SignalClient, context: Context): SignalListener {
     private var signalClient = signalClient
     private var isHost = false
 
@@ -18,16 +18,28 @@ class CallSession(signalClient: SignalClient): SignalListener {
     private var status: CallStatus = if(isHost) CallStatus.REQUESTING else CallStatus.RECEIVING
     var statusUpdateListeners = ArrayList<(CallStatus) -> Unit>()
 
+    val pcConstraints = object : MediaConstraints() {
+        init {
+            optional.add(MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"))
+        }
+    }
+
 
     init {
         var observer = PeerConnectionObserver()
-        rtcClient = RTCClient(observer)
+        rtcClient = RTCClient(observer, context)
         peerConnection = rtcClient.getPeerConnection()
     }
 
 
     fun startCall(callerPhoneNumber: String, targetPhoneNumber: String) {
         isHost = true
+
+        peerConnection.createOffer(object : DefaultSdpObserver() {
+            override fun onCreateSuccess(p0: SessionDescription?) {
+                Log.d("offer", p0.toString())
+            }
+        }, pcConstraints)
     }
 
 
@@ -62,6 +74,25 @@ class CallSession(signalClient: SignalClient): SignalListener {
         TODO("Not yet implemented")
     }
 
+    open inner class DefaultSdpObserver : SdpObserver {
+
+        override fun onCreateSuccess(p0: SessionDescription?) {
+
+        }
+
+        override fun onCreateFailure(p0: String?) {
+            Log.d("CallSession","failed to create offer:$p0")
+        }
+
+        override fun onSetFailure(p0: String?) {
+            Log.d("CallSession","set failure:$p0")
+        }
+
+        override fun onSetSuccess() {
+            Log.d("CallSession","set success")
+        }
+
+    }
 
 }
 

@@ -98,7 +98,7 @@ class callingFragment : Fragment() {
         val userPhoneNumber = "1319151313"
         val callData = CallSignalMessage(userPhoneNumber, phoneNumber, "rick roll")
 
-        signalingClient?.sendCallMessage(callData)
+        ClientFactory.getCallHandler().call(phoneNumber)
     }
 }
 
