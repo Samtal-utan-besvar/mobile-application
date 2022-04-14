@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,7 +28,7 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     private lateinit var contactNumber: TextView
     private lateinit var contactList: RecyclerView
     private lateinit var contactGroup: Group
-    private val contacts = ArrayList<User>()
+    private var contacts: MutableList<User> = ArrayList()
     private val profileFragmentViewModel : ProfileFragmentViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -48,29 +49,21 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         contactGroup = view.findViewById(R.id.addContactGroup)
         contactList = view.findViewById(R.id.contactList)
         contactGroup.visibility = View.GONE
-        //confirmContact.visibility = View.GONE
-        //contactName.visibility = View.GONE
-        //contactNumber.visibility = View.GONE
-        //addContactText.visibility = View.GONE
-
         profileFragmentViewModel.getUsers()
 
-        var test = User("hej", "då", "01235460")
-        contacts?.add(test)
-        print(contacts)
         val recyclerView = view.findViewById<RecyclerView>(R.id.contactList)
-        //val adapter = contacts?.let { contactListAdapter(it, this) }
-        //val adapter = contacts?.let { contactListAdapter(it,this) }
         val adapter = contactListAdapter(contacts, this)
-//        val layoutManager: RecyclerView.LayoutManager =
-//            LinearLayoutManager(requireActivity().applicationContext)
         recyclerView.layoutManager = LinearLayoutManager(activity)
-        //recyclerView!!.setItemAnimator(DefaultItemAnimator())
         recyclerView.adapter = adapter
         if (adapter != null) {
             adapter.notifyDataSetChanged()
         }
-
+        profileFragmentViewModel.getUsers().observe(viewLifecycleOwner,
+            Observer<List<User>> { strings ->
+                adapter.changeDataSet(strings)
+                adapter.notifyDataSetChanged()
+                contacts = strings as MutableList<User>
+            })
 
         navController = findNavController(view.findViewById(R.id.AnnaKnappen))
         view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
@@ -82,22 +75,9 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         view.findViewById<View>(R.id.addContact).setOnClickListener {
             contactGroup.visibility = View.VISIBLE
             contactList.visibility = View.GONE
-            //addContactBttn.visibility = View.GONE
-            //confirmContact.visibility = View.VISIBLE
-            //contactName.visibility = View.VISIBLE
-            //contactNumber.visibility = View.VISIBLE
-            //addContactText.visibility = View.VISIBLE
-
         }
 
         view.findViewById<View>(R.id.confirmContact).setOnClickListener {
-            //addContactBttn.visibility = View.VISIBLE
-
-            //confirmContact.visibility = View.GONE
-            //addContactText.visibility = View.GONE
-
-            var newCont = User(contactFirstName.text.toString(), contactLastName.text.toString(), contactNumber.text.toString())
-            contacts.add(newCont)
             if (adapter != null) {
                 adapter.notifyDataSetChanged()
             }
@@ -106,9 +86,6 @@ class profileFragment : Fragment(), contactListAdapter.ListItemClickListener {
             contactNumber.text = ""
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
-            //contactName.visibility = View.GONE
-            //contactNumber.visibility = View.GONE
-
         }
     }
 

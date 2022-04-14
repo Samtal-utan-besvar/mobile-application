@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-class contactListAdapter(userList: ArrayList<User>, onClickListener: profileFragment) :
+class contactListAdapter(userList: MutableList<User>, onClickListener: profileFragment) :
     RecyclerView.Adapter<contactListAdapter.ViewHolder>() {
     interface ListItemClickListener {
         fun onListItemClick(position: Int)
@@ -57,9 +57,13 @@ class contactListAdapter(userList: ArrayList<User>, onClickListener: profileFrag
         } else userList_!!.size
     }
 
+    fun changeDataSet(strings: List<User>?) {
+        userList_ = strings as MutableList<User>?
+    }
+
     companion object {
         private var mOnClickListener: ListItemClickListener? = null
-        private var userList_: ArrayList<User>? = null
+        private var userList_: MutableList<User>? = null
     }
 
     init {
