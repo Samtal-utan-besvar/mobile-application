@@ -27,7 +27,7 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
         }
     }
 
-    fun register(username: String, password: String) {
+    suspend fun register(username: String, password: String) {
         val result = loginRepository.register(username, password)
         if (result is Result.Success) {
             _loginResult.value =

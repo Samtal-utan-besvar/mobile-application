@@ -16,11 +16,15 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        // Skips the login fragment, only for debugging
         if (LOGIN_DISABLED) {
             startMainActivity()
         }
     }
 
+    /**
+     * Starts mainActivity and finish the LoginActivity.
+     */
     fun startMainActivity() {
         let{
             val intent = Intent(it, MainActivity::class.java)

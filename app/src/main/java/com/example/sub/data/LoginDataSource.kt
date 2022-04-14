@@ -12,10 +12,11 @@ import java.io.IOException
  */
 class LoginDataSource {
 
-    private val url = "http://144.24.171.133:8080/"
-    private val urlLocal = "http://10.0.2.2:8080/"
+    private val url = "http://144.24.171.133:8080/" // home url to database server
+    private val urlLocal = "http://10.0.2.2:8080/"  // local url to database. Emulator requires '10.0.2.2' instead of 'localhost'
 
-    fun register(username: String, password: String): Result<LoggedInUser> {
+
+    suspend fun register(username: String, password: String): Result<LoggedInUser> {
         return try {
             // TODO: handle loggedInUser authentication
             val fakeUser = LoggedInUser("1", "Jane Registration")
@@ -25,22 +26,34 @@ class LoginDataSource {
         }
     }
 
+    /**
+     * Function that handle loggedInUser authentication with database server.
+     * <p>
+     * Returns a Result<LoggedInUser> object that specifies if a login HTTP
+     * Post request succeeded or received an error. The created LoggedInUser
+     * contains a userToken that is received from the Post request.
+     * <p>
+     * The function is using CoroutineScope, so that the HTTP Request is not
+     * running on the main thread, the function is for that reason suspended.
+     */
     suspend fun login(email: String, password: String): Result<LoggedInUser> {
         return try {
             withContext(Dispatchers.IO) {
-                val loginURL = urlLocal + "login"
+                val loginURL = url + "login"
                 val user = LoginCredentials(email, password)
                 val (_, _, result) = loginURL.httpPost()
                     .jsonBody(Gson().toJson(user).toString())
                     .responseString()
 
-                // TODO: use result.onError and result.success instead?
+                // result.component1(): Value from a successful result
+                // result.component2(): Value from a error
+
                 if (result.component1() == null) {
                     Result.Error(IOException("Error logging in"))
                 } else {
                     Log.d("myDebug", "Result: $result")
-                    val fakeUser = LoggedInUser(result.component1(), null)
-                    Result.Success(fakeUser)
+                    val loggedInUser = LoggedInUser(result.component1(), null)
+                    Result.Success(loggedInUser)
                 }
             }
         } catch (e: Throwable) {
@@ -54,6 +67,10 @@ class LoginDataSource {
     }
 }
 
+
+/**
+ * Data class that contains login information used to make a HTTP Post request
+ */
 data class LoginCredentials(
     val email: String,
     val password: String

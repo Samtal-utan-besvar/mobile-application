@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-const val AUTOLOGIN_DISABLED = true     // for debugging purposes
+const val AUTOLOGIN_DISABLED = true     // For debugging purposes
 
 class LoginFragment : Fragment() {
 
@@ -46,7 +46,8 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
+        loginViewModel = ViewModelProvider(this,
+            LoginViewModelFactory(context))[LoginViewModel::class.java]
 
         val usernameEditText = binding.username
         val passwordEditText = binding.password
@@ -54,21 +55,23 @@ class LoginFragment : Fragment() {
         val loadingProgressBar = binding.loading
         val toRegistrationButton = binding.toRegistration
 
+        // Removes loggedInUser object from SharedPreferences so that not loggedInUser can't be used for autologin.
         if (AUTOLOGIN_DISABLED) {
             val sharedPref = context?.getSharedPreferences("UserSharedPref", Context.MODE_PRIVATE)
             sharedPref!!.edit().clear().apply()
         }
 
         if (loginViewModel.isLoggedIn()) {
-            (activity as LoginActivity?)!!.startMainActivity()
+            (activity as LoginActivity?)!!.startMainActivity()  // Starts MainActivity if loggedInUser is found.
         }
 
+        // Checks if the typed email and password follows the defined format (formats defined in LoginViewModel).
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
             Observer { loginFormState ->
                 if (loginFormState == null) {
                     return@Observer
                 }
-                loginButton.isEnabled = loginFormState.isDataValid
+                loginButton.isEnabled = loginFormState.isDataValid  // Disables the login button if the email and password has incorrect format.
                 loginFormState.phoneNumberError?.let {
                     usernameEditText.error = getString(it)
                 }
@@ -77,6 +80,8 @@ class LoginFragment : Fragment() {
                 }
             })
 
+        // Calls updateUiWithUser (opens MainActivity) if the login succeeded from a database
+        // standpoint. If not, an error message is shown on the screen.
         loginViewModel.loginResult.observe(viewLifecycleOwner,
             Observer { loginResult ->
                 loginResult ?: return@Observer
@@ -108,17 +113,24 @@ class LoginFragment : Fragment() {
 
         usernameEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.addTextChangedListener(afterTextChangedListener)
+
+        // Start the logg in process when the "Logg in" button on keyboard is pressed.
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
+            //  TODO: Never passes the if-statement, fix this.
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 viewLifecycleOwner.lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
-                        loginViewModel.login(usernameEditText.text.toString(),passwordEditText.text.toString())
+                        loginViewModel.login(
+                            usernameEditText.text.toString(),
+                            passwordEditText.text.toString()
+                        )
                     }
                 }
             }
             false
         }
 
+        // Start the logg in process when the "Logg in" button on the screen (fragment) is pressed.
         loginButton.setOnClickListener {
             loadingProgressBar.visibility = View.VISIBLE
             viewLifecycleOwner.lifecycleScope.launch {
@@ -137,6 +149,11 @@ class LoginFragment : Fragment() {
         }
     }
 
+    /**
+     * Calls startMainActivity() from LoginActivity.
+     * <p>
+     * This function is called when the a login succeeded and a new activity is supposed to start
+     */
     private fun updateUiWithUser(model: LoggedInUserView, view: View) {
         val welcome = getString(R.string.welcome)
         val appContext = context?.applicationContext ?: return
