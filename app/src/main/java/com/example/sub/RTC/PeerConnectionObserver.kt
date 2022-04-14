@@ -1,9 +1,6 @@
 package com.example.sub.RTC
 
-import org.webrtc.DataChannel
-import org.webrtc.IceCandidate
-import org.webrtc.MediaStream
-import org.webrtc.PeerConnection
+import org.webrtc.*
 
 class PeerConnectionObserver: PeerConnection.Observer {
     override fun onSignalingChange(p0: PeerConnection.SignalingState?) {}
@@ -25,4 +22,8 @@ class PeerConnectionObserver: PeerConnection.Observer {
     override fun onDataChannel(p0: DataChannel?) {}
 
     override fun onRenegotiationNeeded() {}
+
+    override fun onAddTrack(p0: RtpReceiver?, p1: Array<out MediaStream>?) {
+        TODO("Not yet implemented")
+    }
 }

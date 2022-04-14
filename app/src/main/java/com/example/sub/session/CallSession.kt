@@ -18,10 +18,8 @@ class CallSession(signalClient: SignalClient, context: Context): SignalListener 
     private var status: CallStatus = if(isHost) CallStatus.REQUESTING else CallStatus.RECEIVING
     var statusUpdateListeners = ArrayList<(CallStatus) -> Unit>()
 
-    val pcConstraints = object : MediaConstraints() {
-        init {
-            optional.add(MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"))
-        }
+    val pcConstraints = MediaConstraints().apply {
+        mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
     }
 
 
@@ -37,7 +35,7 @@ class CallSession(signalClient: SignalClient, context: Context): SignalListener 
 
         peerConnection.createOffer(object : DefaultSdpObserver() {
             override fun onCreateSuccess(p0: SessionDescription?) {
-                Log.d("offer", p0.toString())
+                Log.d("offer", p0!!.description)
             }
         }, pcConstraints)
     }

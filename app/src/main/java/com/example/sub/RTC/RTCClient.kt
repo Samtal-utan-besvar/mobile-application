@@ -2,10 +2,7 @@ package com.example.sub.RTC
 
 import android.app.Application
 import android.content.Context
-import org.webrtc.DefaultVideoDecoderFactory
-import org.webrtc.DefaultVideoEncoderFactory
-import org.webrtc.PeerConnection
-import org.webrtc.PeerConnectionFactory
+import org.webrtc.*
 
 class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
@@ -17,10 +14,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     )
 
     init {
-        //initPeerConnectionFactory(context)
-        val options = PeerConnectionFactory.InitializationOptions.builder(context)
-            .setFieldTrials("WebRTC-H264HighProfile/Enabled/").createInitializationOptions()
-        PeerConnectionFactory.initialize(options)
+        initPeerConnectionFactory(context)
     }
 
     private fun initPeerConnectionFactory(context: Context) {
@@ -31,9 +25,13 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
         PeerConnectionFactory.initialize(options)
     }
 
+    private val rootEglBase: EglBase = EglBase.create()
+
     private fun buildPeerConnectionFactory(): PeerConnectionFactory {
         return PeerConnectionFactory
             .builder()
+            .setVideoDecoderFactory(DefaultVideoDecoderFactory(rootEglBase.eglBaseContext))
+            .setVideoEncoderFactory(DefaultVideoEncoderFactory(rootEglBase.eglBaseContext, true, true))
             .setOptions(PeerConnectionFactory.Options().apply {
                 disableEncryption = true
                 disableNetworkMonitor = true
