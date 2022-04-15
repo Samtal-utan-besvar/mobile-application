@@ -63,14 +63,14 @@ class LoginFragment : Fragment() {
             (activity as LoginActivity?)!!.startMainActivity()  // Starts MainActivity if loggedInUser is found.
         }
 
-        // Checks if the typed email and password follows the defined format in LoginViewModel.
+        // Checks if the typed email and password follow the defined format in LoginViewModel.
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
             Observer { loginFormState ->
                 if (loginFormState == null) {
                     return@Observer
                 }
                 loginButton.isEnabled = loginFormState.isDataValid  // Disables the login button if the email and password has incorrect format.
-                loginFormState.phoneNumberError?.let {
+                loginFormState.emailError?.let {
                     usernameEditText.error = getString(it)
                 }
                 loginFormState.passwordError?.let {
@@ -79,7 +79,7 @@ class LoginFragment : Fragment() {
             })
 
         // Calls updateUiWithUser (opens MainActivity) if the login succeeded from a database
-        // standpoint. If an error occurred a error message is shown on the screen.
+        // standpoint. If an error occurs, an error message is shown on the screen.
         loginViewModel.loginResult.observe(viewLifecycleOwner,
             Observer { loginResult ->
                 loginResult ?: return@Observer
@@ -92,7 +92,7 @@ class LoginFragment : Fragment() {
                 }
             })
 
-        // Listener use to check the email and password format *while* the text is typed.
+        // The listener checks the email and password format *while* the text is typed.
         val afterTextChangedListener = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
                 // ignore
@@ -113,7 +113,7 @@ class LoginFragment : Fragment() {
         usernameEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.addTextChangedListener(afterTextChangedListener)
 
-        // Start the logg in process when the "Logg in" button on the keyboard is pressed.
+        // Start the login process when the "Logg in" button on the keyboard is pressed.
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
             //  TODO: Never passes the if-statement, fix this or remove this action listener.
             if (actionId == EditorInfo.IME_ACTION_DONE) {

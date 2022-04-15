@@ -27,14 +27,14 @@ class LoginDataSource {
     }
 
     /**
-     * Function that handle loggedInUser authentication with database server.
+     * Function that handles loggedInUser authentication with the database server.
      * <p>
      * Returns a Result<LoggedInUser> object that specifies if a login HTTP Post request succeeded
-     * or received an error. The created LoggedInUser contains a userToken that is received from
-     * the Post request.
+     * or received an error. On success, a loggedInUser object is created containing a user token
+     * received from the Post request.
      * <p>
      * The function is using CoroutineScope, so that the HTTP Request is not running on the main
-     * thread, the function is for that reason suspended.
+     * thread. The function is, for that reason, suspended.
      */
     suspend fun login(email: String, password: String): Result<LoggedInUser> {
         return try {
@@ -69,7 +69,7 @@ class LoginDataSource {
 
 
 /**
- * Data class that contains login information used to make a HTTP Post request
+ * Data class that contains login information used to make an HTTP Post request
  */
 data class LoginCredentials(
     val email: String,

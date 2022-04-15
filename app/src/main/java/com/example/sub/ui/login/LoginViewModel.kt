@@ -37,9 +37,23 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
         }
     }
 
+    /**
+     * Checks if the passed data follow the defined format. If not, the error is cached in the
+     * LoginFormState that the LoginFragment uses to access this information.
+     */
     fun loginDataChanged(email: String, password: String) {
         if (!isEmailValid(email)) {
-            _loginForm.value = LoginFormState(phoneNumberError = R.string.invalid_mail)
+            _loginForm.value = LoginFormState(emailError = R.string.invalid_mail)
+        } else if (!isPasswordValid(password)) {
+            _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
+        } else {
+            _loginForm.value = LoginFormState(isDataValid = true)
+        }
+    }
+
+    fun registrationDataChanged(email: String, password: String) {
+        if (!isEmailValid(email)) {
+            _loginForm.value = LoginFormState(emailError = R.string.invalid_mail)
         } else if (!isPasswordValid(password)) {
             _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
         } else {

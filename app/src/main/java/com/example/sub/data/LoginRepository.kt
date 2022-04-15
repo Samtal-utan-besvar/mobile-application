@@ -31,7 +31,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     }
 
     /**
-     * Revoke authentication from database and removes the loggedInUser object from the
+     * Revoke authentication from the database and removes the loggedInUser object from the
      * SharedPreferences.
      */
     fun logout() {
@@ -42,7 +42,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     }
 
     /**
-     * Calls login from daraSource and saves the loggedInUser object if the result succeeded.
+     * Calls login from the data source and saves the loggedInUser object if the result succeeded.
      */
     suspend fun login(username: String, password: String): Result<LoggedInUser> {
         val result = dataSource.login(username, password)
@@ -54,7 +54,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     }
 
     /**
-     * Calls register from daraSource and saves the loggedInUser object if the result succeeded.
+     * Calls register from the data source and saves the loggedInUser object if the result succeeded.
      */
     suspend fun register(username: String, password: String): Result<LoggedInUser> {
         val result = dataSource.register(username, password)
@@ -82,7 +82,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     }
 
     /**
-     * Returns loggedInUser object that is saved in SharedPreferences.
+     * Returns saved loggedInUser object from SharedPreferences.
      */
     private fun readLoggedInUser(): LoggedInUser? {
         val gson = Gson()
