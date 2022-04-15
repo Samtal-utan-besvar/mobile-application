@@ -1,132 +1,156 @@
 package com.example.sub
 
-import android.R.attr.data
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Chronometer
 import android.widget.TextView
-import android.widget.Toast
-import android.widget.ToggleButton
+import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.xwray.groupie.GroupieAdapter
+import com.google.gson.Gson
+import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class ContactListFragment : Fragment(), contactListAdapter.ListItemClickListener {
+    var navController: NavController? = null
 
-/**
- * A simple [Fragment] subclass.
- * Use the [callingFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class callingFragment : Fragment() {
-
-    private var adapter = GroupieAdapter()
-
-
-    private var navController: NavController? = null
-
+    private lateinit var contactText   : TextView
+    private lateinit var addContactBttn: View
+    private lateinit var addContactText: View
+    private lateinit var confirmContact: View
+    private lateinit var contactFirstName: TextView
+    private lateinit var contactLastName: TextView
+    private lateinit var contactNumber: TextView
+    private lateinit var contactList: RecyclerView
+    private lateinit var contactGroup: Group
+    private val contacts = ArrayList<User>()
+    private val profileFragmentViewModel : ProfileFragmentViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.fragment_calling, container, false)
+        return inflater.inflate(R.layout.fragment_contact_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = findNavController(view.findViewById(R.id.closeCall))
-        view.findViewById<View>(R.id.closeCall).setOnClickListener {
 
-            // TODO: Action when close call, disconnect call from server??
+        val adapter = GroupAdapter<GroupieViewHolder>()
 
+
+        addContactText = view.findViewById(R.id.addContactText)
+        confirmContact = view.findViewById(R.id.confirmContact)
+        contactFirstName = view.findViewById(R.id.contactFirstName)
+        contactLastName = view.findViewById(R.id.contactLastName)
+        contactNumber = view.findViewById(R.id.contactNr)
+        contactGroup = view.findViewById(R.id.addContactGroup)
+        contactList = view.findViewById(R.id.contactList)
+        contactGroup.visibility = View.GONE
+        contactList.layoutManager = LinearLayoutManager(activity)
+        contactList.adapter = adapter
+        //confirmContact.visibility = View.GONE
+        //contactName.visibility = View.GONE
+        //contactNumber.visibility = View.GONE
+        //addContactText.visibility = View.GONE
+
+        profileFragmentViewModel.getUsers()
+
+        var test = User("hej", "då", "01235460")
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+        adapter.add(UserItem(test))
+
+
+
+        print(contacts)
+        if (adapter != null) {
+            adapter.notifyDataSetChanged()
+        }
+
+        contactList.adapter = adapter
+
+
+
+
+        navController = findNavController(view.findViewById(R.id.AnnaKnappen))
+        view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
             navController!!.navigate(
-                R.id.action_callingFragment_to_userProfile
+                R.id.action_profileFragment_to_userProfile
             )
+        }
 
+        view.findViewById<View>(R.id.addContact).setOnClickListener {
+            contactGroup.visibility = View.VISIBLE
+            contactList.visibility = View.GONE
+            //addContactBttn.visibility = View.GONE
+            //confirmContact.visibility = View.VISIBLE
+            //contactName.visibility = View.VISIBLE
+            //contactNumber.visibility = View.VISIBLE
+            //addContactText.visibility = View.VISIBLE
 
         }
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
-        recyclerView.adapter = adapter
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
 
+        view.findViewById<View>(R.id.confirmContact).setOnClickListener {
+            //addContactBttn.visibility = View.VISIBLE
 
+            //confirmContact.visibility = View.GONE
+            //addContactText.visibility = View.GONE
 
-
-        // onClick for Speaker toggleButton
-        val toggleButtonSilentMode: ToggleButton = view.findViewById(R.id.toggleButtonSilentMode)
-        toggleButtonSilentMode.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // TODO: Action when speaker is on
-                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
-            } else {
-                // TODO: Action when speaker is off
-                Toast.makeText(activity, "speaker off", Toast.LENGTH_LONG).show()    // remove
+            var newCont = User(contactFirstName.text.toString(), contactLastName.text.toString(), contactNumber.text.toString())
+            contacts.add(newCont)
+            if (adapter != null) {
+                adapter.notifyDataSetChanged()
             }
-        }
+            contactFirstName.text = ""
+            contactLastName.text = ""
+            contactNumber.text = ""
+            contactGroup.visibility = View.GONE
+            contactList.visibility = View.VISIBLE
+            //contactName.visibility = View.GONE
+            //contactNumber.visibility = View.GONE
 
-        // onClick for Mute toggleButton
-        val toggleButtonMute: ToggleButton = view.findViewById(R.id.toggleButtonMute)
-        toggleButtonMute.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // TODO: Action when un-muted
-                Toast.makeText(activity, "un-mute", Toast.LENGTH_LONG).show()       // remove
-            } else {
-                // TODO: Action when muted
-                Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
-            }
         }
-
-        // Timer
-        // TODO: place in a suitable place, timer should start when phone call starts, not when this fragment is created
-        val simpleChronometer =
-            view.findViewById(R.id.simpleChronometer) as Chronometer // initiate a chronometer
-        simpleChronometer.start() // start a chronometer
     }
 
-        companion object {
-        fun newInstance(): callingFragment {
-            return callingFragment()
-        }
+    override fun onListItemClick(position: Int) {
+        println(position)
+        val bundle = Bundle()
+        val gson = Gson()
+        bundle.putSerializable("user", gson.toJson(contacts[position]))
+        println(bundle)
     }
 }
 
-class ChatFromItem(val text: String): Item<GroupieViewHolder>(){
+
+class UserItem(val user: User): Item<GroupieViewHolder>() {
+
+
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.itemView.findViewById<TextView>(R.id.text_view_from).text = text
+        viewHolder.itemView.findViewById<TextView>(R.id.text_view_new_message).text = user.firstName
+
 
     }
 
-    override fun getLayout() = R.layout.chat_from_row
-}
-class ChatToItem(val text:String): Item<GroupieViewHolder>(){
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.itemView.findViewById<TextView>(R.id.text_view_to).text = text
+
+    override fun getLayout(): Int {
+        return R.layout.user_row_new_messages
+        //viewHolder.itemView.findViewById<TextView>(R.id.user_row_new_messages).text = user.firstName
+
     }
-
-    override fun getLayout() = R.layout.chat_to_row
 }
-
-
