@@ -36,8 +36,7 @@ class SignalClient {
     private inner class SignalingWebSocketListener : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
-            val v = ConnectSignalMessage(TOKEN)
-            webSocket.send(Json.encodeToString(v));
+            send(ConnectSignalMessage(TOKEN))
             Log.d("WS-Listener: ", "Websocket Opened!")
         }
 
@@ -63,22 +62,6 @@ class SignalClient {
                 val response = jsonObject.get("RESPONSE").toString()
                 Log.d("response", response)
             }
-
-
-
-            /*
-            when {
-                text.startsWith(SignalingCommand.STATE.toString(), true) ->
-                    handleStateMessage(text)
-                text.startsWith(SignalingCommand.OFFER.toString(), true) ->
-                    handleSignalingCommand(SignalingCommand.OFFER, text)
-                text.startsWith(SignalingCommand.ANSWER.toString(), true) ->
-                    handleSignalingCommand(SignalingCommand.ANSWER, text)
-                text.startsWith(SignalingCommand.ICE.toString(), true) ->
-                    handleSignalingCommand(SignalingCommand.ICE, text)
-            }
-
-             */
         }
     }
 
@@ -110,15 +93,33 @@ class SignalClient {
         }
     }
 
-    fun sendCallMessage(message: CallSignalMessage) {
+
+    fun send(message: ConnectSignalMessage) {
         val msg = Json.encodeToString(message)
         webSocket?.send(msg)
     }
 
-    fun sendCallResponseMessage(message: CallResponseSignalMessage) {
+    fun send(message: CallSignalMessage) {
         val msg = Json.encodeToString(message)
         webSocket?.send(msg)
     }
+
+    fun send(message: CallResponseSignalMessage) {
+        val msg = Json.encodeToString(message)
+        webSocket?.send(msg)
+    }
+
+    fun send(message: IceCandidateSignalMessage) {
+        val msg = Json.encodeToString(message)
+        webSocket?.send(msg)
+    }
+
+    fun send(message: HangupSignalMessage) {
+        val msg = Json.encodeToString(message)
+        webSocket?.send(msg)
+    }
+
+
 
     enum class ReasonCommand {
         CALL,

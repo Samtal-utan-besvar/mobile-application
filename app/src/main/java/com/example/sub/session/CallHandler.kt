@@ -5,11 +5,10 @@ import android.util.Log
 import com.example.sub.signal.*
 
 // This class handles incoming and outgoing calls
-class CallHandler(signalClient: SignalClient) : SignalListener{
+class CallHandler(private var signalClient: SignalClient) : SignalListener{
 
     var callReceivedListener = ArrayList<(CallSession) -> Unit>()
     private var activeSession: CallSession? = null
-    private var signalClient: SignalClient = signalClient
     private var context: Context? = null
 
     init{
@@ -22,17 +21,17 @@ class CallHandler(signalClient: SignalClient) : SignalListener{
 
     fun call(phoneNumber: String): CallSession {
         val call: CallSession = CallSession(signalClient, context!!)
-        call.startCall("", phoneNumber)
+        call.requestCall("", phoneNumber)
         return call
     }
 
     override fun onCallMessageReceived(callSignalMessage: CallSignalMessage) {
         // Call session already active
         if(activeSession != null){
-            signalClient.sendCallResponseMessage(callSignalMessage.toResponse(false));
+            signalClient.send(callSignalMessage.toResponse(CallResponse.DENY));
         } else {
             activeSession = CallSession(signalClient, context!!)
-            activeSession!!.answerCall(callSignalMessage)
+            activeSession!!.receiveCall(callSignalMessage)
 
             callReceivedListener.forEach {
                 it.invoke(activeSession!!)

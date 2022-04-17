@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         //val view = binding.root
         layout = binding.permissionLayout
         setContentView(R.layout.activity_main)
-        ClientFactory.getCallHandler().setContext(applicationContext)
+        ClientFactory.getCallHandler().setContext(this.applicationContext)
     }
 
     private val requestPermissionLauncher =

@@ -1,48 +1,100 @@
 package com.example.sub.session
 
 import android.content.Context
-import android.util.Log
-import com.example.sub.RTC.PeerConnectionObserver
-import com.example.sub.RTC.RTCClient
+import androidx.appcompat.app.AppCompatActivity
+import com.example.sub.rtc.*
 import com.example.sub.signal.*
+import kotlinx.serialization.json.buildJsonObject
+import org.json.JSONObject
 import org.webrtc.*
 
 // Class representing an existing or pending call session
-class CallSession(signalClient: SignalClient, context: Context): SignalListener {
-    private var signalClient = signalClient
-    private var isHost = false
+class CallSession(private var signalClient: SignalClient, private var context: Context): SignalListener {
 
     private var rtcClient: RTCClient
-    private var peerConnection: PeerConnection
 
-    private var status: CallStatus = if(isHost) CallStatus.REQUESTING else CallStatus.RECEIVING
+
+    private var isHost = false
+    private var callerPhoneNumber: String? = null
+    private var targetPhoneNumber: String? = null
+
+
+    private var status: CallStatus = CallStatus.CREATED
     var statusUpdateListeners = ArrayList<(CallStatus) -> Unit>()
-
-    val pcConstraints = MediaConstraints().apply {
-        mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
-    }
 
 
     init {
-        var observer = PeerConnectionObserver()
-        rtcClient = RTCClient(observer, context)
-        peerConnection = rtcClient.getPeerConnection()
-    }
-
-
-    fun startCall(callerPhoneNumber: String, targetPhoneNumber: String) {
-        isHost = true
-
-        peerConnection.createOffer(object : DefaultSdpObserver() {
-            override fun onCreateSuccess(p0: SessionDescription?) {
-                Log.d("offer", p0!!.description)
+        val observer = object : PeerConnectionObserver() {
+            override fun onIceCandidate(p0: IceCandidate?) {
+                if (p0 != null) {
+                    val jsonCandidate = buildJsonObject {
+                        "sdpMid" to p0.sdpMid
+                        "sdpMLineIndex" to p0.sdpMLineIndex
+                        "sdp" to p0.sdp
+                    }.toString()
+                    val iceCandidateSignalMessage = IceCandidateSignalMessage(callerPhoneNumber!!, targetPhoneNumber!!, jsonCandidate)
+                    signalClient.send(iceCandidateSignalMessage)
+                }
             }
-        }, pcConstraints)
+        }
+        rtcClient = RTCClient(observer, context)
     }
 
 
-    fun answerCall(callSignalMessage: CallSignalMessage) {
+    fun requestCall(callerPhoneNumber: String, targetPhoneNumber: String) {
+        isHost = true
+        this.callerPhoneNumber = callerPhoneNumber
+        this.targetPhoneNumber = targetPhoneNumber
+        setStatus(CallStatus.REQUESTING)
+
+        rtcClient.call(object : DefaultSdpObserver() {
+            override fun onCreateSuccess(p0: SessionDescription?) {
+                if (p0 != null) {
+                    val callMessage =
+                        CallSignalMessage(callerPhoneNumber, targetPhoneNumber, p0)
+                    signalClient.send(callMessage)
+                }
+            }
+        })
+    }
+
+
+    fun receiveCall(callSignalMessage: CallSignalMessage) {
         isHost = false
+        callerPhoneNumber = callSignalMessage.CALLER_PHONE_NUMBER
+        targetPhoneNumber = callSignalMessage.TARGET_PHONE_NUMBER
+        setStatus(CallStatus.RECEIVING)
+
+        val sdp = SessionDescription(SessionDescription.Type.OFFER, callSignalMessage.SDP)
+        rtcClient.onRemoteSessionReceived(sdp)
+    }
+
+
+    fun answer() {
+        rtcClient.answer(object : DefaultSdpObserver() {
+            override fun onCreateSuccess(p0: SessionDescription?) {
+                if (p0 != null) {
+                    val callMessage =
+                        CallResponseSignalMessage(CallResponse.ALLOW, callerPhoneNumber!!, targetPhoneNumber!!, p0)
+                    signalClient.send(callMessage)
+                }
+            }
+        })
+        setStatus(CallStatus.CONNECTING)
+    }
+
+
+    fun deny() {
+        val callMessage =
+            CallResponseSignalMessage(CallResponse.DENY, callerPhoneNumber!!, targetPhoneNumber!!)
+        signalClient.send(callMessage)
+        setStatus(CallStatus.DENIED)
+    }
+
+
+    fun hangUp() {
+        rtcClient.endCall()
+        setStatus(CallStatus.ENDED)
     }
 
 
@@ -51,53 +103,39 @@ class CallSession(signalClient: SignalClient, context: Context): SignalListener 
         statusUpdateListeners.forEach { it.invoke(status) }
     }
 
+
     override fun onCallResponseMessageReceived(callResponseSignalMessage: CallResponseSignalMessage) {
-        if(!isHost){
-            if(callResponseSignalMessage.isAllowed()){
-                setStatus(CallStatus.CONNECTING)
+        if(callResponseSignalMessage.isAllowed()){
+            setStatus(CallStatus.CONNECTING)
 
+            val sdp = SessionDescription(SessionDescription.Type.OFFER, callResponseSignalMessage.SDP)
+            rtcClient.onRemoteSessionReceived(sdp)
 
-
-            } else{
-                setStatus(CallStatus.ENDED)
-            }
+        } else{
+            setStatus(CallStatus.ENDED)
         }
     }
 
+
     override fun onIceCandidateMessageReceived(iceCandidateSignalMessage: IceCandidateSignalMessage) {
-        TODO("Not yet implemented")
+        val json = JSONObject(iceCandidateSignalMessage.CANDIDATE)
+        val iceCandidate = IceCandidate(json.getString("sdpMid"), json.getInt("sdpMLineIndex"), json.getString("sdp"))
+        rtcClient.addIceCandidate(iceCandidate)
     }
+
 
     override fun onHangupMessageReceived(hangupSignalMessage: HangupSignalMessage) {
         TODO("Not yet implemented")
     }
 
-    open inner class DefaultSdpObserver : SdpObserver {
-
-        override fun onCreateSuccess(p0: SessionDescription?) {
-
-        }
-
-        override fun onCreateFailure(p0: String?) {
-            Log.d("CallSession","failed to create offer:$p0")
-        }
-
-        override fun onSetFailure(p0: String?) {
-            Log.d("CallSession","set failure:$p0")
-        }
-
-        override fun onSetSuccess() {
-            Log.d("CallSession","set success")
-        }
-
-    }
-
 }
 
 enum class CallStatus {
+    CREATED,
     IN_CALL,
     RECEIVING,
     REQUESTING,
     CONNECTING,
-    ENDED
+    DENIED,
+    ENDED;
 }
