@@ -5,9 +5,10 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/profileFragment">
 
+
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.sub.profileFragment"
+        android:name="com.example.sub.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" >
         <action
@@ -16,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/callingFragment"
-        android:name="com.example.sub.callingFragment"
+        android:name="com.example.sub.CallingFragment"
         android:label="fragment_calling"
         tools:layout="@layout/fragment_calling" >
         <action
@@ -25,7 +26,7 @@
     </fragment>
     <fragment
         android:id="@+id/userProfile"
-        android:name="com.example.sub.userProfile"
+        android:name="com.example.sub.UserProfile"
         android:label="fragment_user_profile"
         tools:layout="@layout/fragment_user_profile" >
         <action

@@ -2,6 +2,7 @@ package com.example.sub
 
 import com.example.sub.SignalingClient
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.databinding.ActivityPermissionBinding
+import com.example.sub.ui.login.LoginActivity
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -30,9 +32,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPermissionBinding.inflate(layoutInflater)
-        //val view = binding.root
         layout = binding.permissionLayout
         setContentView(R.layout.activity_main)
+    }
+
+    fun startLoginActivity() {
+        let{
+            val intent = Intent(it, LoginActivity::class.java)
+            it.startActivity(intent)
+        }
+        finish()
     }
 
     private val requestPermissionLauncher =
@@ -116,3 +125,6 @@ fun View.showSnackbar(
         snackbar.show()
     }
 }
+
+
+
