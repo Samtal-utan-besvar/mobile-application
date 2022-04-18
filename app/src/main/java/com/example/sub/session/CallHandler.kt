@@ -19,9 +19,9 @@ class CallHandler(private var signalClient: SignalClient) : SignalListener{
         this.context = context
     }
 
-    fun call(phoneNumber: String): CallSession {
+    fun call(callerPhoneNumber: String, targetPhoneNumber: String): CallSession {
         val call: CallSession = CallSession(signalClient, context!!)
-        call.requestCall("", phoneNumber)
+        call.requestCall(callerPhoneNumber, targetPhoneNumber)
         return call
     }
 
@@ -40,15 +40,15 @@ class CallHandler(private var signalClient: SignalClient) : SignalListener{
     }
 
     override fun onCallResponseMessageReceived(callResponseSignalMessage: CallResponseSignalMessage) {
-        TODO("Not yet implemented")
+        activeSession?.onCallResponseMessageReceived(callResponseSignalMessage)
     }
 
     override fun onIceCandidateMessageReceived(iceCandidateSignalMessage: IceCandidateSignalMessage) {
-        TODO("Not yet implemented")
+        activeSession?.onIceCandidateMessageReceived(iceCandidateSignalMessage)
     }
 
     override fun onHangupMessageReceived(hangupSignalMessage: HangupSignalMessage) {
-        TODO("Not yet implemented")
+        activeSession?.onHangupMessageReceived(hangupSignalMessage)
     }
 
 

@@ -1,5 +1,7 @@
 package com.example.sub.signal
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -9,14 +11,23 @@ import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 private const val SIGNAL_URL = "ws://144.24.171.133:4000" // use local ip for devices in local network
+// pixel 5: utan 5, Brw
+const val TOKEN1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVub2NlM0Bkb21haW4ucG9nIiwiaWF0IjoxNjQ5NzY3NDY3LCJleHAiOjE2NTAzNzIyNjd9.1W2Gn-6WDZCVMA2N3CXIGwsx-hkGNnbWCU-XVfm5Brw"
+const val TOKEN2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWV0aGNlM0Bkb21haW4ucG9nIiwiaWF0IjoxNjQ5NzY3NTc3LCJleHAiOjE2NTAzNzIzNzd9.XdSdDyQoNgPsglMteisgicvGQZBmnWFeVVmo4S8ZGUs"
 
 class SignalClient {
-    private var TOKEN : String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWV0aGNlM0Bkb21haW4ucG9nIiwiaWF0IjoxNjQ5NzY3NTc3LCJleHAiOjE2NTAzNzIzNzd9.XdSdDyQoNgPsglMteisgicvGQZBmnWFeVVmo4S8ZGUs"
+    private var TOKEN : String = TOKEN2
 
     private var webSocket: WebSocket? = null
     var signalListeners = ArrayList<SignalListener>()
 
     init{
+        Log.d("test", android.os.Build.VERSION.SDK_INT.toString())
+        if (android.os.Build.VERSION.SDK_INT == 30) {
+            TOKEN = TOKEN1
+        } else {
+            TOKEN = TOKEN2
+        }
         connect()
     }
 
@@ -41,6 +52,7 @@ class SignalClient {
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
+            Log.d("Signal-receive", text)
             val jsonObject = JSONObject(text)
 
             if (jsonObject.has("REASON")) {
@@ -94,29 +106,41 @@ class SignalClient {
     }
 
 
+    private fun send(message: String) {
+        Log.d("Signal-send", message)
+        webSocket?.send(message)
+    }
+
     fun send(message: ConnectSignalMessage) {
         val msg = Json.encodeToString(message)
-        webSocket?.send(msg)
+        send(msg)
     }
 
     fun send(message: CallSignalMessage) {
         val msg = Json.encodeToString(message)
-        webSocket?.send(msg)
+        send(msg)
     }
 
     fun send(message: CallResponseSignalMessage) {
         val msg = Json.encodeToString(message)
-        webSocket?.send(msg)
+        send(msg)
     }
 
     fun send(message: IceCandidateSignalMessage) {
-        val msg = Json.encodeToString(message)
-        webSocket?.send(msg)
+        Handler(Looper.getMainLooper()).postDelayed(
+            {
+                // This method will be executed once the timer is over
+                val msg = Json.encodeToString(message)
+                send(msg)
+            },
+            10000 // value in milliseconds
+        )
+
     }
 
     fun send(message: HangupSignalMessage) {
         val msg = Json.encodeToString(message)
-        webSocket?.send(msg)
+        send(msg)
     }
 
 

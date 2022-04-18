@@ -82,9 +82,7 @@ class callingFragment : Fragment() {
         simpleChronometer.start() // start a chronometer
 
         // Initiate a call request to the contact
-        signalingClient = ClientFactory.getSignalClient()
-        var contactPhoneNumber = "1319131313"
-        callContact(contactPhoneNumber)
+        callContact()
     }
 
     companion object {
@@ -94,11 +92,15 @@ class callingFragment : Fragment() {
     }
 
     // Call contact based on phone number
-    fun callContact(phoneNumber: String) {
-        val userPhoneNumber = "1319151313"
-        val callData = CallSignalMessage(userPhoneNumber, phoneNumber, "rick roll")
+    fun callContact() {
+        val phoneNumber1 = "1319131313"
+        val phoneNumber2 = "1319151313"
 
-        ClientFactory.getCallHandler().call(phoneNumber)
+        if (android.os.Build.VERSION.SDK_INT == 30) {
+            ClientFactory.getCallHandler().call(phoneNumber1, phoneNumber2)
+        } else {
+            ClientFactory.getCallHandler().call(phoneNumber2, phoneNumber1)
+        }
     }
 }
 

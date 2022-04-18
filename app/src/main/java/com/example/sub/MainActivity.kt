@@ -11,6 +11,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.databinding.ActivityPermissionBinding
 import com.example.sub.session.CallHandler
+import com.example.sub.session.CallSession
 import com.example.sub.session.ClientFactory
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.*
@@ -34,6 +35,10 @@ class MainActivity : AppCompatActivity() {
         layout = binding.permissionLayout
         setContentView(R.layout.activity_main)
         ClientFactory.getCallHandler().setContext(this.applicationContext)
+        ClientFactory.getCallHandler().callReceivedListener.add { callSession ->
+            val callDialog = CallDialog(callSession)
+            callDialog.show(supportFragmentManager, "callDialog")
+        }
     }
 
     private val requestPermissionLauncher =

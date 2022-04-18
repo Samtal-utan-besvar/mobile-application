@@ -4,13 +4,12 @@ import kotlinx.serialization.*
 import org.webrtc.SessionDescription
 
 @Serializable
-abstract class SignalMessage(var REASON: String) {
-    var reason: String = REASON
-}
+abstract class SignalMessage(private val REASON: String) {}
+
 
 @Serializable
 data class ConnectSignalMessage(
-    var TOKEN: String
+    val TOKEN: String
 ) : SignalMessage("connect")
 
 
@@ -25,9 +24,9 @@ fun CallSignalMessage(
 
 @Serializable
 data class CallSignalMessage(
-    var CALLER_PHONE_NUMBER: String,
-    var TARGET_PHONE_NUMBER: String,
-    var SDP: String
+    val CALLER_PHONE_NUMBER: String,
+    val TARGET_PHONE_NUMBER: String,
+    val SDP: String
 ) : SignalMessage("call") {
 
     fun toResponse(callResponse: CallResponse, sdp: SessionDescription? = null): CallResponseSignalMessage {
@@ -50,18 +49,18 @@ fun CallResponseSignalMessage(
 
 @Serializable
 data class CallResponseSignalMessage(
-    var RESPONSE: String,
-    var CALLER_PHONE_NUMBER: String,
-    var TARGET_PHONE_NUMBER: String,
-    var SDP: String
+    val RESPONSE: String,
+    val CALLER_PHONE_NUMBER: String,
+    val TARGET_PHONE_NUMBER: String,
+    val SDP: String
 ) : SignalMessage("callResponse") {
     fun isAllowed(): Boolean{
-        return (RESPONSE === CallResponse.ALLOW.toString())
+        return (RESPONSE === CallResponse.ACCEPT.toString())
     }
 }
 
 enum class CallResponse {
-    ALLOW,
+    ACCEPT,
     DENY;
 
     override fun toString(): String {
@@ -72,15 +71,15 @@ enum class CallResponse {
 
 @Serializable
 data class IceCandidateSignalMessage(
-    var CALLER_PHONE_NUMBER: String,
-    var TARGET_PHONE_NUMBER: String,
-    var CANDIDATE: String
+    val ORIGIN_PHONE_NUMBER: String,
+    val TARGET_PHONE_NUMBER: String,
+    val CANDIDATE: String
 ) : SignalMessage("ICECandidate")
 
 
 @Serializable
 data class HangupSignalMessage(
-    var CALLER_PHONE_NUMBER: String,
-    var TARGET_PHONE_NUMBER: String
+    val CALLER_PHONE_NUMBER: String,
+    val TARGET_PHONE_NUMBER: String
 ) : SignalMessage("HangUp")
 

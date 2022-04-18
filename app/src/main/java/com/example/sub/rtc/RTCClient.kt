@@ -2,11 +2,15 @@ package com.example.sub.rtc
 
 import android.content.Context
 import android.util.Log
+import org.json.JSONException
+import org.json.JSONObject
 import org.webrtc.*
+import java.nio.ByteBuffer
+import kotlin.text.Charsets.UTF_8
 
 class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
-    private var observer = observer
+    private var observer: PeerConnection.Observer
     val TAG = "RTCClient"
 
     private var remoteSessionDescription: SessionDescription? = null
@@ -24,6 +28,19 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
 
     init {
+        this.observer = object : PeerConnection.Observer by observer {
+
+            override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {
+                Log.d("RTCClient-ice", p0.toString())
+            }
+
+            override fun onDataChannel(p0: DataChannel?) {
+                Log.d("RTCClient-channel", p0.toString())
+                this.onDataChannel(p0)
+                channel = p0
+                p0?.registerObserver(DefaultDataChannelObserver(p0))
+            }
+        }
         initPeerConnectionFactory(context)
     }
 
@@ -41,8 +58,8 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
         return PeerConnectionFactory
             .builder()
             .setOptions(PeerConnectionFactory.Options().apply {
-                disableEncryption = true
-                disableNetworkMonitor = true
+                //disableEncryption = true
+                //disableNetworkMonitor = true
             })
             .createPeerConnectionFactory()
     }
@@ -61,9 +78,11 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
         }
 
+        makeDataChannel()
         createOffer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 setLocalDescription(sdpObserver, desc)
+                sdpObserver.onCreateSuccess(desc)
             }
         }, constraints)
     }
@@ -77,6 +96,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 setLocalDescription(sdpObserver, desc)
+                sdpObserver.onCreateSuccess(desc)
             }
         }, constraints)
     }
@@ -116,6 +136,59 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
     fun endCall() {
         peerConnection.close()
+    }
+
+
+    // Testing stuff
+
+    var channel: DataChannel? = null
+
+    fun makeDataChannel() {
+        val init = DataChannel.Init()
+        channel = peerConnection.createDataChannel("123", init)
+        channel!!.registerObserver(DefaultDataChannelObserver(channel!!))
+    }
+
+    fun sendMessage(message: String) {
+        val sendJSON = JSONObject()
+        sendJSON.put("msg", message)
+        val buf = ByteBuffer.wrap(sendJSON.toString().toByteArray(UTF_8))
+        channel?.send(DataChannel.Buffer(buf, false))
+    }
+
+    open inner class DefaultDataChannelObserver(val channel: DataChannel) : DataChannel.Observer {
+
+
+        //TODO I'm not sure if this would handle really long messages
+        override fun onMessage(p0: DataChannel.Buffer?) {
+            val buf = p0?.data
+            if (buf != null) {
+                val byteArray = ByteArray(buf.remaining())
+                buf.get(byteArray)
+                val received = String(byteArray, UTF_8)
+                try {
+                    val message = JSONObject(received).getString("msg")
+                    Log.d("RTCClient-receive", message)
+                } catch (e: JSONException) {
+                    Log.d("RTCClient-receive", "error")
+                }
+
+
+            }
+        }
+
+        override fun onBufferedAmountChange(p0: Long) {
+            Log.d("RTCClient-buffered","channel buffered amount change:{$p0}")
+        }
+
+        override fun onStateChange() {
+            Log.d("RTCClient-state","Channel state changed:${channel.state()?.name}}")
+            if (channel.state() == DataChannel.State.OPEN) {
+                Log.d("RTCClient-state","Chat established.")
+            } else {
+                Log.d("RTCClient-state","Chat ended.")
+            }
+        }
     }
 
 }
