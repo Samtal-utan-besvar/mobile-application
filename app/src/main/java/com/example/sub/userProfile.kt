@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import com.example.sub.profileFragment.Companion.USER_KEY
 
 /**
  * A simple [Fragment] subclass.
@@ -14,6 +15,11 @@ import androidx.navigation.Navigation.findNavController
  * create an instance of this fragment.
  */
 class userProfile : Fragment() {
+
+    val user : UserItem by lazy { arguments?.getParcelable(USER_KEY)!!}
+
+
+
     var navController: NavController? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
