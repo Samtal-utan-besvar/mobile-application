@@ -43,6 +43,14 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
      * create an instance of this fragment.
      */
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return inflater.inflate(R.layout.fragment_profile, container, false)
+    }
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         addContactBttn = view.findViewById(R.id.addContact)

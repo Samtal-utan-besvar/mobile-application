@@ -29,13 +29,12 @@ class LoginActivity : AppCompatActivity() {
      * Starts mainActivity and finish the LoginActivity.
      */
     fun startMainActivity() {
+        let{
 
-        //let{
-
-        //    val intent = Intent(it, MainActivity::class.java)
-       //     it.startActivity(intent)
-        //}
+            val intent = Intent(it, MainActivity::class.java)
+            it.startActivity(intent)
+        }
         //println("HGDAWIDHAWILDHLIAWDHLIAwdHLIAdwLHIKLDHAWILHIDAWHLIDAWHLIADKWhlIKDAWLHIK")
-        //finish()
+        finish()
     }
 }
