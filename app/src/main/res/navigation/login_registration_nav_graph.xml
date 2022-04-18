@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_loginFragment2_to_loginActivity"
             app:destination="@id/loginActivity" />
+        <action
+            android:id="@+id/action_loginFragment2_to_nav_graph"
+            app:destination="@id/nav_graph" />
     </fragment>
     <fragment
         android:id="@+id/registrationFragment2"
@@ -34,4 +37,5 @@
         android:name="com.example.sub.ui.login.LoginActivity"
         android:label="activity_login"
         tools:layout="@layout/activity_login" />
+    <include app:graph="@navigation/nav_graph" />
 </navigation>

@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-class contactListAdapter(userList: MutableList<User>, onClickListener: profileFragment) :
+class contactListAdapter(userList: MutableList<User>, onClickListener: ProfileFragment) :
     RecyclerView.Adapter<contactListAdapter.ViewHolder>() {
     interface ListItemClickListener {
         fun onListItemClick(position: Int)
