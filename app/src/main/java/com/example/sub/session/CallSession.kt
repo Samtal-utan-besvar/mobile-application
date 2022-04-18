@@ -33,14 +33,14 @@ class CallSession(private var signalClient: SignalClient, private var context: C
                         val iceCandidateSignalMessage = IceCandidateSignalMessage(
                             targetPhoneNumber!!,
                             callerPhoneNumber!!,
-                            "-"//jsonObject.toString()
+                            jsonObject.toString()
                         )
                         signalClient.send(iceCandidateSignalMessage)
                     } else {
                         val iceCandidateSignalMessage = IceCandidateSignalMessage(
                             callerPhoneNumber!!,
                             targetPhoneNumber!!,
-                            "-"//jsonObject.toString()
+                            jsonObject.toString()
                         )
                         signalClient.send(iceCandidateSignalMessage)
                     }

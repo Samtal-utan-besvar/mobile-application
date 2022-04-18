@@ -56,24 +56,36 @@ class SignalClient {
             val jsonObject = JSONObject(text)
 
             if (jsonObject.has("REASON")) {
-                val reason = jsonObject.get("REASON").toString().uppercase()
+                val reason = jsonObject.get("REASON").toString()
                 Log.d("reason", reason)
 
                 when {
-                    reason.startsWith(ReasonCommand.CALL.toString(), true) ->
+                    reason.equals(ReasonCommand.CALL.toString(), true) ->
                         handleCallMessage(text)
-                    reason.startsWith(ReasonCommand.CALLRESPONSE.toString(), true) ->
+                    reason.equals(ReasonCommand.CALLRESPONSE.toString(), true) ->
                         handleCallResponseCommand(text)
-                    reason.startsWith(ReasonCommand.ICECANDIDATE.toString(), true) ->
+                    reason.equals(ReasonCommand.ICECANDIDATE.toString(), true) ->
                         handleICECandidateCommand(text)
-                    reason.startsWith(ReasonCommand.HANGUP.toString(), true) ->
+                    reason.equals(ReasonCommand.HANGUP.toString(), true) ->
                         handleHangUpCommand(text)
+                    else -> Log.e("Signal-receive", "$reason did not match")
                 }
 
             } else if (jsonObject.has("RESPONSE")) {
                 val response = jsonObject.get("RESPONSE").toString()
                 Log.d("response", response)
             }
+        }
+
+        override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            super.onClosed(webSocket, code, reason)
+            Log.d("Signal-closed", reason)
+        }
+
+        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+            super.onFailure(webSocket, t, response)
+            val msg = response?.message ?: t.message ?: ""
+            Log.d("Signal-fail", msg)
         }
     }
 

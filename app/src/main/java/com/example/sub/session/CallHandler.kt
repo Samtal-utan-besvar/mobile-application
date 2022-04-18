@@ -19,10 +19,16 @@ class CallHandler(private var signalClient: SignalClient) : SignalListener{
         this.context = context
     }
 
-    fun call(callerPhoneNumber: String, targetPhoneNumber: String): CallSession {
-        val call: CallSession = CallSession(signalClient, context!!)
-        call.requestCall(callerPhoneNumber, targetPhoneNumber)
-        return call
+    fun call(callerPhoneNumber: String, targetPhoneNumber: String): CallSession? {
+        if (activeSession == null) {
+            val call: CallSession = CallSession(signalClient, context!!)
+            call.requestCall(callerPhoneNumber, targetPhoneNumber)
+            activeSession = call
+            return call
+        } else {
+            Log.e("CallHandler", "There is already an active session")
+            return null
+        }
     }
 
     override fun onCallMessageReceived(callSignalMessage: CallSignalMessage) {

@@ -84,10 +84,7 @@ class MainActivity : AppCompatActivity() {
     fun onClickSignalServer(view: View){
         //val websocketClient = SignalingClient()
         //websocketClient.connect()
-        val sc1 = ClientFactory.getSignalClient()
-        val sc2 = ClientFactory.getSignalClient()
-        Log.d("", sc1.toString())
-        Log.d("", sc2.toString())
+        val sc1 = ClientFactory.getSignalClient().connect()
     }
 }
 
