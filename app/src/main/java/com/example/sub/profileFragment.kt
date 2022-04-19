@@ -8,8 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.Group
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -122,10 +124,13 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
 
         override fun onListItemClick(position: Int) {
             println(position)
-            val bundle = Bundle()
-            val gson = Gson()
-            bundle.putSerializable("user", gson.toJson(contacts[position]))
-            println(bundle)
+//            arguments?.putString("firstName", contacts[position].firstName)
+            val user : User = contacts[position]
+            val bundle : Bundle = Bundle()
+            bundle.putString("first_name", user.firstName)
+            bundle.putString("last_name", user.lastName)
+            bundle.putString("phone_nr", user.number)
+            navController?.navigate(R.id.action_profileFragment_to_userProfile, bundle)
         }
 
         private fun getUserToken(): String? {
