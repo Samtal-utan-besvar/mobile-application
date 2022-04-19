@@ -18,7 +18,6 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        println("HJEHEJEHEHJEHJEHJEHJEHJEHJEHJEHJEHJHJE")
         // Skips the login fragment, only for debugging
         if (LOGIN_DISABLED) {
             startMainActivity()
@@ -34,7 +33,7 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(it, MainActivity::class.java)
             it.startActivity(intent)
         }
-        //println("HGDAWIDHAWILDHLIAWDHLIAwdHLIAdwLHIKLDHAWILHIDAWHLIDAWHLIADKWhlIKDAWLHIK")
+
         finish()
     }
 }

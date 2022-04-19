@@ -25,15 +25,15 @@ import okhttp3.*
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
-    //private lateinit var layout: View
-   // private lateinit var binding: ActivityPermissionBinding
+    private lateinit var layout: View
+    private lateinit var binding: ActivityPermissionBinding
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //binding = ActivityPermissionBinding.inflate(layoutInflater)
-        //layout = binding.permissionLayout
+        binding = ActivityPermissionBinding.inflate(layoutInflater)
+        layout = binding.permissionLayout
         setContentView(R.layout.activity_main)
     }
 

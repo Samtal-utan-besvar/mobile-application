@@ -52,7 +52,10 @@ class LoginDataSource {
                     Result.Error(IOException("Error logging in"))
                 } else {
                     Log.d("myDebug", "Result: $result")
+
                     val loggedInUser = LoggedInUser(result.component1(), null)
+                    println("loggedinUser: ")
+                    println(loggedInUser)
                     Result.Success(loggedInUser)
                 }
             }

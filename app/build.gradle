@@ -82,7 +82,11 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
     androidTestImplementation 'androidx.test:rules:1.4.1-alpha05'
 
+
     androidTestImplementation('androidx.test.espresso:espresso-intents:3.4.0')
 
-
+    implementation("io.ktor:ktor-client-core:2.0.0")
+    implementation("io.ktor:ktor-client-cio:2.0.0")
+    implementation("io.ktor:ktor-client-content-negotiation:2.0.0")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.0")
 }

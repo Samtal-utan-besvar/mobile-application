@@ -20,7 +20,7 @@ import com.google.gson.Gson
 import com.example.sub.ui.login.LoginViewModel
 import com.example.sub.data.LoggedInUser
 import com.example.sub.ui.login.LoginViewModelFactory
-
+import kotlinx.coroutines.runBlocking
 
 
 class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
@@ -37,6 +37,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     private lateinit var contactGroup: Group
     private var contacts: MutableList<User> = ArrayList()
     private val profileFragmentViewModel : ProfileFragmentViewModel by activityViewModels()
+
     /**
      * A simple [Fragment] subclass.
      * Use the [ProfileFragment.newInstance] factory method to
@@ -53,6 +54,8 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
+        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
+        runBlocking {  loginViewModel.getUser()?.userToken?.let { profileFragmentViewModel.setUserToken(it) }}
         addContactBttn = view.findViewById(R.id.addContact)
         addContactText = view.findViewById(R.id.addContactText)
         confirmContact = view.findViewById(R.id.confirmContact)
@@ -63,6 +66,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         contactList = view.findViewById(R.id.contactList)
         contactGroup.visibility = View.GONE
         profileFragmentViewModel.getUsers()
+
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.contactList)
         val adapter = contactListAdapter(contacts, this)
@@ -79,12 +83,12 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
             })
 
         navController = findNavController(view.findViewById(R.id.AnnaKnappen))
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
         navController = findNavController(view)
         view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
-            navController!!.navigate(
-                R.id.action_profileFragment_to_userProfile
-            )
+            //navController!!.navigate(
+              //  R.id.action_profileFragment_to_userProfile
+            //)
+            println(profileFragmentViewModel.getUserToken())
         }
 
         view.findViewById<View>(R.id.addContact).setOnClickListener {
@@ -100,6 +104,9 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
                 if (adapter != null) {
                     adapter.notifyDataSetChanged()
                 }
+
+                //profileFragmentViewModel.setPhoneNumber(contactNumber.text.toString())
+                runBlocking {  profileFragmentViewModel.addContact(contactNumber.text.toString())}
                 contactFirstName.text = ""
                 contactLastName.text = ""
                 contactNumber.text = ""
