@@ -16,6 +16,7 @@ import com.google.gson.Gson
  * A simple [Fragment] subclass.
  * Use the [UserProfile.newInstance] factory method to
  * create an instance of this fragment.
+ * a user
  */
 class UserProfile : Fragment() {
     var navController: NavController? = null

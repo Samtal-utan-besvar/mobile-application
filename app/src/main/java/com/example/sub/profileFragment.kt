@@ -5,45 +5,23 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.constraintlayout.widget.Group
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import com.example.sub.ui.login.LoginViewModel
 import com.example.sub.data.LoggedInUser
 import com.example.sub.ui.login.LoginViewModelFactory
-import kotlinx.coroutines.runBlocking
 
 
-class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
-    var navController: NavController? = null
-
+/**
+ * A simple [Fragment] subclass.
+ * Use the [ProfileFragment.newInstance] factory method to
+ * create an instance of this fragment.
+ */
+class ProfileFragment : Fragment() {
+    private var navController: NavController? = null
     private lateinit var loginViewModel: LoginViewModel
-    private lateinit var addContactBttn: View
-    private lateinit var addContactText: View
-    private lateinit var confirmContact: View
-    private lateinit var contactFirstName: TextView
-    private lateinit var contactLastName: TextView
-    private lateinit var contactNumber: TextView
-    private lateinit var contactList: RecyclerView
-    private lateinit var contactGroup: Group
-    private var contacts: MutableList<User> = ArrayList()
-    private val profileFragmentViewModel : ProfileFragmentViewModel by activityViewModels()
-
-    /**
-     * A simple [Fragment] subclass.
-     * Use the [ProfileFragment.newInstance] factory method to
-     * create an instance of this fragment.
-     */
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,93 +30,33 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
-        runBlocking {  loginViewModel.getUser()?.userToken?.let { profileFragmentViewModel.setUserToken(it) }}
-        addContactBttn = view.findViewById(R.id.addContact)
-        addContactText = view.findViewById(R.id.addContactText)
-        confirmContact = view.findViewById(R.id.confirmContact)
-        contactFirstName = view.findViewById(R.id.contactFirstName)
-        contactLastName = view.findViewById(R.id.contactLastName)
-        contactNumber = view.findViewById(R.id.contactNr)
-        contactGroup = view.findViewById(R.id.addContactGroup)
-        contactList = view.findViewById(R.id.contactList)
-        contactGroup.visibility = View.GONE
-        profileFragmentViewModel.getUsers()
-
-
-        val recyclerView = view.findViewById<RecyclerView>(R.id.contactList)
-        val adapter = contactListAdapter(contacts, this)
-        recyclerView.layoutManager = LinearLayoutManager(activity)
-        recyclerView.adapter = adapter
-        if (adapter != null) {
-            adapter.notifyDataSetChanged()
-        }
-        profileFragmentViewModel.getUsers().observe(viewLifecycleOwner,
-            Observer<List<User>> { strings ->
-                adapter.changeDataSet(strings)
-                adapter.notifyDataSetChanged()
-                contacts = strings as MutableList<User>
-            })
-
-        navController = findNavController(view.findViewById(R.id.AnnaKnappen))
         navController = findNavController(view)
         view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
-            //navController!!.navigate(
-              //  R.id.action_profileFragment_to_userProfile
-            //)
-            println(profileFragmentViewModel.getUserToken())
+            navController!!.navigate(
+                R.id.action_profileFragment_to_userProfile
+            )
+        }
+        view.findViewById<View>(R.id.logout).setOnClickListener {
+            loginViewModel.loginRepository.logout()
+            (activity as MainActivity?)!!.startLoginActivity()
         }
 
-        view.findViewById<View>(R.id.addContact).setOnClickListener {
-            contactGroup.visibility = View.VISIBLE
-            contactList.visibility = View.GONE
-        }
-            view.findViewById<View>(R.id.logout).setOnClickListener {
-                loginViewModel.loginRepository.logout()
-                (activity as MainActivity?)!!.startLoginActivity()
-            }
+        Log.d("myDebug", "getUserToken(): " + getUserToken())
+    }
 
-            view.findViewById<View>(R.id.confirmContact).setOnClickListener {
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged()
-                }
+    private fun getUserName(): String? {
+        return loginViewModel.loginRepository.user?.displayName
+    }
 
-                //profileFragmentViewModel.setPhoneNumber(contactNumber.text.toString())
-                runBlocking {  profileFragmentViewModel.addContact(contactNumber.text.toString())}
-                contactFirstName.text = ""
-                contactLastName.text = ""
-                contactNumber.text = ""
-                contactGroup.visibility = View.GONE
-                contactList.visibility = View.VISIBLE
-            }
-            Log.d("myDebug", "getUserToken(): " + getUserToken())
-        }
+    private fun getUserToken(): String? {
+        return loginViewModel.loginRepository.user?.userToken
+    }
 
-        private fun getUserName(): String? {
-            return loginViewModel.loginRepository.user?.displayName
+    companion object {
+        fun newInstance(): CallingFragment {
+            return CallingFragment()
         }
-
-        override fun onListItemClick(position: Int) {
-            println(position)
-//            arguments?.putString("firstName", contacts[position].firstName)
-            val user : User = contacts[position]
-            val bundle : Bundle = Bundle()
-            bundle.putString("first_name", user.firstName)
-            bundle.putString("last_name", user.lastName)
-            bundle.putString("phone_nr", user.number)
-            navController?.navigate(R.id.action_profileFragment_to_userProfile, bundle)
-        }
-
-        private fun getUserToken(): String? {
-            return loginViewModel.loginRepository.user?.userToken
-        }
-
-            companion object {
-                fun newInstance(): CallingFragment {
-                    return CallingFragment()
-                }
-            }
-        }
+    }
+}
