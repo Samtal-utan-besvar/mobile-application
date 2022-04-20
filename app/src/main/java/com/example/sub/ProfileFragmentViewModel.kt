@@ -66,7 +66,6 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
         // Configure request parameters exposed by HttpRequestBuilder
     }
     val byteArray: ByteArray = response.body()
-    println("här kommer response;: ")
     val stringbody : String = response.body()
     val jsonArray = JSONTokener(stringbody).nextValue() as JSONArray
     for (i in 0 until jsonArray.length()) {
