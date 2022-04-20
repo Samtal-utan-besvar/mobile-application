@@ -45,7 +45,30 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
+    @Serializable
+    data class User(val Reason : String, val Email : String, val PhoneNumber : String, val Name: String, val Password: String)
 
+    fun onClickSignalServer(view: View){
+        // wss test
+        val client = OkHttpClient.Builder()
+            .readTimeout(3, TimeUnit.SECONDS)
+            //.sslSocketFactory()
+            .build()
+        val request = Request.Builder()
+            .url("ws://144.24.171.133:4000") // 'ws'
+            .build()
+        val wsListener = SignalWebsocketListener ()
+        val webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
+
+
+        /*
+        val data = User("connect", "test@domain.com", "222333", "Edward Blom", "password123")
+        val dataString = Json.encodeToString(data)
+        println(dataString)
+        val sc = SignalingClient()
+        sc.sendCommand(dataString)
+        */
+    }
 }
 
 fun View.showSnackbar(
@@ -64,6 +87,3 @@ fun View.showSnackbar(
         snackbar.show()
     }
 }
-
-
-

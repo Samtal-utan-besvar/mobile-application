@@ -35,5 +35,6 @@
     <string name="ok">OK</string>
     <string name="Record">Record</string>
     <string name="ReqPermission">Request Permission</string>
+    <string name="sigServerReq">Signal the Server</string>
 
 </resources>
