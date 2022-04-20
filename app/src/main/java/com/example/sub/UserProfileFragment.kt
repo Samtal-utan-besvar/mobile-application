@@ -39,6 +39,7 @@ class UserProfileFragment : Fragment() {
         profilePhoneNumber.text = arguments?.getString("phone_nr")
         view.findViewById<View>(R.id.callButton).setOnClickListener {
             navController!!.navigate(
+
                 R.id.action_userProfile_to_callingFragment
             )
         }
