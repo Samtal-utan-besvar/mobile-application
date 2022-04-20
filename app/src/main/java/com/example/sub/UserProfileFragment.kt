@@ -23,6 +23,7 @@ class UserProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         return inflater.inflate(R.layout.fragment_user_profile, container, false)
     }
 
@@ -40,12 +41,12 @@ class UserProfileFragment : Fragment() {
         view.findViewById<View>(R.id.callButton).setOnClickListener {
             navController!!.navigate(
 
-                R.id.action_userProfile_to_callingFragment
+                R.id.action_userProfileFragment_to_callingFragment
             )
         }
         view.findViewById<View>(R.id.profile).setOnClickListener {
             navController!!.navigate(
-                R.id.action_userProfile_to_profileFragment
+                R.id.action_userProfileFragment_to_ProfileFragment
             )
         }
     }
@@ -57,7 +58,7 @@ class UserProfileFragment : Fragment() {
             {
                 override fun handleOnBackPressed() {
                     navController!!.navigate(
-                        R.id.action_userProfile_to_profileFragment
+                        R.id.action_userProfileFragment_to_ProfileFragment
                     )
                 }
             }

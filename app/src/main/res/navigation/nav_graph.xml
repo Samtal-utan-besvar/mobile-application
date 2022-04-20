@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/profileFragment">
+    app:startDestination="@id/ProfileFragment">
 
 
     <fragment
-        android:id="@+id/profileFragment"
+        android:id="@+id/ProfileFragment"
         android:name="com.example.sub.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" >
+        tools:layout="@layout/fragment_profile">
         <action
-            android:id="@+id/action_profileFragment_to_userProfileFragment"
+            android:id="@+id/action_ProfileFragment_to_userProfileFragment"
             app:destination="@id/userProfileFragment" />
     </fragment>
     <fragment
@@ -30,10 +30,10 @@
         android:label="fragment_user_profile"
         tools:layout="@layout/fragment_user_profile">
         <action
-            android:id="@+id/action_userProfile_to_callingFragment"
+            android:id="@+id/action_userProfileFragment_to_callingFragment"
             app:destination="@id/callingFragment" />
         <action
-            android:id="@+id/action_userProfile_to_profileFragment"
-            app:destination="@id/profileFragment" />
+            android:id="@+id/action_userProfileFragment_to_ProfileFragment"
+            app:destination="@id/ProfileFragment" />
     </fragment>
 </navigation>
