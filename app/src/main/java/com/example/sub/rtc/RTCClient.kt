@@ -24,8 +24,10 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     private val iceServer = listOf(
         PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
             .createIceServer(),
-        //PeerConnection.IceServer.builder("turn:141.144.249.42:4000")
-        //    .createIceServer()
+        PeerConnection.IceServer.builder("stun:141.144.249.42:4000")
+                    .createIceServer(),
+        PeerConnection.IceServer.builder("turn:141.144.249.42:4000").setUsername("test")
+            .setPassword("test123").createIceServer()
     )
 
 

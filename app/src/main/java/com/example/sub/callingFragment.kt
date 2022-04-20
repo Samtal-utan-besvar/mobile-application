@@ -93,10 +93,10 @@ class callingFragment : Fragment() {
 
     // Call contact based on phone number
     fun callContact() {
-        val phoneNumber1 = "1319131313"
-        val phoneNumber2 = "1319151313"
+        val phoneNumber1 = "0933503271"
+        val phoneNumber2 = "0933703271"
 
-        if (android.os.Build.VERSION.SDK_INT == 30) {
+        if (true) {
             ClientFactory.getCallHandler().call(phoneNumber1, phoneNumber2)
         } else {
             ClientFactory.getCallHandler().call(phoneNumber2, phoneNumber1)

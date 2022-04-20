@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit
 
 private const val SIGNAL_URL = "ws://144.24.171.133:4000" // use local ip for devices in local network
 // pixel 5: utan 5, Brw
-const val TOKEN1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVub2NlM0Bkb21haW4ucG9nIiwiaWF0IjoxNjQ5NzY3NDY3LCJleHAiOjE2NTAzNzIyNjd9.1W2Gn-6WDZCVMA2N3CXIGwsx-hkGNnbWCU-XVfm5Brw"
-const val TOKEN2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWV0aGNlM0Bkb21haW4ucG9nIiwiaWF0IjoxNjQ5NzY3NTc3LCJleHAiOjE2NTAzNzIzNzd9.XdSdDyQoNgPsglMteisgicvGQZBmnWFeVVmo4S8ZGUs"
+const val TOKEN1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbXNkZUBkbWFhaW4ucG9nIiwiaWF0IjoxNjUwNDQ1MjcyLCJleHAiOjE2NTEwNTAwNzJ9.zMfKiU2Xxy1Wde-c1PVSe-NNJagoIRMIGeMuV8e3geE"
+const val TOKEN2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbXNkZUBkbWFhaWRkbi5wb2ciLCJpYXQiOjE2NTA0NDUyOTksImV4cCI6MTY1MTA1MDA5OX0.WUhVjyj-Is_2FWk3LnWjAyn0tcYsBAARgPBDbc6-1oM"
 
 class SignalClient {
     private var TOKEN : String = TOKEN2
@@ -23,11 +23,6 @@ class SignalClient {
 
     init{
         Log.d("test", android.os.Build.VERSION.SDK_INT.toString())
-        if (android.os.Build.VERSION.SDK_INT == 30) {
-            TOKEN = TOKEN1
-        } else {
-            TOKEN = TOKEN2
-        }
         connect()
     }
 
