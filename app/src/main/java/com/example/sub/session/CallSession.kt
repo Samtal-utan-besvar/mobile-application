@@ -131,6 +131,7 @@ class CallSession(private var signalClient: SignalClient, private var context: C
 
     override fun onIceCandidateMessageReceived(iceCandidateSignalMessage: IceCandidateSignalMessage) {
         val json = JSONObject(iceCandidateSignalMessage.CANDIDATE)
+
         val iceCandidate = IceCandidate(json.getString("sdpMid"), json.getInt("sdpMLineIndex"), json.getString("sdp"))
         rtcClient.addIceCandidate(iceCandidate)
     }

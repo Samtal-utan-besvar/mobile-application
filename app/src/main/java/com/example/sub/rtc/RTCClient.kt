@@ -24,9 +24,9 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     private val iceServer = listOf(
         PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
             .createIceServer(),
-        PeerConnection.IceServer.builder("stun:141.144.249.42:4000")
-                    .createIceServer(),
-        PeerConnection.IceServer.builder("turn:141.144.249.42:4000").setUsername("test")
+        //PeerConnection.IceServer.builder("stun:141.144.249.42:3478")
+        //            .createIceServer(),
+        PeerConnection.IceServer.builder("turn:141.144.249.42:3478").setUsername("test")
             .setPassword("test123").createIceServer()
     )
 
@@ -86,6 +86,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
         createOffer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 setLocalDescription(sdpObserver, desc)
+                Log.d("local-desc", desc!!.description)
                 sdpObserver.onCreateSuccess(desc)
             }
         }, constraints)
@@ -100,6 +101,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 setLocalDescription(sdpObserver, desc)
+                Log.d("local-desc", desc!!.description)
                 sdpObserver.onCreateSuccess(desc)
             }
         }, constraints)

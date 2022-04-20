@@ -96,7 +96,7 @@ class callingFragment : Fragment() {
         val phoneNumber1 = "0933503271"
         val phoneNumber2 = "0933703271"
 
-        if (true) {
+        if (android.os.Build.VERSION.SDK_INT == 30) {
             ClientFactory.getCallHandler().call(phoneNumber1, phoneNumber2)
         } else {
             ClientFactory.getCallHandler().call(phoneNumber2, phoneNumber1)

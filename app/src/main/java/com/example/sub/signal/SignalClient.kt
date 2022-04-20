@@ -23,6 +23,11 @@ class SignalClient {
 
     init{
         Log.d("test", android.os.Build.VERSION.SDK_INT.toString())
+        if (android.os.Build.VERSION.SDK_INT == 30) {
+            TOKEN = TOKEN1
+        } else {
+            TOKEN = TOKEN2
+        }
         connect()
     }
 

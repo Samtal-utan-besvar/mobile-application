@@ -55,7 +55,7 @@ data class CallResponseSignalMessage(
     val SDP: String
 ) : SignalMessage("callResponse") {
     fun isAllowed(): Boolean{
-        return (RESPONSE === CallResponse.ACCEPT.toString())
+        return RESPONSE.equals(CallResponse.ACCEPT.toString(), true)
     }
 }
 
