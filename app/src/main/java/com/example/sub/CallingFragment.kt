@@ -39,7 +39,7 @@ class CallingFragment : Fragment() {
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
             // TODO: Action when close call, disconnect call from server?
             navController!!.navigate(
-                R.id.action_callingFragment_to_userProfile
+                R.id.action_callingFragment_to_userProfileFragment
             )
         }
 

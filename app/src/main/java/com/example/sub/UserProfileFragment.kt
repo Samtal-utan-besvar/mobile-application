@@ -12,13 +12,8 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import com.google.gson.Gson
 
-/**
- * A simple [Fragment] subclass.
- * Use the [UserProfile.newInstance] factory method to
- * create an instance of this fragment.
- * a user
- */
-class UserProfile : Fragment() {
+/** A UserProfileFragment used to display a contact from the contactlist **/
+class UserProfileFragment : Fragment() {
     var navController: NavController? = null
     private lateinit var profileFirstName : TextView
     private lateinit var profileLastName : TextView
@@ -31,22 +26,17 @@ class UserProfile : Fragment() {
         return inflater.inflate(R.layout.fragment_user_profile, container, false)
     }
 
+    /** Function that runs the necessary functions to show correct information on a contact users
+     * profile
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         navController = findNavController(view.findViewById(R.id.callButton))
-        println(arguments?.getString("first_name"))
-        println(arguments.toString())
         profileFirstName = view.findViewById(R.id.profileFName)
         profileLastName = view.findViewById(R.id.profileLName)
         profilePhoneNumber = view.findViewById(R.id.profilePN)
         profileFirstName.text = arguments?.getString("first_name")
         profileLastName.text = arguments?.getString("last_name")
         profilePhoneNumber.text = arguments?.getString("phone_nr")
-        /**childFragmentManager.setFragmentResultListener("userProfile", this){
-            key, bundle -> val result = bundle.getString("user")
-            println("hola: ")
-            println(result?.get(0) ?: String)
-        }**/
-        val gson: Gson = Gson()
         view.findViewById<View>(R.id.callButton).setOnClickListener {
             navController!!.navigate(
                 R.id.action_userProfile_to_callingFragment

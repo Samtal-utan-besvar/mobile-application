@@ -25,31 +25,28 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
     private val users: MutableLiveData<List<User>> = MutableLiveData()
     private var userToken = ""
     private var errorMessage = ""
-    private var phoneNumber = ""
     private val context = getApplication<Application>().applicationContext
-    /**fun getUsers(): LiveData<List<User>> {
-        val returnstring = loadUsers()
-        return returnstring
-    }**/
 
+    /** Fetches all contacts of a user to put in the contactlist **/
     fun getUsers(): LiveData<List<User>> {
-        val returnstring = runBlocking {loadUsers()}
+        runBlocking {loadUsers()}
         return users
     }
 
+    /** Function to fetch the JWT userToken **/
     fun getUserToken(): String {
         return userToken
     }
 
+    /** Function to set the JWT userToken for the ProfileFragmentViewModel **/
     fun setUserToken(token: String){
         userToken = token
 
     }
 
-    fun setPhoneNumber(number: String){
-        phoneNumber = number
-    }
-
+    /** Function to fetch all contacts of a user and put them in a list to be used
+     * in the contactlist
+     */
     private suspend fun loadUsers() {
     var allUsers: MutableList<User> = ArrayList()
     var token : String = userToken
@@ -63,9 +60,8 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
             append(HttpHeaders.UserAgent, "ktor client")
             append(HttpHeaders.Authorization, token)
         }
-        // Configure request parameters exposed by HttpRequestBuilder
+
     }
-    val byteArray: ByteArray = response.body()
     val stringbody : String = response.body()
     val jsonArray = JSONTokener(stringbody).nextValue() as JSONArray
     for (i in 0 until jsonArray.length()) {
@@ -79,6 +75,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
 
     }
 
+    /** Adds a contact to the list and then fetches the updated Contactlist **/
     suspend fun addContact(phone: String) {
         val client = HttpClient(CIO){
             install(ContentNegotiation){

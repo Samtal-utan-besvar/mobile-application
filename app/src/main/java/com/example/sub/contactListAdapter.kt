@@ -6,13 +6,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-
+/** The Adapter used when building the contactlist **/
 class contactListAdapter(userList: MutableList<User>, onClickListener: ProfileFragment) :
     RecyclerView.Adapter<contactListAdapter.ViewHolder>() {
     interface ListItemClickListener {
         fun onListItemClick(position: Int)
     }
 
+    /** A viewholder for the different textviews in the contactlist **/
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view),
         View.OnClickListener {
         val contactFirstName: TextView
@@ -51,12 +52,14 @@ class contactListAdapter(userList: MutableList<User>, onClickListener: ProfileFr
               .setText(userList_!![position].number)
     }
 
+    /** Returns the number of items in the contactlist **/
     override fun getItemCount(): Int {
         return if (userList_ == null) {
             0
         } else userList_!!.size
     }
 
+    /** Function used when a contactlist is changed so that the list is updated **/
     fun changeDataSet(strings: List<User>?) {
         userList_ = strings as MutableList<User>?
     }
