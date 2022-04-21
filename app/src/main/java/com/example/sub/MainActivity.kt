@@ -77,14 +77,14 @@ class MainActivity : AppCompatActivity() {
     @Serializable
     data class User(val Reason : String, val Email : String, val PhoneNumber : String, val Name: String, val Password: String)
 
-    fun onClickSignalServer(view: View){
+    fun onClickTranscribe(view: View){
         // wss test
         val client = OkHttpClient.Builder()
             .readTimeout(3, TimeUnit.SECONDS)
             //.sslSocketFactory()
             .build()
         val request = Request.Builder()
-            .url("ws://144.24.171.133:4000") // 'ws'
+            .url("ws://129.151.209.72:6000")
             .build()
         val wsListener = SignalWebsocketListener ()
         val webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
