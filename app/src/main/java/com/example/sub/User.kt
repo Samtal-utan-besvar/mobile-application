@@ -1,7 +1,11 @@
 package com.example.sub
 
-class User(firstName_: String, lastName_ : String, number_: String) {
-        var firstName: String? = firstName_
-        var lastName: String? = lastName_
-        var number: String? = number_
+import kotlinx.serialization.Serializable
+
+/** User used primarily in the contactlist **/
+class User(
+        firstname: String, lastname: String, phone_number: String) {
+        var firstName: String? = firstname
+        var lastName: String? = lastname
+        var number: String = phone_number
 }

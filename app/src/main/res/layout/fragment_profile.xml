@@ -5,7 +5,7 @@
     android:id="@+id/permission_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".profileFragment">
+    tools:context=".ProfileFragment">
 
     <ImageButton
         android:id="@+id/imageButton"
@@ -154,12 +154,23 @@
         app:constraint_referenced_ids="contactFirstName,contactLastName,contactNr,addContactText,confirmContact" />
 
     <Button
+        android:id="@+id/logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Logga ut"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.387"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.122" />
+
+    <Button
         android:id="@+id/buttonSignalReq"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="416dp"
         android:layout_marginEnd="124dp"
-        android:onClick="onClickSignalServer"
         android:text="@string/sigServerReq"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
