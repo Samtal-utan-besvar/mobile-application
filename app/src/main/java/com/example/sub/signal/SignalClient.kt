@@ -139,15 +139,8 @@ class SignalClient {
     }
 
     fun send(message: IceCandidateSignalMessage) {
-        Handler(Looper.getMainLooper()).postDelayed(
-            {
-                // This method will be executed once the timer is over
-                val msg = Json.encodeToString(message)
-                send(msg)
-            },
-            10000 // value in milliseconds
-        )
-
+        val msg = Json.encodeToString(message)
+        send(msg)
     }
 
     fun send(message: HangupSignalMessage) {

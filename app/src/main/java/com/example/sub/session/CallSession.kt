@@ -5,6 +5,8 @@ import com.example.sub.rtc.*
 import com.example.sub.signal.*
 import org.json.JSONObject
 import org.webrtc.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 // Class representing an existing or pending call session
 class CallSession(private var signalClient: SignalClient, private var context: Context): SignalListener {
@@ -15,6 +17,9 @@ class CallSession(private var signalClient: SignalClient, private var context: C
     private var isHost = false
     var callerPhoneNumber: String? = null
     var targetPhoneNumber: String? = null
+
+    private val waitingIceCandidates : Queue<IceCandidateSignalMessage> = LinkedList()
+    private var hasReceivedIce = false
 
 
     private var status: CallStatus = CallStatus.CREATED
@@ -29,25 +34,25 @@ class CallSession(private var signalClient: SignalClient, private var context: C
                     jsonObject.put("sdpMid", p0.sdpMid)
                     jsonObject.put("sdpMLineIndex", p0.sdpMLineIndex)
                     jsonObject.put("sdp", p0.sdp)
+                    val iceCandidateSignalMessage : IceCandidateSignalMessage
                     if (!isHost) {
-                        val iceCandidateSignalMessage = IceCandidateSignalMessage(
+                        iceCandidateSignalMessage = IceCandidateSignalMessage(
                             targetPhoneNumber!!,
                             callerPhoneNumber!!,
                             jsonObject.toString()
                         )
-                        signalClient.send(iceCandidateSignalMessage)
                     } else {
-                        val iceCandidateSignalMessage = IceCandidateSignalMessage(
+                        iceCandidateSignalMessage = IceCandidateSignalMessage(
                             callerPhoneNumber!!,
                             targetPhoneNumber!!,
                             jsonObject.toString()
                         )
-                        signalClient.send(iceCandidateSignalMessage)
                     }
-
+                    queueIceCandidate(iceCandidateSignalMessage)
                 }
             }
         }
+        statusUpdateListeners.add { sendWaitingIceCandidates() }
         rtcClient = RTCClient(observer, context)
     }
 
@@ -132,24 +137,49 @@ class CallSession(private var signalClient: SignalClient, private var context: C
 
     override fun onIceCandidateMessageReceived(iceCandidateSignalMessage: IceCandidateSignalMessage) {
         val json = JSONObject(iceCandidateSignalMessage.CANDIDATE)
-
         val iceCandidate = IceCandidate(json.getString("sdpMid"), json.getInt("sdpMLineIndex"), json.getString("sdp"))
         rtcClient.addIceCandidate(iceCandidate)
+
+
+        if (!hasReceivedIce) {
+            hasReceivedIce = true
+            sendWaitingIceCandidates()
+        }
     }
 
 
     override fun onHangupMessageReceived(hangupSignalMessage: HangupSignalMessage) {
-        TODO("Not yet implemented")
+        setStatus(CallStatus.ENDED)
+    }
+
+
+    private fun queueIceCandidate(iceCandidateSignalMessage: IceCandidateSignalMessage) {
+        waitingIceCandidates.add(iceCandidateSignalMessage)
+        sendWaitingIceCandidates()
+    }
+
+
+    private fun sendWaitingIceCandidates() {
+        if (canSendIce()) {
+            while (!waitingIceCandidates.isEmpty()) {
+                signalClient.send(waitingIceCandidates.remove())
+            }
+        }
+    }
+
+
+    private fun canSendIce() : Boolean {
+        return (status == CallStatus.CONNECTING || status == CallStatus.IN_CALL) && (isHost || hasReceivedIce)
     }
 
 }
 
 enum class CallStatus {
     CREATED,
-    IN_CALL,
     RECEIVING,
     REQUESTING,
     CONNECTING,
+    IN_CALL,
     DENIED,
     ENDED;
 }

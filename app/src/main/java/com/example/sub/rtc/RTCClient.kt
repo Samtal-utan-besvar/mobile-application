@@ -87,9 +87,6 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
     fun initAudio() {
         localAudioTrack = peerConnectionFactory.createAudioTrack(LOCAL_TRACK_ID, audioSource)
-        val localStream = peerConnectionFactory.createLocalMediaStream(LOCAL_STREAM_ID)
-        //localStream.addTrack(localAudioTrack)
-        //peerConnection?.addStream(localStream)
         peerConnection.addTrack(localAudioTrack)
     }
 
@@ -134,10 +131,6 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
     fun onRemoteSessionReceived(sessionDescription: SessionDescription) {
         remoteSessionDescription = sessionDescription
-
-        val desc = peerConnection.localDescription
-        val signalState = peerConnection.signalingState()
-        val connectionState = peerConnection.connectionState()
 
         peerConnection.setRemoteDescription(object : SdpObserver {
             override fun onSetFailure(p0: String?) {
