@@ -120,7 +120,8 @@ class CallSession(private var signalClient: SignalClient, private var context: C
         if(callResponseSignalMessage.isAllowed()){
             setStatus(CallStatus.CONNECTING)
 
-            val sdp = SessionDescription(SessionDescription.Type.OFFER, callResponseSignalMessage.SDP)
+            val sdpType = if(isHost) SessionDescription.Type.ANSWER else SessionDescription.Type.OFFER
+            val sdp = SessionDescription(sdpType, callResponseSignalMessage.SDP)
             rtcClient.onRemoteSessionReceived(sdp)
 
         } else{

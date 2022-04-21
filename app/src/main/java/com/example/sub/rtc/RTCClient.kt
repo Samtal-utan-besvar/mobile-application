@@ -115,6 +115,11 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
     fun onRemoteSessionReceived(sessionDescription: SessionDescription) {
         remoteSessionDescription = sessionDescription
+
+        val desc = peerConnection.localDescription
+        val signalState = peerConnection.signalingState()
+        val connectionState = peerConnection.connectionState()
+
         peerConnection.setRemoteDescription(object : SdpObserver {
             override fun onSetFailure(p0: String?) {
                 Log.e(TAG, "onSetFailure: $p0")
