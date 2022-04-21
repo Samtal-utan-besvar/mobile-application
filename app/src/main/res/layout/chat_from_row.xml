@@ -14,7 +14,7 @@
         android:layout_marginTop="16dp"
         android:maxWidth="240dp"
         android:text="testingtestingtestingtestingtestingtestingtestingtestingtestingtestingtestingtestingtestingtestingtestingtesting"
-        android:textColor="@color/material_dynamic_neutral30"
+        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
