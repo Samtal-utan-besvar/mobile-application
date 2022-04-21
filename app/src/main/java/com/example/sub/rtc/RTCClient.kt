@@ -10,6 +10,12 @@ import kotlin.text.Charsets.UTF_8
 
 class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
+    companion object {
+        private const val LOCAL_TRACK_ID = "local_track"
+        private const val LOCAL_STREAM_ID = "local_track"
+    }
+
+
     private var observer: PeerConnection.Observer
     val TAG = "RTCClient"
 
@@ -19,6 +25,8 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
     private val audioSource by lazy { peerConnectionFactory.createAudioSource(MediaConstraints())}
     private val peerConnection by lazy { buildPeerConnection() }
+
+    private var localAudioTrack : AudioTrack? = null
 
 
     private val iceServer = listOf(
@@ -77,12 +85,22 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     }
 
 
+    fun initAudio() {
+        localAudioTrack = peerConnectionFactory.createAudioTrack(LOCAL_TRACK_ID, audioSource)
+        val localStream = peerConnectionFactory.createLocalMediaStream(LOCAL_STREAM_ID)
+        //localStream.addTrack(localAudioTrack)
+        //peerConnection?.addStream(localStream)
+        peerConnection.addTrack(localAudioTrack)
+    }
+
+
     private fun PeerConnection.call(sdpObserver: SdpObserver) {
         val constraints = MediaConstraints().apply {
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
         }
 
         makeDataChannel()
+        initAudio()
         createOffer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 setLocalDescription(sdpObserver, desc)
@@ -98,6 +116,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
         }
 
+        initAudio()
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 setLocalDescription(sdpObserver, desc)
