@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
@@ -82,13 +83,17 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         }
         view.findViewById<View>(R.id.logout).setOnClickListener {
             loginViewModel.loginRepository.logout()
-            (activity as MainActivity?)!!.startLoginActivity()
+            //(activity as MainActivity?)!!.startLoginActivity()
         }
 
         view.findViewById<View>(R.id.confirmContact).setOnClickListener {
             if (adapter != null) {
                 adapter.notifyDataSetChanged()
             }
+
+            //view.findViewById<Button>(R.id.buttonPerm).setOnClickListener{
+            //    Log.d("blabla", "BLABLABLABL")
+            //}
 
             runBlocking {  profileFragmentViewModel.addContact(contactNumber.text.toString())}
             contactFirstName.text = ""
