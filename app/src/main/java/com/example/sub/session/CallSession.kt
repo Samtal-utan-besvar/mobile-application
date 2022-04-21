@@ -23,7 +23,7 @@ class CallSession(private var signalClient: SignalClient, private var context: C
 
 
     private var status: CallStatus = CallStatus.CREATED
-    var statusUpdateListeners = ArrayList<(CallStatus) -> Unit>()
+    var sessionListeners = ArrayList<SessionListener>()
 
 
     init {
@@ -52,8 +52,22 @@ class CallSession(private var signalClient: SignalClient, private var context: C
                 }
             }
         }
-        statusUpdateListeners.add { sendWaitingIceCandidates() }
         rtcClient = RTCClient(observer, context)
+    }
+
+
+    private fun setStatus(status: CallStatus) {
+        if (status != this.status) {
+            this.status = status
+            onStatusChanged(status)
+        }
+    }
+
+
+    private fun onStatusChanged(callStatus: CallStatus) {
+        sessionListeners.forEach{ it.onSessionStatusChanged(callStatus) }
+
+        sendWaitingIceCandidates()
     }
 
 
@@ -112,12 +126,6 @@ class CallSession(private var signalClient: SignalClient, private var context: C
     fun hangUp() {
         rtcClient.endCall()
         setStatus(CallStatus.ENDED)
-    }
-
-
-    private fun setStatus(status: CallStatus) {
-        this.status = status
-        statusUpdateListeners.forEach { it.invoke(status) }
     }
 
 
@@ -181,5 +189,6 @@ enum class CallStatus {
     CONNECTING,
     IN_CALL,
     DENIED,
-    ENDED;
+    ENDED,
+    FAILED
 }
