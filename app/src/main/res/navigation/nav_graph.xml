@@ -3,36 +3,37 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/profileFragment">
+    app:startDestination="@id/ProfileFragment">
+
 
     <fragment
-        android:id="@+id/profileFragment"
-        android:name="com.example.sub.profileFragment"
+        android:id="@+id/ProfileFragment"
+        android:name="com.example.sub.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" >
+        tools:layout="@layout/fragment_profile">
         <action
-            android:id="@+id/action_profileFragment_to_userProfile"
-            app:destination="@id/userProfile" />
+            android:id="@+id/action_ProfileFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
     </fragment>
     <fragment
         android:id="@+id/callingFragment"
-        android:name="com.example.sub.callingFragment"
+        android:name="com.example.sub.CallingFragment"
         android:label="fragment_calling"
         tools:layout="@layout/fragment_calling" >
         <action
-            android:id="@+id/action_callingFragment_to_userProfile"
-            app:destination="@id/userProfile" />
+            android:id="@+id/action_callingFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
     </fragment>
     <fragment
-        android:id="@+id/userProfile"
-        android:name="com.example.sub.userProfile"
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.sub.UserProfileFragment"
         android:label="fragment_user_profile"
-        tools:layout="@layout/fragment_user_profile" >
+        tools:layout="@layout/fragment_user_profile">
         <action
-            android:id="@+id/action_userProfile_to_callingFragment"
+            android:id="@+id/action_userProfileFragment_to_callingFragment"
             app:destination="@id/callingFragment" />
         <action
-            android:id="@+id/action_userProfile_to_profileFragment"
-            app:destination="@id/profileFragment" />
+            android:id="@+id/action_userProfileFragment_to_ProfileFragment"
+            app:destination="@id/ProfileFragment" />
     </fragment>
 </navigation>
