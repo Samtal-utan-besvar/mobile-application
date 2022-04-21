@@ -40,7 +40,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
             override fun onDataChannel(p0: DataChannel?) {
                 Log.d("RTCClient-channel", p0.toString())
-                this.onDataChannel(p0)
+                observer.onDataChannel(p0)
                 channel = p0
                 p0?.registerObserver(DefaultDataChannelObserver(p0))
             }
@@ -196,6 +196,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
             Log.d("RTCClient-state","Channel state changed:${channel.state()?.name}}")
             if (channel.state() == DataChannel.State.OPEN) {
                 Log.d("RTCClient-state","Chat established.")
+                sendMessage("rick roll")
             } else {
                 Log.d("RTCClient-state","Chat ended.")
             }
