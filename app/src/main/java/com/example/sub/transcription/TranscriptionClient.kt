@@ -13,10 +13,9 @@ import java.util.concurrent.TimeUnit
 private const val TRANSCRIPT_URL = "ws://129.151.209.72:6000" // use local ip for devices in local network
 // pixel 5: utan 5, Brw
 
-class SignalClient {
+class TranscriptionClient {
 
     private var webSocket: WebSocket? = null
-    var signalListeners = ArrayList<TranscriptionListener>()
 
     init{
         connect()
@@ -31,11 +30,11 @@ class SignalClient {
         val request = Request.Builder()
             .url(TRANSCRIPT_URL) // 'ws'
             .build()
-        val wsListener = SignalingWebSocketListener()
+        val wsListener = TranscribingWebSocketListener()
         webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
     }
 
-    private inner class SignalingWebSocketListener : WebSocketListener() {
+    private inner class TranscribingWebSocketListener : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
             //send(ConnectSignalMessage())
@@ -44,61 +43,49 @@ class SignalClient {
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             Log.d("Signal-receive", text)
-            val jsonObject = JSONObject(text)
 
-            if (jsonObject.has("REASON")) {
-                val reason = jsonObject.get("REASON").toString()
-                Log.d("reason", reason)
+            if (text != "") {
+                Log.d("Answer", text)
 
-                when {
-                    reason.equals(ReasonCommand.CALL.toString(), true) ->
-                        handleCallMessage(text)
-                    else -> Log.e("Signal-receive", "$reason did not match")
-                }
-
-            } else if (jsonObject.has("RESPONSE")) {
-                val response = jsonObject.get("RESPONSE").toString()
-                Log.d("response", response)
+            } else if (text == "") {
+                Log.d("Answer", "Empty answer")
+            }
+            else{
+                Log.d("Answer", "Other answer")
             }
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
             super.onClosed(webSocket, code, reason)
-            Log.d("Signal-closed", reason)
+            Log.d("Transcription-closed", reason)
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             super.onFailure(webSocket, t, response)
             val msg = response?.message ?: t.message ?: ""
-            Log.d("Signal-fail", msg)
+            Log.d("Transcription-fail", msg)
         }
     }
 
-    private fun handleCallMessage(text: String) {
-        val callMessage = Json.decodeFromString(CallSignalMessage.serializer(), text)
-        signalListeners.forEach {
-            it.onCallMessageReceived(callMessage)
-        }
+    fun sendAnswer(id: Int, ownertype: String) {
+        Log.d("Transcription-send", ownertype)
+        val message = JSONObject()
+        message.put("Reason", "answer")
+        message.put("Id", id)
+        message.put("Data", ownertype)
+        webSocket?.send(Json.encodeToString(message))
     }
 
+    fun sendSound(id: Int, sound: String) {
+        Log.d("Transcription-send", "sound")
 
-    private fun send(message: String) {
-        Log.d("Signal-send", message)
-        webSocket?.send(message)
-    }
+        //convert sound to string here()
 
-    fun send(message: ConnectSignalMessage) {
-        val msg = Json.encodeToString(message)
-        send(msg)
-    }
-
-    fun send(message: CallSignalMessage) {
-        val msg = Json.encodeToString(message)
-        send(msg)
-    }
-
-    enum class ReasonCommand {
-        CALL
+        val message = JSONObject()
+        message.put("Reason", "answer")
+        message.put("Id", id)
+        message.put("Data", sound)
+        webSocket?.send(Json.encodeToString(message))
     }
 
 }
