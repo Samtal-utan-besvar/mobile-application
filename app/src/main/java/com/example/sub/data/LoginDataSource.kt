@@ -4,6 +4,12 @@ import android.util.Log
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpPost
 import com.google.gson.Gson
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.*
 import java.io.IOException
 
@@ -35,6 +41,9 @@ class LoginDataSource {
      * <p>
      * The function is using CoroutineScope, so that the HTTP Request is not running on the main
      * thread. The function is, for that reason, suspended.
+     * <p>
+     * result.component1(): Value of a successful result
+     * result.component2(): Value of a error
      */
     suspend fun login(email: String, password: String): Result<LoggedInUser> {
         return try {
@@ -44,18 +53,11 @@ class LoginDataSource {
                 val (_, _, result) = loginURL.httpPost()
                     .jsonBody(Gson().toJson(user).toString())
                     .responseString()
-
-                // result.component1(): Value of a successful result
-                // result.component2(): Value of a error
-
                 if (result.component1() == null) {
                     Result.Error(IOException("Error logging in"))
                 } else {
-                    Log.d("myDebug", "Result: $result")
-
-                    val loggedInUser = LoggedInUser(result.component1(), null)
-                    println("loggedinUser: ")
-                    println(loggedInUser)
+                    Log.d("myDebug", "Result from login: $result")
+                    val loggedInUser = LoggedInUser(result.component1()!!.removeQuotationMarks(), null)
                     Result.Success(loggedInUser)
                 }
             }
@@ -64,9 +66,39 @@ class LoginDataSource {
         }
     }
 
-
     fun logout() {
         // TODO: revoke authentication
+    }
+
+    /**
+     * Update JWT token.
+     * <p>
+     * JWT tokens from the database server expires within one week.
+     * If the user opens the app with a valid JWT token (less then 7 days after last use),
+     * the old token is updated.
+     */
+    suspend fun updateJWTToken(userToken: String): String {
+        val client = HttpClient(CIO)
+        val token: String = userToken
+        val response: HttpResponse = client.request(url + "authenticate") {
+            method = HttpMethod.Get
+            headers {
+                append(HttpHeaders.Accept, "*/*")
+                append(HttpHeaders.UserAgent, "ktor client")
+                append(HttpHeaders.Authorization, token)
+            }
+        }
+        return response.body()
+    }
+
+    /**
+     * Removes quotation marks "" inside a String from "YOUR_STRING" to YOUR_STRING.
+     */
+    private fun String.removeQuotationMarks(): String {
+        if (startsWith("\"") && endsWith("\"")) {
+            return drop(1).dropLast(1)
+        }
+        return this
     }
 }
 

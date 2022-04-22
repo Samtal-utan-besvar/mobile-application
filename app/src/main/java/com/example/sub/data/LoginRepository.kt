@@ -3,6 +3,7 @@ package com.example.sub.data
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import kotlinx.coroutines.runBlocking
 
 
 /**
@@ -24,7 +25,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
 
     init {
         user = if (isLoggedIn) {
-            readLoggedInUser()
+            runBlocking {readLoggedInUser()}
         } else {
             null
         }
@@ -84,10 +85,13 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     /**
      * Returns saved loggedInUser object from SharedPreferences.
      */
-    private fun readLoggedInUser(): LoggedInUser? {
+    private suspend fun readLoggedInUser(): LoggedInUser? {
         val gson = Gson()
         val json = sharedPref.getString("LOGGED_IN_USER", null) ?: return null
-        return gson.fromJson(json, LoggedInUser::class.java)
+        var loggedInUser =  gson.fromJson(json, LoggedInUser::class.java)
+        val token = dataSource.updateJWTToken(loggedInUser.userToken.toString())
+        loggedInUser = LoggedInUser(token, null)
+        return loggedInUser
     }
 
     /**

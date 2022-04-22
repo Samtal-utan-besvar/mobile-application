@@ -12,11 +12,14 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.example.sub.MainActivity
+import com.example.sub.ProfileFragment
 import com.example.sub.R
 import com.example.sub.databinding.FragmentLoginBinding
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-const val AUTOLOGIN_DISABLED = true     // For debugging purposes
+const val AUTOLOGIN_DISABLED = false     // For debugging purposes
 
 class LoginFragment : Fragment() {
 
@@ -32,6 +35,7 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private var navController: NavController? = null
+//    val model = ViewModelProvider(requireActivity())[LoginViewModel::class.java]
 
 
     override fun onCreateView(inflater: LayoutInflater,
