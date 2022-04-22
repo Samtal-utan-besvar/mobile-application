@@ -3,7 +3,6 @@ package com.example.sub.session
 import android.content.Context
 import com.example.sub.rtc.*
 import com.example.sub.signal.*
-import org.json.JSONObject
 import org.webrtc.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -12,7 +11,6 @@ import kotlin.collections.ArrayList
 class CallSession(private var signalClient: SignalClient, private var context: Context): SignalListener {
 
     private var rtcClient: RTCClient
-
 
     private var isHost = false
     var callerPhoneNumber: String? = null
@@ -30,24 +28,11 @@ class CallSession(private var signalClient: SignalClient, private var context: C
         val observer = object : PeerConnectionObserver() {
             override fun onIceCandidate(p0: IceCandidate?) {
                 if (p0 != null) {
-                    val jsonObject = JSONObject()
-                    jsonObject.put("sdpMid", p0.sdpMid)
-                    jsonObject.put("sdpMLineIndex", p0.sdpMLineIndex)
-                    jsonObject.put("sdp", p0.sdp)
-                    val iceCandidateSignalMessage : IceCandidateSignalMessage
-                    if (!isHost) {
-                        iceCandidateSignalMessage = IceCandidateSignalMessage(
-                            targetPhoneNumber!!,
-                            callerPhoneNumber!!,
-                            jsonObject.toString()
-                        )
-                    } else {
-                        iceCandidateSignalMessage = IceCandidateSignalMessage(
-                            callerPhoneNumber!!,
-                            targetPhoneNumber!!,
-                            jsonObject.toString()
-                        )
-                    }
+                    val originNumber = if(isHost) callerPhoneNumber!! else targetPhoneNumber!!
+                    val targetNumber = if(isHost) targetPhoneNumber!! else callerPhoneNumber!!
+
+                    val iceCandidateSignalMessage = IceCandidateSignalMessage.fromIceCandidate(p0, originNumber, targetNumber)
+
                     queueIceCandidate(iceCandidateSignalMessage)
                 }
             }
@@ -134,7 +119,7 @@ class CallSession(private var signalClient: SignalClient, private var context: C
             setStatus(CallStatus.CONNECTING)
 
             val sdpType = if(isHost) SessionDescription.Type.ANSWER else SessionDescription.Type.OFFER
-            val sdp = SessionDescription(sdpType, callResponseSignalMessage.SDP)
+            val sdp = callResponseSignalMessage.toSessionDescription(sdpType)
             rtcClient.onRemoteSessionReceived(sdp)
 
         } else{
@@ -144,8 +129,7 @@ class CallSession(private var signalClient: SignalClient, private var context: C
 
 
     override fun onIceCandidateMessageReceived(iceCandidateSignalMessage: IceCandidateSignalMessage) {
-        val json = JSONObject(iceCandidateSignalMessage.CANDIDATE)
-        val iceCandidate = IceCandidate(json.getString("sdpMid"), json.getInt("sdpMLineIndex"), json.getString("sdp"))
+        val iceCandidate = iceCandidateSignalMessage.toIceCandidate()
         rtcClient.addIceCandidate(iceCandidate)
 
 
