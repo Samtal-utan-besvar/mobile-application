@@ -76,12 +76,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClickTranscribe(view: View){
-
         var transObj = TranscriptionClient()
         var sound = "2"
         var id = 5404
         transObj.sendSound(id, sound)
-         
     }
 }
 

@@ -42,15 +42,14 @@ class TranscriptionClient {
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            Log.d("Signal-receive", text)
+            Log.d("Transcription-receive", text)
 
             if (text != "") {
                 Log.d("Answer", text)
 
             } else if (text == "") {
                 Log.d("Answer", "Empty answer")
-            }
-            else{
+            } else {
                 Log.d("Answer", "Other answer")
             }
         }
@@ -66,6 +65,9 @@ class TranscriptionClient {
             Log.d("Transcription-fail", msg)
         }
     }
+    private fun send(jsonString: String){
+        webSocket?.send(jsonString)
+    }
 
     fun sendAnswer(id: Int, ownertype: String) {
         Log.d("Transcription-send", ownertype)
@@ -73,19 +75,19 @@ class TranscriptionClient {
         message.put("Reason", "answer")
         message.put("Id", id)
         message.put("Data", ownertype)
-        webSocket?.send(Json.encodeToString(message))
+        val msgList = listOf(message)
+        send(msgList.toString())
     }
 
     fun sendSound(id: Int, sound: String) {
         Log.d("Transcription-send", "sound")
-
         //convert sound to string here()
-
         val message = JSONObject()
-        message.put("Reason", "answer")
+        message.put("Reason", "transcription")
         message.put("Id", id)
         message.put("Data", sound)
-        webSocket?.send(Json.encodeToString(message))
+        val msgList = listOf(message)
+        send(msgList.toString())
     }
 
 }
