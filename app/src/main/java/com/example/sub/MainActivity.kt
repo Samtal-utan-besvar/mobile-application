@@ -1,8 +1,10 @@
 package com.example.sub
 
-import com.example.sub.SignalingClient
 import android.Manifest
 import android.content.pm.PackageManager
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -14,14 +16,8 @@ import com.example.sub.databinding.ActivityPermissionBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
-import kotlinx.serialization.Serializable
-import org.json.JSONObject
-import kotlinx.coroutines.launch
-
-import com.example.sub.session.SignalWebsocketListener
-import com.example.sub.transcription.TranscriptionClient
 import okhttp3.*
-import java.util.concurrent.TimeUnit
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var layout: View
@@ -76,10 +72,41 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClickTranscribe(view: View){
+        val sampleRate = 48000
+        val channelConfig = AudioFormat.CHANNEL_IN_MONO
+        val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+
+        val minBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
+        val microphone = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            sampleRate,
+            channelConfig,
+            audioFormat,
+            minBufferSize * 10
+        )
+
+        microphone.startRecording()
+
+        //Since audioformat is 16 bit, we need to create a 16 bit (short data type) buffer
+
+        val buffer = ShortArray(1024)
+
+        while (!stopped) {
+            val readSize = microphone.read(buffer, 0, buffer.size)
+            sendDataToServer(buffer, readSize)
+        }
+
+        microphone.stop()
+        microphone.release()
+
+
+        /*
         var transObj = TranscriptionClient()
         var sound = "2"
         var id = 5404
         transObj.sendSound(id, sound)
+
+         */
     }
 }
 
