@@ -1,6 +1,7 @@
 package com.example.sub
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.databinding.ActivityPermissionBinding
+import com.example.sub.transcription.TranscriptionClient
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -71,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     fun onClickTranscribe(view: View){
         val sampleRate = 48000
         val channelConfig = AudioFormat.CHANNEL_IN_MONO
@@ -84,20 +87,22 @@ class MainActivity : AppCompatActivity() {
             audioFormat,
             minBufferSize * 10
         )
-
         microphone.startRecording()
 
-        //Since audioformat is 16 bit, we need to create a 16 bit (short data type) buffer
-
         val buffer = ShortArray(1024)
+        while (false) {
+            val readSize: Int = microphone.read(buffer, 0, buffer.size)
 
-        while (!stopped) {
-            val readSize = microphone.read(buffer, 0, buffer.size)
-            sendDataToServer(buffer, readSize)
+            //sendDataToServer(buffer, readSize)
         }
 
         microphone.stop()
         microphone.release()
+
+
+
+        //Since audioformat is 16 bit, we need to create a 16 bit (short data type) buffer
+
 
 
         /*
