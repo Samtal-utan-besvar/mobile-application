@@ -28,7 +28,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [callingFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class callingFragment : Fragment() {
+class CallingFragment : Fragment() {
 
     private var adapter = GroupieAdapter()
 
@@ -50,7 +50,7 @@ class callingFragment : Fragment() {
             // TODO: Action when close call, disconnect call from server??
 
             navController!!.navigate(
-                R.id.action_callingFragment_to_userProfile
+                R.id.action_callingFragment_to_userProfileFragment
             )
 
 
@@ -107,8 +107,8 @@ class callingFragment : Fragment() {
     }
 
         companion object {
-        fun newInstance(): callingFragment {
-            return callingFragment()
+        fun newInstance(): CallingFragment {
+            return CallingFragment()
         }
     }
 }
