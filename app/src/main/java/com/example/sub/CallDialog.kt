@@ -6,18 +6,20 @@ import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import com.example.sub.session.CallSession
-import kotlinx.coroutines.NonCancellable.start
 
-class CallDialog(val callSession: CallSession) : DialogFragment() {
+/**
+ * A dialog that shows the phone number of a caller and lets the user accept or deny the call.
+ */
+class CallDialog(private val callSession: CallSession) : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             // Use the Builder class for convenient dialog construction
             val builder = AlertDialog.Builder(it)
-            builder.setMessage(callSession.callerPhoneNumber)
+            builder.setMessage(callSession.remotePhoneNumber)
                 .setPositiveButton("Answer",
                     DialogInterface.OnClickListener { dialog, id ->
-                        callSession.answer()
+                        callSession.accept(requireContext())
                     })
                 .setNegativeButton("Deny",
                     DialogInterface.OnClickListener { dialog, id ->

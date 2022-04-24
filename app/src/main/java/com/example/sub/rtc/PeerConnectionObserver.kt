@@ -3,6 +3,9 @@ package com.example.sub.rtc
 import android.util.Log
 import org.webrtc.*
 
+/**
+ * Implement this in a class to be able to get notified of changes in a [PeerConnection].
+ */
 open class PeerConnectionObserver: PeerConnection.Observer {
 
     private val TAG = "PeerConnection"

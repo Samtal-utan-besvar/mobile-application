@@ -1,73 +1,77 @@
 package com.example.sub.session
 
 import android.content.Context
+import android.util.Log
 import com.example.sub.rtc.*
 import com.example.sub.signal.*
 import org.webrtc.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-// Class representing an existing or pending call session
-class CallSession(private var signalClient: SignalClient, private var context: Context): SignalListener {
+/**
+ * An instance of this class represents a call session. It uses a [SignalClient] to communicate
+ * and exchange messages necessary to establish a connection with webRTC.
+ */
+class CallSession private constructor(val signalClient: SignalClient,
+                  val localPhoneNumber: String, val remotePhoneNumber: String
+) : SignalMessageListener {
 
-    private var rtcClient: RTCClient
+    private var rtcClient: RTCClient? = null
+    private var remoteSDP: SessionDescription? = null
 
-    private var isHost = false
-    var callerPhoneNumber: String? = null
-    var targetPhoneNumber: String? = null
+    private var isCaller = false
+    private var status: CallStatus = CallStatus.CREATED
 
-    private val waitingIceCandidates : Queue<IceCandidateSignalMessage> = LinkedList()
+    // Queue for ice candidates to send.
+    private val waitingIceCandidates : Queue<IceCandidateMessage> = LinkedList()
     private var hasReceivedIce = false
 
-
-    private var status: CallStatus = CallStatus.CREATED
+    // List of listeners for getting notified of changes to the session.
     var sessionListeners = ArrayList<SessionListener>()
 
 
-    init {
-        val observer = object : PeerConnectionObserver() {
-            override fun onIceCandidate(p0: IceCandidate?) {
-                if (p0 != null) {
-                    val originNumber = if(isHost) callerPhoneNumber!! else targetPhoneNumber!!
-                    val targetNumber = if(isHost) targetPhoneNumber!! else callerPhoneNumber!!
+    // Observer for the webRTC connection.
+    private val observer = object : PeerConnectionObserver() {
 
-                    val iceCandidateSignalMessage = IceCandidateSignalMessage.fromIceCandidate(p0, originNumber, targetNumber)
+        /**
+         * Gets called when the state of the peer connection is changed. Sets the status of
+         * the session depending on the [PeerConnection.IceConnectionState].
+         */
+        override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {
+            Log.d("RTCClient-ice", p0.toString())
+            if (p0 == PeerConnection.IceConnectionState.CONNECTED) setStatus(CallStatus.IN_CALL)
+        }
 
-                    queueIceCandidate(iceCandidateSignalMessage)
-                }
+
+        /**
+         * Gets called when the [PeerConnection] finds a new [IceCandidate]. This candidate should
+         * be sent to the other peer over the signal server.
+         */
+        override fun onIceCandidate(p0: IceCandidate?) {
+            if (p0 != null) {
+                val iceCandidateSignalMessage = IceCandidateMessage.fromIceCandidate(p0, localPhoneNumber, remotePhoneNumber)
+
+                queueIceCandidate(iceCandidateSignalMessage)
             }
         }
-        rtcClient = RTCClient(observer, context)
     }
 
 
-    private fun setStatus(status: CallStatus) {
-        if (status != this.status) {
-            this.status = status
-            onStatusChanged(status)
-        }
-    }
-
-
-    private fun onStatusChanged(callStatus: CallStatus) {
-        sessionListeners.forEach{ it.onSessionStatusChanged(callStatus) }
-
-        sendWaitingIceCandidates()
-    }
-
-
-    fun requestCall(callerPhoneNumber: String, targetPhoneNumber: String) {
-        isHost = true
-        this.callerPhoneNumber = callerPhoneNumber
-        this.targetPhoneNumber = targetPhoneNumber
+    /**
+     * Tells the session to initiate as the caller.
+     */
+    private fun initAsCaller(context: Context) {
+        isCaller = true
         setStatus(CallStatus.REQUESTING)
 
-        rtcClient.call(object : DefaultSdpObserver() {
+        rtcClient = RTCClient(observer, context)
+        rtcClient!!.call(object : DefaultSdpObserver() {
+
+            // Gets called when the sdp has been created.
             override fun onCreateSuccess(p0: SessionDescription?) {
                 super.onCreateSuccess(p0)
                 if (p0 != null) {
-                    val callMessage =
-                        CallSignalMessage(callerPhoneNumber, targetPhoneNumber, p0)
+                    val callMessage = CallMessage(localPhoneNumber, remotePhoneNumber, p0)
                     signalClient.send(callMessage)
                 }
             }
@@ -75,23 +79,101 @@ class CallSession(private var signalClient: SignalClient, private var context: C
     }
 
 
-    fun receiveCall(callSignalMessage: CallSignalMessage) {
-        isHost = false
-        callerPhoneNumber = callSignalMessage.CALLER_PHONE_NUMBER
-        targetPhoneNumber = callSignalMessage.TARGET_PHONE_NUMBER
+    /**
+     * Tells the session to initiate as the receiver of the call
+     */
+    private fun initAsReceiver(sdp: SessionDescription) {
+        isCaller = false
         setStatus(CallStatus.RECEIVING)
-
-        val sdp = SessionDescription(SessionDescription.Type.OFFER, callSignalMessage.SDP)
-        rtcClient.onRemoteSessionReceived(sdp)
+        remoteSDP = sdp
     }
 
 
-    fun answer() {
-        rtcClient.answer(object : DefaultSdpObserver() {
+    companion object {
+
+        /**
+         * Constructs and returns a [CallSession] initiated as the caller.
+         * @param localPhoneNumber the local users phone number.
+         * @param remotePhoneNumber the phone number that should be called.
+         */
+        fun asCaller(signalClient: SignalClient, localPhoneNumber: String,
+                     remotePhoneNumber: String, context: Context
+        ) : CallSession {
+            val call = CallSession(signalClient, localPhoneNumber, remotePhoneNumber)
+            call.initAsCaller(context)
+            return call
+        }
+
+
+        /**
+         * Constructs and returns a [CallSession] initiated as the receiver.
+         * @param localPhoneNumber the local users phone number.
+         * @param remotePhoneNumber the phone number that should be called.
+         */
+        fun asReceiver(signalClient: SignalClient, localPhoneNumber: String,
+                       remotePhoneNumber: String, sdp: SessionDescription
+        ) : CallSession {
+            val call = CallSession(signalClient, localPhoneNumber, remotePhoneNumber)
+            call.initAsReceiver(sdp)
+            return call
+        }
+    }
+
+
+    /**
+     * Sets the [CallStatus] of the session.
+     */
+    private fun setStatus(status: CallStatus) {
+        if (status != this.status) {
+            this.status = status
+
+            onStatusChanged(status)
+        }
+    }
+
+
+    /**
+     * Gets called when the [CallStatus] of the session is changed
+     */
+    private fun onStatusChanged(callStatus: CallStatus) {
+        Log.d("CallSession", "call status changed to: $callStatus")
+        // Notify listeners.
+        when (status) {
+            CallStatus.CONNECTING -> sessionListeners.forEach { it.onSessionConnecting() }
+            CallStatus.IN_CALL -> sessionListeners.forEach { it.onSessionConnected() }
+            CallStatus.DENIED -> {
+                sessionListeners.forEach { it.onSessionsDenied() }
+                endSession()
+            }
+            CallStatus.FAILED -> {
+                sessionListeners.forEach { it.onSessionFailed() }
+                endSession()
+            }
+            CallStatus.ENDED -> endSession()
+            else -> {}
+        }
+
+        sessionListeners.forEach{ it.onSessionStatusChanged(callStatus) }
+
+        sendWaitingIceCandidates()
+    }
+
+
+    /**
+     * Accepts the call and continues to set up a connection. Requires a [Context] for the call.
+     */
+    fun accept(context: Context) {
+
+        // Create and set up the webRTC client.
+        rtcClient = RTCClient(observer, context)
+        rtcClient!!.onRemoteSessionReceived(remoteSDP!!)
+        rtcClient!!.answer(object : DefaultSdpObserver() {
+
+            // Gets called when the sdp has been created.
             override fun onCreateSuccess(p0: SessionDescription?) {
                 if (p0 != null) {
-                    val callMessage =
-                        CallResponseSignalMessage(CallResponse.ACCEPT, callerPhoneNumber!!, targetPhoneNumber!!, p0)
+                    val callMessage = CallResponseMessage(CallResponse.ACCEPT,
+                        remotePhoneNumber, localPhoneNumber, p0)
                     signalClient.send(callMessage)
                 }
             }
@@ -100,39 +182,61 @@ class CallSession(private var signalClient: SignalClient, private var context: C
     }
 
 
+    /**
+     * Denies the call.
+     */
     fun deny() {
         val callMessage =
-            CallResponseSignalMessage(CallResponse.DENY, callerPhoneNumber!!, targetPhoneNumber!!)
+            CallResponseMessage(CallResponse.DENY, remotePhoneNumber, localPhoneNumber)
         signalClient.send(callMessage)
         setStatus(CallStatus.DENIED)
     }
 
 
+    /**
+     * Hangs up the call
+     */
     fun hangUp() {
-        rtcClient.endCall()
+        signalClient.send(HangupMessage(localPhoneNumber, remotePhoneNumber))
         setStatus(CallStatus.ENDED)
     }
 
 
-    override fun onCallResponseMessageReceived(callResponseSignalMessage: CallResponseSignalMessage) {
-        if(callResponseSignalMessage.isAllowed()){
+    /**
+     * Ends the session. Closes the webRTC client and notifies listeners that the session is over.
+     */
+    private fun endSession() {
+        rtcClient?.endCall()
+        sessionListeners.forEach { it.onSessionEnded() }
+    }
+
+
+    /**
+     * Handles incoming [CallResponseMessage]. Continues to set up communication if opponent
+     * accepted the call and otherwise stops the session.
+     */
+    override fun onCallResponseMessageReceived(callResponseMessage: CallResponseMessage) {
+        if(callResponseMessage.isAllowed()) {
             setStatus(CallStatus.CONNECTING)
 
-            val sdpType = if(isHost) SessionDescription.Type.ANSWER else SessionDescription.Type.OFFER
-            val sdp = callResponseSignalMessage.toSessionDescription(sdpType)
-            rtcClient.onRemoteSessionReceived(sdp)
+            val sdp = callResponseMessage.toSessionDescription()
+            rtcClient!!.onRemoteSessionReceived(sdp)
 
         } else{
-            setStatus(CallStatus.ENDED)
+            setStatus(CallStatus.DENIED)
         }
     }
 
 
-    override fun onIceCandidateMessageReceived(iceCandidateSignalMessage: IceCandidateSignalMessage) {
-        val iceCandidate = iceCandidateSignalMessage.toIceCandidate()
-        rtcClient.addIceCandidate(iceCandidate)
+    /**
+     * Handles incoming [IceCandidateMessage]. Adds the remote [IceCandidate] to the webRTC client.
+     */
+    override fun onIceCandidateMessageReceived(iceCandidateMessage: IceCandidateMessage) {
+        val iceCandidate = iceCandidateMessage.toIceCandidate()
+        rtcClient?.addIceCandidate(iceCandidate)
 
 
+        // Send the local ice candidates if any waiting.
         if (!hasReceivedIce) {
             hasReceivedIce = true
             sendWaitingIceCandidates()
@@ -140,17 +244,26 @@ class CallSession(private var signalClient: SignalClient, private var context: C
     }
 
 
-    override fun onHangupMessageReceived(hangupSignalMessage: HangupSignalMessage) {
+    /**
+     * Handles incoming [HangupMessage].
+     */
+    override fun onHangupMessageReceived(hangupMessage: HangupMessage) {
         setStatus(CallStatus.ENDED)
     }
 
 
-    private fun queueIceCandidate(iceCandidateSignalMessage: IceCandidateSignalMessage) {
-        waitingIceCandidates.add(iceCandidateSignalMessage)
+    /**
+     * Queues an [IceCandidate] for sending and tries to send all waiting candidates.
+     */
+    private fun queueIceCandidate(iceCandidateMessage: IceCandidateMessage) {
+        waitingIceCandidates.add(iceCandidateMessage)
         sendWaitingIceCandidates()
     }
 
 
+    /**
+     * Sends all ice candidates that are waiting if allowed.
+     */
     private fun sendWaitingIceCandidates() {
         if (canSendIce()) {
             while (!waitingIceCandidates.isEmpty()) {
@@ -160,19 +273,58 @@ class CallSession(private var signalClient: SignalClient, private var context: C
     }
 
 
+    /**
+     * Returns true if appropriate to send ice candidates, else false.
+     */
     private fun canSendIce() : Boolean {
-        return (status == CallStatus.CONNECTING || status == CallStatus.IN_CALL) && (isHost || hasReceivedIce)
+        return (status == CallStatus.CONNECTING || status == CallStatus.IN_CALL) && (isCaller || hasReceivedIce)
     }
 
 }
 
+
+/**
+ * Different statuses for the state of a call.
+ */
 enum class CallStatus {
+
+    /**
+     * Instance created but not fully initialized.
+     */
     CREATED,
+
+    /**
+     * Initialized as receiver. No answer yet.
+     */
     RECEIVING,
+
+    /**
+     * Initialized as caller. No answer yet.
+     */
     REQUESTING,
+
+    /**
+     * Call has been accepted. Setting up connection.
+     */
     CONNECTING,
+
+    /**
+     * Connection is established and the call is on-going.
+     */
     IN_CALL,
+
+    /**
+     * The call has been denied by one of the peers.
+     */
     DENIED,
+
+    /**
+     * The call has ended.
+     */
     ENDED,
+
+    /**
+     * The connection for the call has failed.
+     */
     FAILED
 }

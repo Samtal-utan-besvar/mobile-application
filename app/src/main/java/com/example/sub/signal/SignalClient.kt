@@ -17,26 +17,18 @@ const val TOKEN2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbXNkZUB
  * This class is a client that can connect with a signal server. The client uses websocket for
  * sending and receiving messages.
  */
-class SignalClient {
+object SignalClient {
 
     private var token : String = TOKEN2
 
     private var webSocket: WebSocket? = null
-    var signalListeners = ArrayList<SignalListener>()
-
-    init{
-        Log.d("test", android.os.Build.VERSION.SDK_INT.toString())
-
-        // Temporary solution.
-        val TOKEN = if (android.os.Build.VERSION.SDK_INT == 30) TOKEN1 else TOKEN2
-        connect(TOKEN)
-    }
+    var signalListeners = ArrayList<SignalMessageListener>()
 
 
     /**
      * Requests and establishes a connection with the signal server.
      */
-    fun connect(token: String){
+    fun connect(token: String) {
         this.token = token
 
         val client = OkHttpClient.Builder()
@@ -54,14 +46,14 @@ class SignalClient {
     /**
      * This is a class utilized for listening to changes of the websocket.
      */
-    private inner class SignalingWebSocketListener : WebSocketListener() {
+    private class SignalingWebSocketListener : WebSocketListener() {
 
 
         /**
          * Gets called when the websocket connection is established.
          */
         override fun onOpen(webSocket: WebSocket, response: Response) {
-            send(ConnectSignalMessage(token))
+            send(ConnectMessage(token))
             Log.d("WS-Listener: ", "Websocket Opened!")
         }
 
@@ -79,15 +71,11 @@ class SignalClient {
                 val reason = jsonObject.get("REASON").toString()
 
                 // Delegate messages to correct handlers.
-                when {
-                    reason.equals(ReasonCommand.CALL.toString(), true) ->
-                        handleCallMessage(text)
-                    reason.equals(ReasonCommand.CALLRESPONSE.toString(), true) ->
-                        handleCallResponseCommand(text)
-                    reason.equals(ReasonCommand.ICECANDIDATE.toString(), true) ->
-                        handleICECandidateCommand(text)
-                    reason.equals(ReasonCommand.HANGUP.toString(), true) ->
-                        handleHangUpCommand(text)
+                when (reason) {
+                    MessageReason.CALL.value -> handleCallMessage(text)
+                    MessageReason.CALL_RESPONSE.value -> handleCallResponseCommand(text)
+                    MessageReason.ICE_CANDIDATE.value -> handleICECandidateCommand(text)
+                    MessageReason.HANG_UP.value -> handleHangUpCommand(text)
 
                     // Log error if message could not be matched with any of the handlers.
                     else -> Log.e("Signal-receive", "reason: $reason has no handler")
@@ -129,10 +117,10 @@ class SignalClient {
     //region Handle functions
 
     /**
-     * Handles incoming messages of type [HangupSignalMessage].
+     * Handles incoming messages of type [HangupMessage].
      */
     private fun handleHangUpCommand(text: String) {
-        val hangupMessage = Json.decodeFromString(HangupSignalMessage.serializer(), text)
+        val hangupMessage = Json.decodeFromString(HangupMessage.serializer(), text)
         signalListeners.forEach {
             it.onHangupMessageReceived(hangupMessage)
         }
@@ -140,10 +128,10 @@ class SignalClient {
 
 
     /**
-     * Handles incoming messages of type [IceCandidateSignalMessage].
+     * Handles incoming messages of type [IceCandidateMessage].
      */
     private fun handleICECandidateCommand(text: String) {
-        val iceCandidateMessage = Json.decodeFromString(IceCandidateSignalMessage.serializer(), text)
+        val iceCandidateMessage = Json.decodeFromString(IceCandidateMessage.serializer(), text)
         signalListeners.forEach {
             it.onIceCandidateMessageReceived(iceCandidateMessage)
         }
@@ -151,10 +139,10 @@ class SignalClient {
 
 
     /**
-     * Handles incoming messages of type [CallResponseSignalMessage].
+     * Handles incoming messages of type [CallResponseMessage].
      */
     private fun handleCallResponseCommand(text: String) {
-        val callResponseMessage = Json.decodeFromString(CallResponseSignalMessage.serializer(), text)
+        val callResponseMessage = Json.decodeFromString(CallResponseMessage.serializer(), text)
         signalListeners.forEach {
             it.onCallResponseMessageReceived(callResponseMessage)
         }
@@ -162,10 +150,10 @@ class SignalClient {
 
 
     /**
-     * Handles incoming messages of type [CallSignalMessage].
+     * Handles incoming messages of type [CallMessage].
      */
     private fun handleCallMessage(text: String) {
-        val callMessage = Json.decodeFromString(CallSignalMessage.serializer(), text)
+        val callMessage = Json.decodeFromString(CallMessage.serializer(), text)
         signalListeners.forEach {
             it.onCallMessageReceived(callMessage)
         }
@@ -187,60 +175,50 @@ class SignalClient {
 
 
     /**
-     * Sends a [ConnectSignalMessage] to the signal server.
+     * Sends a [ConnectMessage] to the signal server.
      */
-    fun send(message: ConnectSignalMessage) {
+    fun send(message: ConnectMessage) {
         val msg = Json.encodeToString(message)
         send(msg)
     }
 
 
     /**
-     * Sends a [CallSignalMessage] to the signal server.
+     * Sends a [CallMessage] to the signal server.
      */
-    fun send(message: CallSignalMessage) {
+    fun send(message: CallMessage) {
         val msg = Json.encodeToString(message)
         send(msg)
     }
 
 
     /**
-     * Sends a [CallResponseSignalMessage] to the signal server.
+     * Sends a [CallResponseMessage] to the signal server.
      */
-    fun send(message: CallResponseSignalMessage) {
+    fun send(message: CallResponseMessage) {
         val msg = Json.encodeToString(message)
         send(msg)
     }
 
 
     /**
-     * Sends a [IceCandidateSignalMessage] to the signal server.
+     * Sends a [IceCandidateMessage] to the signal server.
      */
-    fun send(message: IceCandidateSignalMessage) {
+    fun send(message: IceCandidateMessage) {
         val msg = Json.encodeToString(message)
         send(msg)
     }
 
 
     /**
-     * Sends a [HangupSignalMessage] to the signal server.
+     * Sends a [HangupMessage] to the signal server.
      */
-    fun send(message: HangupSignalMessage) {
+    fun send(message: HangupMessage) {
         val msg = Json.encodeToString(message)
         send(msg)
     }
 
     //endregion
 
-
-    /**
-     * Enum for reasons of each [SignalMessage].
-     */
-    enum class ReasonCommand {
-        CALL,
-        CALLRESPONSE,
-        ICECANDIDATE,
-        HANGUP
-    }
 
 }

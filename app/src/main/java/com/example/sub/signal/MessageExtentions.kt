@@ -6,7 +6,7 @@ import org.webrtc.SessionDescription
 
 
 /*
- This file is meant for adding functions to SignalMessages. Mainly functions for conversions
+ This file is meant for adding functions to signal messages. Mainly functions for conversions
  between the SignalMessages and relevant data types.
  */
 
@@ -14,27 +14,36 @@ import org.webrtc.SessionDescription
 //region CallSignalMessage
 
 /**
- * Alternative constructor for [CallSignalMessage] that can be used directly with
+ * Alternative constructor for [CallMessage] that can be used directly with
  * [SessionDescription], no string conversion needed.
  */
-fun CallSignalMessage(
+fun CallMessage(
     CALLER_PHONE_NUMBER: String,
     TARGET_PHONE_NUMBER: String,
     sdp: SessionDescription
-): CallSignalMessage =
-    CallSignalMessage(
+): CallMessage =
+    CallMessage(
         CALLER_PHONE_NUMBER,
         TARGET_PHONE_NUMBER,
         sdp.description)
 
 
 /**
- * Returns a [CallResponseSignalMessage] with the given [CallResponse] based on the same phone
- * numbers as the [CallSignalMessage]. If the call response is [CallResponse.ACCEPT],
+ * Returns a [CallResponseMessage] with the given [CallResponse] based on the same phone
+ * numbers as the [CallMessage]. If the call response is [CallResponse.ACCEPT],
  * a [SessionDescription] should also be passed.
  */
-fun CallSignalMessage.toResponse(callResponse: CallResponse, sdp: SessionDescription? = null): CallResponseSignalMessage {
-    return CallResponseSignalMessage(callResponse, CALLER_PHONE_NUMBER, TARGET_PHONE_NUMBER, sdp)
+fun CallMessage.toResponse(callResponse: CallResponse, sdp: SessionDescription? = null): CallResponseMessage {
+    return CallResponseMessage(callResponse, CALLER_PHONE_NUMBER, TARGET_PHONE_NUMBER, sdp)
+}
+
+
+/**
+ * Returns a [SessionDescription] object constructed from the SDP description in the
+ * [CallMessage].
+ */
+fun CallMessage.toSessionDescription() : SessionDescription {
+    return SessionDescription(SessionDescription.Type.OFFER, SDP)
 }
 
 //endregion
@@ -43,15 +52,15 @@ fun CallSignalMessage.toResponse(callResponse: CallResponse, sdp: SessionDescrip
 //region CallResponseSignalMessage
 
 /**
- * Alternative constructor for [CallResponseSignalMessage] that can be used directly with
+ * Alternative constructor for [CallResponseMessage] that can be used directly with
  * [CallResponse] and [SessionDescription], no string conversion needed.
  */
-fun CallResponseSignalMessage(
+fun CallResponseMessage(
     callResponse: CallResponse,
     CALLER_PHONE_NUMBER: String,
     TARGET_PHONE_NUMBER: String,
-    sdp: SessionDescription? = null): CallResponseSignalMessage =
-    CallResponseSignalMessage(
+    sdp: SessionDescription? = null): CallResponseMessage =
+    CallResponseMessage(
         callResponse.toString(),
         CALLER_PHONE_NUMBER,
         TARGET_PHONE_NUMBER,
@@ -59,19 +68,19 @@ fun CallResponseSignalMessage(
 
 
 /**
- * Returns true if the response of the [CallResponseSignalMessage] is Accept, else false.
+ * Returns true if the response of the [CallResponseMessage] is Accept, else false.
  */
-fun CallResponseSignalMessage.isAllowed(): Boolean{
+fun CallResponseMessage.isAllowed(): Boolean{
     return RESPONSE.equals(CallResponse.ACCEPT.toString(), true)
 }
 
 
 /**
  * Returns a [SessionDescription] object constructed from the SDP description in the
- * [CallResponseSignalMessage].
+ * [CallResponseMessage].
  */
-fun CallResponseSignalMessage.toSessionDescription(type: SessionDescription.Type) : SessionDescription {
-    return SessionDescription(type, SDP)
+fun CallResponseMessage.toSessionDescription() : SessionDescription {
+    return SessionDescription(SessionDescription.Type.ANSWER, SDP)
 }
 
 //endregion
@@ -80,21 +89,21 @@ fun CallResponseSignalMessage.toSessionDescription(type: SessionDescription.Type
 //region IceCandidateSignalMessage
 
 /**
- * Alternative constructor for [IceCandidateSignalMessage] that can be used directly with
+ * Alternative constructor for [IceCandidateMessage] that can be used directly with
  * [IceCandidate], no string conversion needed.
  */
-fun IceCandidateSignalMessage.Companion.fromIceCandidate(
+fun IceCandidateMessage.Companion.fromIceCandidate(
     iceCandidate: IceCandidate,
     originPhoneNumber: String,
     targetPhoneNumber: String
-): IceCandidateSignalMessage {
+): IceCandidateMessage {
 
     val jsonObject = JSONObject()
     jsonObject.put("sdpMid", iceCandidate.sdpMid)
     jsonObject.put("sdpMLineIndex", iceCandidate.sdpMLineIndex)
     jsonObject.put("sdp", iceCandidate.sdp)
 
-    return IceCandidateSignalMessage(
+    return IceCandidateMessage(
         originPhoneNumber,
         targetPhoneNumber,
         jsonObject.toString()
@@ -104,9 +113,9 @@ fun IceCandidateSignalMessage.Companion.fromIceCandidate(
 
 /**
  * Returns an [IceCandidate] object constructed from the candidate description in the
- * [IceCandidateSignalMessage].
+ * [IceCandidateMessage].
  */
-fun IceCandidateSignalMessage.toIceCandidate(): IceCandidate {
+fun IceCandidateMessage.toIceCandidate(): IceCandidate {
     val json = JSONObject(CANDIDATE)
     return IceCandidate(
         json.getString("sdpMid"),

@@ -4,57 +4,143 @@ import android.content.Context
 import android.util.Log
 import com.example.sub.signal.*
 
-// This class handles incoming and outgoing calls
-class CallHandler(private var signalClient: SignalClient) : SignalListener{
+/**
+ * This class handles incoming and outgoing calls and keeps track of any active call.
+ */
+class CallHandler private constructor(
+    private val signalClient: SignalClient,
+    private val localPhoneNumber: String
+    ) : SignalMessageListener, SessionListener {
 
-    var callReceivedListener = ArrayList<(CallSession) -> Unit>()
-    private var activeSession: CallSession? = null
-    private var context: Context? = null
+    var callReceivedListeners = ArrayList<CallReceivedListener>()
+    var activeSession: CallSession? = null
+        private set(session) {
+            field?.sessionListeners?.remove(this)
+            field = session
+            session?.sessionListeners?.add(this)
+            Log.d("CallHandler", "Active session changed to: $activeSession")
+        }
 
-    init{
+
+    init {
         signalClient.signalListeners.add(this)
     }
 
-    fun setContext(context: Context) {
-        this.context = context
+
+    companion object {
+
+        @Volatile
+        private var instance: CallHandler? = null
+
+
+        /**
+         * Initializes a singleton instance of the [CallHandler].
+         */
+        fun initInstance(signalClient: SignalClient, localPhoneNumber: String) {
+            instance = CallHandler(signalClient, localPhoneNumber)
+        }
+
+
+        /**
+         * Returns the singleton instance of the [CallHandler]. If [initInstance] has not been
+         * called, this function will fail as the [CallHandler] instance is not initialized yet.
+         */
+        fun getInstance() : CallHandler {
+            if (instance == null) throw UnInitializedException(
+                "CallHandler.initInstance must be called before the use of getInstance")
+            else return instance!!
+        }
+
+
+        /**
+         * Exception thrown when [getInstance] is called before [initInstance].
+         */
+        class UnInitializedException(message: String) : Exception(message) {
+            init {
+                stackTrace = stackTrace.copyOfRange(1, stackTrace.size - 1)
+            }
+        }
+
     }
 
-    fun call(callerPhoneNumber: String, targetPhoneNumber: String): CallSession? {
-        if (activeSession == null) {
-            val call: CallSession = CallSession(signalClient, context!!)
-            call.requestCall(callerPhoneNumber, targetPhoneNumber)
-            activeSession = call
-            return call
-        } else {
+
+    /**
+     * Returns true if there is an active session, else false.
+     */
+    fun hasActiveSession() : Boolean {
+        return activeSession != null
+    }
+
+
+    /**
+     * Starts and returns a [CallSession] with the given phone number.
+     */
+    fun call(targetPhoneNumber: String, context: Context): CallSession? {
+
+        if (hasActiveSession()) {
+            // Already has an active session.
             Log.e("CallHandler", "There is already an active session")
             return null
+        } else {
+            // No active session. OK to start new one.
+            activeSession = CallSession.asCaller(signalClient!!, localPhoneNumber!!,
+                targetPhoneNumber, context)
+            return activeSession
         }
     }
 
-    override fun onCallMessageReceived(callSignalMessage: CallSignalMessage) {
-        // Call session already active
-        if(activeSession != null){
-            signalClient.send(callSignalMessage.toResponse(CallResponse.DENY));
-        } else {
-            activeSession = CallSession(signalClient, context!!)
-            activeSession!!.receiveCall(callSignalMessage)
 
-            callReceivedListener.forEach {
-                it.invoke(activeSession!!)
+    /**
+     * Handles [CallMessage] when someone calls. Notifies listeners that someones calling.
+     */
+    override fun onCallMessageReceived(callMessage: CallMessage) {
+
+        if(activeSession != null){
+            // Already have an active call session.
+            signalClient!!.send(callMessage.toResponse(CallResponse.DENY));
+        } else {
+            // Okay to create a new call session.
+            val localPhoneNumber = callMessage.TARGET_PHONE_NUMBER
+            val remotePhoneNumber = callMessage.CALLER_PHONE_NUMBER
+            val sdp = callMessage.toSessionDescription()
+
+            activeSession = CallSession.asReceiver(signalClient!!, localPhoneNumber,
+                remotePhoneNumber, sdp)
+
+            // Notify that there is a new session.
+            callReceivedListeners.forEach {
+                it.onCallReceived(activeSession!!)
             }
         }
     }
 
-    override fun onCallResponseMessageReceived(callResponseSignalMessage: CallResponseSignalMessage) {
-        activeSession?.onCallResponseMessageReceived(callResponseSignalMessage)
+
+    /**
+     * Handles [CallResponseMessage] when receiving an answer on a started call.
+     */
+    override fun onCallResponseMessageReceived(callResponseMessage: CallResponseMessage) {
+        activeSession?.onCallResponseMessageReceived(callResponseMessage)
     }
 
-    override fun onIceCandidateMessageReceived(iceCandidateSignalMessage: IceCandidateSignalMessage) {
-        activeSession?.onIceCandidateMessageReceived(iceCandidateSignalMessage)
+
+    /**
+     * Handles [IceCandidateMessage] when receiving remote ice candidates.
+     */
+    override fun onIceCandidateMessageReceived(iceCandidateMessage: IceCandidateMessage) {
+        activeSession?.onIceCandidateMessageReceived(iceCandidateMessage)
     }
 
-    override fun onHangupMessageReceived(hangupSignalMessage: HangupSignalMessage) {
-        activeSession?.onHangupMessageReceived(hangupSignalMessage)
+
+    /**
+     * Handles [HangupMessage] when receiving a message that someone wants to end a call.
+     */
+    override fun onHangupMessageReceived(hangupMessage: HangupMessage) {
+        activeSession?.onHangupMessageReceived(hangupMessage)
+    }
+
+
+    override fun onSessionEnded() {
+        activeSession = null
     }
 
 

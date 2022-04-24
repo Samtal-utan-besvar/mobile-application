@@ -8,13 +8,15 @@ import org.webrtc.*
 import java.nio.ByteBuffer
 import kotlin.text.Charsets.UTF_8
 
+/**
+ * A client that is used to set up a webRTC connection between two peers.
+ */
 class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
     companion object {
         private const val LOCAL_TRACK_ID = "local_track"
         private const val LOCAL_STREAM_ID = "local_track"
     }
-
 
     private var observer: PeerConnection.Observer
     val TAG = "RTCClient"
@@ -29,6 +31,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     private var localAudioTrack : AudioTrack? = null
 
 
+    // List of stun and turn servers that can be used for the peer to peer connection.
     private val iceServer = listOf(
         PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
             .createIceServer(),
@@ -39,12 +42,9 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     )
 
 
+    // Adds necessary functionality to the observer and initializes the PeerConnectionFactory
     init {
         this.observer = object : PeerConnection.Observer by observer {
-
-            override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {
-                Log.d("RTCClient-ice", p0.toString())
-            }
 
             override fun onDataChannel(p0: DataChannel?) {
                 Log.d("RTCClient-channel", p0.toString())
@@ -57,6 +57,9 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     }
 
 
+    /**
+     * Initializes the [PeerConnectionFactory] with the given [context].
+     */
     private fun initPeerConnectionFactory(context: Context) {
         val options = PeerConnectionFactory.InitializationOptions.builder(context)
             .setEnableInternalTracer(true)
@@ -66,6 +69,9 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     }
 
 
+    /**
+     * Builds and applies options to the [PeerConnectionFactory].
+     */
     private fun buildPeerConnectionFactory(): PeerConnectionFactory {
         return PeerConnectionFactory
             .builder()
@@ -77,6 +83,9 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     }
 
 
+    /**
+     * Builds and returns a [PeerConnection].
+     */
     private fun buildPeerConnection(): PeerConnection {
         return buildPeerConnectionFactory().createPeerConnection(
             iceServer,
@@ -85,12 +94,20 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     }
 
 
-    fun initAudio() {
+    /**
+     * Adds audio to the webRTC connection. By default the sound is automatically
+     * played in the speakers.
+     */
+    private fun initAudio() {
         localAudioTrack = peerConnectionFactory.createAudioTrack(LOCAL_TRACK_ID, audioSource)
         peerConnection.addTrack(localAudioTrack)
     }
 
 
+    /**
+     * Extension function to the [PeerConnection] that is used when the call is
+     * started locally.
+     */
     private fun PeerConnection.call(sdpObserver: SdpObserver) {
         val constraints = MediaConstraints().apply {
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
@@ -108,6 +125,10 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     }
 
 
+    /**
+     * Extension function to the [PeerConnection] that is used when the call is
+     * started by a remote peer and is accepted.
+     */
     private fun PeerConnection.answer(sdpObserver: SdpObserver) {
         val constraints = MediaConstraints().apply {
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
@@ -124,54 +145,67 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     }
 
 
-    fun call(sdpObserver: SdpObserver) = peerConnection?.call(sdpObserver)
+    /**
+     * Sets up webRTC as the caller. The [sdpObserver] should be implemented to send the
+     * [SessionDescription] created as an offer to the opposing peer.
+     */
+    fun call(sdpObserver: SdpObserver) = peerConnection.call(sdpObserver)
 
-    fun answer(sdpObserver: SdpObserver) = peerConnection?.answer(sdpObserver)
+
+    /**
+     * Sets up webRTC as the receiver.The [sdpObserver] should be implemented to send the
+     * [SessionDescription] created as an answer to the opposing peer.
+     */
+    fun answer(sdpObserver: SdpObserver) = peerConnection.answer(sdpObserver)
 
 
+    /**
+     * Sets up webRTC with the given [sessionDescription] as the remote description.
+     */
     fun onRemoteSessionReceived(sessionDescription: SessionDescription) {
         remoteSessionDescription = sessionDescription
 
-        peerConnection.setRemoteDescription(object : SdpObserver {
-            override fun onSetFailure(p0: String?) {
-                Log.e(TAG, "onSetFailure: $p0")
-            }
-
-            override fun onSetSuccess() {
-                Log.e(TAG, "onSetSuccessRemoteSession")
-            }
-
-            override fun onCreateSuccess(p0: SessionDescription?) {
-                Log.e(TAG, "onCreateSuccessRemoteSession: Description $p0")
-            }
-
-            override fun onCreateFailure(p0: String?) {
-                Log.e(TAG, "onCreateFailure")
-            }
-        }, sessionDescription)
+        peerConnection.setRemoteDescription(DefaultSdpObserver(), sessionDescription)
     }
 
 
+    /**
+     * Adds the given [iceCandidate] to the possible candidates for the webRTC connection.
+     */
     fun addIceCandidate(iceCandidate: IceCandidate?) {
         peerConnection.addIceCandidate(iceCandidate)
     }
 
 
+    /**
+     * Closes the webRTC connection.
+     */
     fun endCall() {
         peerConnection.close()
     }
 
 
-    // Testing stuff
+    // Testing stuff. Might not be needed in final product.
+    //region Data channel
 
     var channel: DataChannel? = null
 
-    fun makeDataChannel() {
+
+    /**
+     * Creates and adds a data channel to the webRTC connection that can be used
+     * for sending string or binary data.
+     */
+    private fun makeDataChannel() {
         val init = DataChannel.Init()
         channel = peerConnection.createDataChannel("123", init)
         channel!!.registerObserver(DefaultDataChannelObserver(channel!!))
     }
 
+
+    /**
+     * Sends the given [message] to the opposing peer through
+     * the data channel of the webRTC connection.
+     */
     fun sendMessage(message: String) {
         val sendJSON = JSONObject()
         sendJSON.put("msg", message)
@@ -179,10 +213,14 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
         channel?.send(DataChannel.Buffer(buf, false))
     }
 
+
+    /**
+     * Observer for the [DataChannel] of the webRTC connection. Handles the receiving of messages
+     * and state changes.
+     */
     open inner class DefaultDataChannelObserver(val channel: DataChannel) : DataChannel.Observer {
 
-
-        //TODO I'm not sure if this would handle really long messages
+        // Handles received messages.
         override fun onMessage(p0: DataChannel.Buffer?) {
             val buf = p0?.data
             if (buf != null) {
@@ -214,5 +252,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
             }
         }
     }
+
+    //endregion
 
 }

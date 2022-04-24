@@ -1,8 +1,6 @@
 package com.example.sub
 
-import android.R.attr.data
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +10,8 @@ import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
-import com.example.sub.signal.CallSignalMessage
-import com.example.sub.session.ClientFactory
+import com.example.sub.session.CallHandler
 import com.example.sub.signal.SignalClient
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -81,7 +76,7 @@ class callingFragment : Fragment() {
             view.findViewById(R.id.simpleChronometer) as Chronometer // initiate a chronometer
         simpleChronometer.start() // start a chronometer
 
-        // Initiate a call request to the contact
+        // Temporary. Initiate a call request to the contact
         callContact()
     }
 
@@ -91,15 +86,17 @@ class callingFragment : Fragment() {
         }
     }
 
-    // Call contact based on phone number
+    // Temporary. Call contact based on phone number
     fun callContact() {
         val phoneNumber1 = "0933503271"
         val phoneNumber2 = "0933703271"
 
+        val callHandler = CallHandler.getInstance()
+
         if (android.os.Build.VERSION.SDK_INT == 30) {
-            ClientFactory.getCallHandler().call(phoneNumber1, phoneNumber2)
+            callHandler.call(phoneNumber2, requireContext())
         } else {
-            ClientFactory.getCallHandler().call(phoneNumber2, phoneNumber1)
+            callHandler.call(phoneNumber1, requireContext())
         }
     }
 }
