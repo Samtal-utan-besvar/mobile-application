@@ -7,6 +7,7 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
@@ -75,29 +76,8 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     fun onClickTranscribe(view: View){
-        val sampleRate = 48000
-        val channelConfig = AudioFormat.CHANNEL_IN_MONO
-        val audioFormat = AudioFormat.ENCODING_PCM_16BIT
 
-        val minBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
-        val microphone = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-            sampleRate,
-            channelConfig,
-            audioFormat,
-            minBufferSize * 10
-        )
-        microphone.startRecording()
 
-        val buffer = ShortArray(1024)
-        while (false) {
-            val readSize: Int = microphone.read(buffer, 0, buffer.size)
-
-            //sendDataToServer(buffer, readSize)
-        }
-
-        microphone.stop()
-        microphone.release()
 
 
 
