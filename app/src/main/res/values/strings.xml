@@ -1,10 +1,13 @@
 <resources>
     <string name="app_name">SUB</string>
 
-    <!-- Strings related to login -->
+    <!-- Strings related to login/registration -->
     <string name="prompt_email">Epost</string>
     <string name="prompt_phonenumber">Telefonnummer</string>
     <string name="prompt_password">Lösenord</string>
+    <string name="prompt_password2">Återupprepa Lösenord</string>
+    <string name="prompt_firstname">Förnamn</string>
+    <string name="prompt_surname">Efternamn</string>
     <string name="action_sign_in">Logga in</string>
     <string name="action_register">Registrera</string>
     <string name="action_sign_in_short">Logga in</string>
@@ -16,6 +19,7 @@
     <string name="login_failed">"Inloggning misslyckad"</string>
     <string name="registration_failed">"Registrering misslyckad"</string>
     <string name="title_activity_auto_login">AutoLoginActivity</string>
+
 
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
