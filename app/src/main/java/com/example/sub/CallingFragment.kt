@@ -10,6 +10,9 @@ import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -36,7 +39,7 @@ class CallingFragment : Fragment() {
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
             // TODO: Action when close call, disconnect call from server?
             navController!!.navigate(
-                R.id.action_callingFragment_to_userProfile
+                R.id.action_callingFragment_to_userProfileFragment
             )
         }
 

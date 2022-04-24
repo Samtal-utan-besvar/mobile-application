@@ -10,19 +10,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.example.sub.MainActivity
+import com.example.sub.ProfileFragment
 import com.example.sub.R
 import com.example.sub.databinding.FragmentLoginBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
-const val AUTOLOGIN_DISABLED = false     // for debugging purposes
-const val LOGIN_DISABLED = false         // for debugging purposes
+const val AUTOLOGIN_DISABLED = false     // For debugging purposes
 
 class LoginFragment : Fragment() {
 
@@ -30,14 +35,12 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private var navController: NavController? = null
+//    val model = ViewModelProvider(requireActivity())[LoginViewModel::class.java]
 
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -45,8 +48,8 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-        loginViewModel =
-            ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
+        loginViewModel = ViewModelProvider(this,
+            LoginViewModelFactory(context))[LoginViewModel::class.java]
 
         val usernameEditText = binding.username
         val passwordEditText = binding.password
@@ -54,22 +57,24 @@ class LoginFragment : Fragment() {
         val loadingProgressBar = binding.loading
         val toRegistrationButton = binding.toRegistration
 
+        // Removes loggedInUser object from SharedPreferences so that no loggedInUser can be used for autologin.
         if (AUTOLOGIN_DISABLED) {
             val sharedPref = context?.getSharedPreferences("UserSharedPref", Context.MODE_PRIVATE)
             sharedPref!!.edit().clear().apply()
         }
 
-        if (loginViewModel.isLoggedIn() || LOGIN_DISABLED) {
-            navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
+        if (loginViewModel.isLoggedIn()) {
+            (activity as LoginActivity?)!!.startMainActivity()  // Starts MainActivity if loggedInUser is found.
         }
 
+        // Checks if the typed email and password follow the defined format in LoginViewModel.
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
             Observer { loginFormState ->
                 if (loginFormState == null) {
                     return@Observer
                 }
-                loginButton.isEnabled = loginFormState.isDataValid
-                loginFormState.phoneNumberError?.let {
+                loginButton.isEnabled = loginFormState.isDataValid  // Disables the login button if the email and password has incorrect format.
+                loginFormState.emailError?.let {
                     usernameEditText.error = getString(it)
                 }
                 loginFormState.passwordError?.let {
@@ -77,6 +82,8 @@ class LoginFragment : Fragment() {
                 }
             })
 
+        // Calls updateUiWithUser (opens MainActivity) if the login succeeded from a database
+        // standpoint. If an error occurs, an error message is shown on the screen.
         loginViewModel.loginResult.observe(viewLifecycleOwner,
             Observer { loginResult ->
                 loginResult ?: return@Observer
@@ -89,6 +96,7 @@ class LoginFragment : Fragment() {
                 }
             })
 
+        // The listener checks the email and password format *while* the text is typed.
         val afterTextChangedListener = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
                 // ignore
@@ -108,36 +116,52 @@ class LoginFragment : Fragment() {
 
         usernameEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.addTextChangedListener(afterTextChangedListener)
+
+        // Start the login process when the "Logg in" button on the keyboard is pressed.
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
+            //  TODO: Never passes the if-statement, fix this or remove this action listener.
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                loginViewModel.login(
-                    usernameEditText.text.toString(),
-                    passwordEditText.text.toString()
-                )
+                viewLifecycleOwner.lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        loginViewModel.login(
+                            usernameEditText.text.toString(),
+                            passwordEditText.text.toString()
+                        )
+                    }
+                }
             }
             false
         }
 
+        // Start the logg in process when the "Logg in" button on the screen (fragment) is pressed.
         loginButton.setOnClickListener {
             loadingProgressBar.visibility = View.VISIBLE
-            loginViewModel.login(
-                usernameEditText.text.toString(),
-                passwordEditText.text.toString()
-            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    loginViewModel.login(
+                        usernameEditText.text.toString(),
+                        passwordEditText.text.toString()
+                    )
+                }
+            }
         }
 
         toRegistrationButton.setOnClickListener {
-            navController!!.navigate(R.id.action_loginFragment_to_registrationFragment)
+            navController!!.navigate(R.id.action_loginFragment2_to_registrationFragment2)
             Log.d("myDebug", "To registration")
         }
     }
 
+    /**
+     * Calls startMainActivity() from LoginActivity.
+     * <p>
+     * This function is called when the login succeeded and a new activity is supposed to start
+     */
     private fun updateUiWithUser(model: LoggedInUserView, view: View) {
-        val welcome = getString(R.string.welcome) + model.displayName
-        // TODO : initiate successful logged in experience
+        val welcome = getString(R.string.welcome)
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
-        navController!!.navigate(R.id.action_loginFragment_to_profileFragment)
+        (activity as LoginActivity?)!!.startMainActivity()
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
@@ -148,18 +172,5 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        val callback: OnBackPressedCallback =
-            object : OnBackPressedCallback(true)
-            {
-                override fun handleOnBackPressed() {}
-            }
-        requireActivity().onBackPressedDispatcher.addCallback(
-            this,
-            callback
-        )
     }
 }

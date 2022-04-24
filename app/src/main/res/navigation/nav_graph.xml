@@ -3,19 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/ProfileFragment">
+
 
     <fragment
-        android:id="@+id/profileFragment"
+        android:id="@+id/ProfileFragment"
         android:name="com.example.sub.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" >
+        tools:layout="@layout/fragment_profile">
         <action
-            android:id="@+id/action_profileFragment_to_userProfile"
-            app:destination="@id/userProfile" />
-        <action
-            android:id="@+id/action_profileFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            android:id="@+id/action_ProfileFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
     </fragment>
     <fragment
         android:id="@+id/callingFragment"
@@ -23,43 +21,19 @@
         android:label="fragment_calling"
         tools:layout="@layout/fragment_calling" >
         <action
-            android:id="@+id/action_callingFragment_to_userProfile"
-            app:destination="@id/userProfile" />
+            android:id="@+id/action_callingFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
     </fragment>
     <fragment
-        android:id="@+id/userProfile"
-        android:name="com.example.sub.UserProfile"
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.sub.UserProfileFragment"
         android:label="fragment_user_profile"
-        tools:layout="@layout/fragment_user_profile" >
+        tools:layout="@layout/fragment_user_profile">
         <action
-            android:id="@+id/action_userProfile_to_callingFragment"
+            android:id="@+id/action_userProfileFragment_to_callingFragment"
             app:destination="@id/callingFragment" />
         <action
-            android:id="@+id/action_userProfile_to_profileFragment"
-            app:destination="@id/profileFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/loginFragment"
-        android:name="com.example.sub.ui.login.LoginFragment"
-        android:label="fragment_login"
-        tools:layout="@layout/fragment_login" >
-        <action
-            android:id="@+id/action_loginFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
-        <action
-            android:id="@+id/action_loginFragment_to_registrationFragment"
-            app:destination="@id/registrationFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/registrationFragment"
-        android:name="com.example.sub.ui.login.RegistrationFragment"
-        android:label="fragment_registration"
-        tools:layout="@layout/fragment_registration" >
-        <action
-            android:id="@+id/action_registrationFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
-        <action
-            android:id="@+id/action_registrationFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
+            android:id="@+id/action_userProfileFragment_to_ProfileFragment"
+            app:destination="@id/ProfileFragment" />
     </fragment>
 </navigation>

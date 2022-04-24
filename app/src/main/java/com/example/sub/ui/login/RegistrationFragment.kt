@@ -12,9 +12,14 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.sub.R
 import com.example.sub.databinding.FragmentRegistrationBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class RegistrationFragment : Fragment() {
@@ -22,34 +27,36 @@ class RegistrationFragment : Fragment() {
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentRegistrationBinding? = null
     private val binding get() = _binding!!
+    private var navController: NavController? = null
 
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentRegistrationBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
+        navController = Navigation.findNavController(view)
+        loginViewModel = ViewModelProvider(this,
+            LoginViewModelFactory(context))[LoginViewModel::class.java]
 
         val usernameEditText = binding.username
         val passwordEditText = binding.password
-        val loginButton = binding.login
+        val registerButton = binding.register
         val loadingProgressBar = binding.loading
         val toRegistrationButton = binding.toLogin
 
+        // Checks if the typed email and password follow the defined format in LoginViewModel.
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
             Observer { loginFormState ->
                 if (loginFormState == null) {
                     return@Observer
                 }
-                loginButton.isEnabled = loginFormState.isDataValid
-                loginFormState.phoneNumberError?.let {
+                registerButton.isEnabled = loginFormState.isDataValid // Disables the login button if the email and password have incorrect format.
+                loginFormState.emailError?.let {
                     usernameEditText.error = getString(it)
                 }
                 loginFormState.passwordError?.let {
@@ -57,6 +64,8 @@ class RegistrationFragment : Fragment() {
                 }
             })
 
+        // Calls updateUiWithUser (opens MainActivity) if the login succeeded from a database
+        // standpoint. If an error occurs, an error message is shown on the screen.
         loginViewModel.loginResult.observe(viewLifecycleOwner,
             Observer { loginResult ->
                 loginResult ?: return@Observer
@@ -69,6 +78,7 @@ class RegistrationFragment : Fragment() {
                 }
             })
 
+        // The listener checks the email and password format *while* the text is typed.
         val afterTextChangedListener = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
                 // ignore
@@ -79,7 +89,7 @@ class RegistrationFragment : Fragment() {
             }
 
             override fun afterTextChanged(s: Editable) {
-                loginViewModel.loginDataChanged(
+                loginViewModel.registrationDataChanged(
                     usernameEditText.text.toString(),
                     passwordEditText.text.toString()
                 )
@@ -88,36 +98,50 @@ class RegistrationFragment : Fragment() {
 
         usernameEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.addTextChangedListener(afterTextChangedListener)
+
+        // Start the login process when the "Registration" button on the keyboard is pressed.
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
+            //  TODO: Never passes the if-statement, fix this or remove this action listener.
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                loginViewModel.register(
-                    usernameEditText.text.toString(),
-                    passwordEditText.text.toString()
-                )
+                viewLifecycleOwner.lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        loginViewModel.register(
+                            usernameEditText.text.toString(),
+                            passwordEditText.text.toString())
+                    }
+                }
             }
             false
         }
 
-        loginButton.setOnClickListener {
+        // Start the registration process when the "Register" button on the screen (fragment) is pressed.
+        registerButton.setOnClickListener {
             loadingProgressBar.visibility = View.VISIBLE
-            loginViewModel.register(
-                usernameEditText.text.toString(),
-                passwordEditText.text.toString()
-            )
+            viewLifecycleOwner.lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    loginViewModel.register(
+                        usernameEditText.text.toString(),
+                        passwordEditText.text.toString()
+                    )
+                }
+            }
         }
 
         toRegistrationButton.setOnClickListener {
-            Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_loginFragment)
+            navController!!.navigate(R.id.action_registrationFragment2_to_loginFragment2)
         }
     }
 
+    /**
+     * Calls startMainActivity() from LoginActivity.
+     * <p>
+     * This function is called when the register succeeded and a new activity is supposed to start
+     */
     private fun updateUiWithUser(model: LoggedInUserView, view: View) {
         val welcome = getString(R.string.welcome) + model.displayName
-        // TODO : initiate successful logged in experience
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
-
-        Navigation.findNavController(view).navigate(R.id.action_registrationFragment_to_profileFragment)
+        (activity as LoginActivity?)!!.startMainActivity()
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {

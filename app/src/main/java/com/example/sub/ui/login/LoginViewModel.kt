@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import com.example.sub.R
 import com.example.sub.data.LoginRepository
 import com.example.sub.data.Result
+import com.example.sub.data.LoggedInUser
+
 
 class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
@@ -17,29 +19,41 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
 
-    fun login(username: String, password: String) {
+    suspend fun login(username: String, password: String) {
         val result = loginRepository.login(username, password)
         if (result is Result.Success) {
-            _loginResult.value =
-                LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+            _loginResult.postValue(LoginResult(success = LoggedInUserView(displayName = result.data.displayName)))
         } else {
-            _loginResult.value = LoginResult(error = R.string.login_failed)
+            _loginResult.postValue(LoginResult(error = R.string.login_failed))
         }
     }
 
-    fun register(username: String, password: String) {
+    suspend fun register(username: String, password: String) {
         val result = loginRepository.register(username, password)
         if (result is Result.Success) {
-            _loginResult.value =
-                LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+            _loginResult.postValue(LoginResult(success = LoggedInUserView(displayName = result.data.displayName)))
         } else {
-            _loginResult.value = LoginResult(error = R.string.registration_failed)
+            _loginResult.postValue(LoginResult(error = R.string.registration_failed))
         }
     }
 
-    fun loginDataChanged(phoneNumber: String, password: String) {
-        if (!isPhoneNumberValid(phoneNumber)) {
-            _loginForm.value = LoginFormState(phoneNumberError = R.string.invalid_phone_number)
+    /**
+     * Checks if the passed data follow the defined format. If not, the error is cached in the
+     * LoginFormState that the LoginFragment uses to access this information.
+     */
+    fun loginDataChanged(email: String, password: String) {
+        if (!isEmailValid(email)) {
+            _loginForm.value = LoginFormState(emailError = R.string.invalid_mail)
+        } else if (!isPasswordValid(password)) {
+            _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
+        } else {
+            _loginForm.value = LoginFormState(isDataValid = true)
+        }
+    }
+
+    fun registrationDataChanged(email: String, password: String) {
+        if (!isEmailValid(email)) {
+            _loginForm.value = LoginFormState(emailError = R.string.invalid_mail)
         } else if (!isPasswordValid(password)) {
             _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
         } else {
@@ -65,5 +79,9 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
     fun isLoggedIn(): Boolean {
         return loginRepository.isLoggedIn
+    }
+
+    fun getUser(): LoggedInUser? {
+        return loginRepository.user
     }
 }
