@@ -37,4 +37,14 @@ interface SessionListener {
      */
     fun onSessionFailed() {}
 
+    /**
+     * Gets called when a string message is received over the webRTC connection.
+     */
+    fun onStringMessage(message: String) {}
+
+    /**
+     * Gets called when a bytearray message is received over the webRTC connection.
+     */
+    fun onBytesMessage(bytes: ByteArray) {}
+
 }

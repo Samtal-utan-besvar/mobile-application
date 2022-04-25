@@ -18,7 +18,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
         private const val LOCAL_STREAM_ID = "local_track"
     }
 
-    private var observer: PeerConnection.Observer
+    private var observer: PeerConnectionObserver
     val TAG = "RTCClient"
 
     private var remoteSessionDescription: SessionDescription? = null
@@ -35,8 +35,8 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
     private val iceServer = listOf(
         PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
             .createIceServer(),
-        //PeerConnection.IceServer.builder("stun:141.144.249.42:3478")
-        //            .createIceServer(),
+        PeerConnection.IceServer.builder("stun:141.144.249.42:3478")
+                    .createIceServer(),
         PeerConnection.IceServer.builder("turn:141.144.249.42:3478").setUsername("test")
             .setPassword("test123").createIceServer()
     )
@@ -44,7 +44,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
     // Adds necessary functionality to the observer and initializes the PeerConnectionFactory
     init {
-        this.observer = object : PeerConnection.Observer by observer {
+        this.observer = object : PeerConnectionObserver by observer {
 
             override fun onDataChannel(p0: DataChannel?) {
                 Log.d("RTCClient-channel", p0.toString())
@@ -206,7 +206,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
      * Sends the given [message] to the opposing peer through
      * the data channel of the webRTC connection.
      */
-    fun sendMessage(message: String) {
+    fun sendString(message: String) {
         val sendJSON = JSONObject()
         sendJSON.put("msg", message)
         val buf = ByteBuffer.wrap(sendJSON.toString().toByteArray(UTF_8))
@@ -215,26 +215,41 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
 
     /**
+     * Sends the given [bytes] to the opposing peer through
+     * the data channel of the webRTC connection.
+     */
+    fun sendBytes(bytes: ByteArray) {
+        val buf = ByteBuffer.wrap(bytes)
+        channel?.send(DataChannel.Buffer(buf, true))
+    }
+
+
+    /**
      * Observer for the [DataChannel] of the webRTC connection. Handles the receiving of messages
      * and state changes.
      */
-    open inner class DefaultDataChannelObserver(val channel: DataChannel) : DataChannel.Observer {
+    open inner class DefaultDataChannelObserver(private val channel: DataChannel) : DataChannel.Observer {
 
         // Handles received messages.
         override fun onMessage(p0: DataChannel.Buffer?) {
             val buf = p0?.data
             if (buf != null) {
-                val byteArray = ByteArray(buf.remaining())
-                buf.get(byteArray)
-                val received = String(byteArray, UTF_8)
-                try {
-                    val message = JSONObject(received).getString("msg")
-                    Log.d("RTCClient-receive", message)
-                } catch (e: JSONException) {
-                    Log.d("RTCClient-receive", "error")
+                val bytes = ByteArray(buf.remaining())
+                buf.get(bytes)
+
+                if (p0.binary) {
+                    // Message is binary. Use directly
+                    observer.onBytesMessage(bytes)
+                } else {
+                    // Message is not binary. Convert to json and extract string message.
+                    val received = String(bytes, UTF_8)
+                    try {
+                        val message = JSONObject(received).getString("msg")
+                        observer.onStringMessage(message)
+                    } catch (e: JSONException) {
+                        Log.d("RTCClient-receive", "error")
+                    }
                 }
-
-
             }
         }
 
@@ -246,7 +261,9 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
             Log.d("RTCClient-state","Channel state changed:${channel.state()?.name}}")
             if (channel.state() == DataChannel.State.OPEN) {
                 Log.d("RTCClient-state","Chat established.")
-                sendMessage("rick roll")
+                sendString("rick roll")
+                val bytes = byteArrayOf(0x2E, 0x38)
+                sendBytes(bytes)
             } else {
                 Log.d("RTCClient-state","Chat ended.")
             }

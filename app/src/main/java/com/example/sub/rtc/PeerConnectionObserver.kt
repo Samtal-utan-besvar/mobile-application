@@ -3,12 +3,12 @@ package com.example.sub.rtc
 import android.util.Log
 import org.webrtc.*
 
+private const val TAG = "PeerConnectionObserver"
+
 /**
  * Implement this in a class to be able to get notified of changes in a [PeerConnection].
  */
-open class PeerConnectionObserver: PeerConnection.Observer {
-
-    private val TAG = "PeerConnection"
+interface PeerConnectionObserver: PeerConnection.Observer {
 
     override fun onSignalingChange(p0: PeerConnection.SignalingState?) {
         Log.d(TAG, "signal change " + p0?.toString())
@@ -52,5 +52,13 @@ open class PeerConnectionObserver: PeerConnection.Observer {
 
     override fun onAddTrack(p0: RtpReceiver?, p1: Array<out MediaStream>?) {
         Log.d(TAG, "add track" + p0?.toString())
+    }
+
+    fun onStringMessage(p0: String) {
+        Log.d(TAG, "string message " + p0)
+    }
+
+    fun onBytesMessage(p0: ByteArray) {
+        Log.d(TAG, "bytes message " + p0.joinToString(", ") { "%02x".format(it) })
     }
 }

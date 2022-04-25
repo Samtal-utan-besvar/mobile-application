@@ -31,7 +31,7 @@ class CallSession private constructor(val signalClient: SignalClient,
 
 
     // Observer for the webRTC connection.
-    private val observer = object : PeerConnectionObserver() {
+    inner class DefaultPeerConnectionObserver : PeerConnectionObserver {
 
         /**
          * Gets called when the state of the peer connection is changed. Sets the status of
@@ -50,9 +50,26 @@ class CallSession private constructor(val signalClient: SignalClient,
         override fun onIceCandidate(p0: IceCandidate?) {
             if (p0 != null) {
                 val iceCandidateSignalMessage = IceCandidateMessage.fromIceCandidate(p0, localPhoneNumber, remotePhoneNumber)
-
                 queueIceCandidate(iceCandidateSignalMessage)
             }
+        }
+
+
+        /**
+         * Gets called when a [ByteArray] is received over the [PeerConnection].
+         */
+        override fun onBytesMessage(p0: ByteArray) {
+            super.onBytesMessage(p0)
+            sessionListeners.forEach { it.onBytesMessage(p0) }
+        }
+
+
+        /**
+         * Gets called when a [String] is received over the [PeerConnection].
+         */
+        override fun onStringMessage(p0: String) {
+            super.onStringMessage(p0)
+            sessionListeners.forEach { it.onStringMessage(p0) }
         }
     }
 
@@ -64,7 +81,7 @@ class CallSession private constructor(val signalClient: SignalClient,
         isCaller = true
         setStatus(CallStatus.REQUESTING)
 
-        rtcClient = RTCClient(observer, context)
+        rtcClient = RTCClient(DefaultPeerConnectionObserver(), context)
         rtcClient!!.call(object : DefaultSdpObserver() {
 
             // Gets called when the sdp has been created.
@@ -121,6 +138,18 @@ class CallSession private constructor(val signalClient: SignalClient,
 
 
     /**
+     * Sends the given [bytes] to the other peer through webRTC.
+     */
+    fun sendBytes(bytes: ByteArray) = rtcClient?.sendBytes(bytes)
+
+
+    /**
+     * Sends the given [message] to the other peer through webRTC.
+     */
+    fun sendString(message: String) = rtcClient?.sendString(message)
+
+
+    /**
      * Sets the [CallStatus] of the session.
      */
     private fun setStatus(status: CallStatus) {
@@ -165,7 +194,7 @@ class CallSession private constructor(val signalClient: SignalClient,
     fun accept(context: Context) {
 
         // Create and set up the webRTC client.
-        rtcClient = RTCClient(observer, context)
+        rtcClient = RTCClient(DefaultPeerConnectionObserver(), context)
         rtcClient!!.onRemoteSessionReceived(remoteSDP!!)
         rtcClient!!.answer(object : DefaultSdpObserver() {
 

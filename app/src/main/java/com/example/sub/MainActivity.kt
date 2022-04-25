@@ -34,6 +34,9 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    /**
+     * Sets up webRTC and signal client.
+     */
     private fun setUpWebRTC() {
 
         //region Temporary solution.
