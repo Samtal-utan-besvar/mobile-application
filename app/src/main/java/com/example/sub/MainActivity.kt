@@ -113,12 +113,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Test Button
-    fun onClickSignalServer(view: View){
-        //val websocketClient = SignalingClient()
-        //websocketClient.connect()
-        val sc1 = SignalClient
-    }
+
+
 }
 
 fun View.showSnackbar(

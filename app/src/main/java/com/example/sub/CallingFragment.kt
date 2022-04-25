@@ -21,10 +21,10 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [callingFragment.newInstance] factory method to
+ * Use the [CallingFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class callingFragment : Fragment() {
+class CallingFragment : Fragment() {
     private var navController: NavController? = null
     private var signalingClient: SignalClient? = null
 
@@ -36,13 +36,11 @@ class callingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = findNavController(view.findViewById(R.id.closeCall))
+        navController = findNavController(view)
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
-
-            // TODO: Action when close call, disconnect call from server??
-
+            // TODO: Action when close call, disconnect call from server?
             navController!!.navigate(
-                R.id.action_callingFragment_to_userProfile
+                R.id.action_callingFragment_to_userProfileFragment
             )
         }
 
@@ -51,7 +49,7 @@ class callingFragment : Fragment() {
         toggleButtonSilentMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when speaker is on
-                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
+                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()     // remove
             } else {
                 // TODO: Action when speaker is off
                 Toast.makeText(activity, "speaker off", Toast.LENGTH_LONG).show()    // remove
@@ -81,8 +79,8 @@ class callingFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(): callingFragment {
-            return callingFragment()
+        fun newInstance(): CallingFragment {
+            return CallingFragment()
         }
     }
 
