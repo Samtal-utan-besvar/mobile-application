@@ -31,6 +31,8 @@ private const val ARG_PARAM2 = "param2"
 class CallingFragment : Fragment() {
 
     private var adapter = GroupieAdapter()
+    private lateinit var userName : TextView
+
 
 
     private var navController: NavController? = null
@@ -44,14 +46,24 @@ class CallingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        val firstName = arguments?.getString("first_name")
+        val lastName = arguments?.getString("last_name")
+        val phoneNr = arguments?.getString("phone_nr")
+
+        userName = view.findViewById(R.id.caller_name)
+        userName.text = firstName
         navController = findNavController(view.findViewById(R.id.closeCall))
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString("first_name", firstName)
+            bundle.putString("last_name", lastName)
+            bundle.putString("phone_nr", phoneNr)
 
             // TODO: Action when close call, disconnect call from server??
 
-            navController!!.navigate(
-                R.id.action_callingFragment_to_userProfileFragment
-            )
+            navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
+
 
 
         }
