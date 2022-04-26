@@ -83,7 +83,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         }
         view.findViewById<View>(R.id.logout).setOnClickListener {
             loginViewModel.loginRepository.logout()
-            //(activity as MainActivity?)!!.startLoginActivity()
+            (activity as MainActivity?)!!.startLoginActivity()
         }
 
         view.findViewById<View>(R.id.confirmContact).setOnClickListener {
