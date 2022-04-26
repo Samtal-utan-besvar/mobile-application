@@ -2,6 +2,7 @@ package com.example.sub
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.android.volley.toolbox.HttpResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -53,7 +54,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
     token = token.drop(1)
     token = token.dropLast(1)
     val client = HttpClient(CIO)
-    val response: HttpResponse = client.request("http://144.24.171.133:8080/get_contacts") {
+    val response: io.ktor.client.statement.HttpResponse = client.request("http://144.24.171.133:8080/get_contacts") {
         method = HttpMethod.Get
         headers{
             append(Accept, "*/*")
@@ -85,7 +86,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
         var token: String = userToken
         token = token.drop(1)
         token = token.dropLast(1)
-        val response: HttpResponse = client.post("http://144.24.171.133:8080/add_contact") {
+        val response: io.ktor.client.statement.HttpResponse = client.post("http://144.24.171.133:8080/add_contact") {
             contentType(ContentType.Application.Json)
             setBody(Contact(phone))
             headers {
