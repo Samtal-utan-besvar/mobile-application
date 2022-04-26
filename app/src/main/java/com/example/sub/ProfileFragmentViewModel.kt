@@ -1,7 +1,6 @@
 package com.example.sub
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -9,15 +8,10 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpHeaders.Accept
 import kotlinx.coroutines.*
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
 import org.json.JSONArray
 import org.json.JSONTokener
-import io.ktor.client.plugins.*
-import io.ktor.serialization.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 
@@ -27,6 +21,9 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
     private var userToken = ""
     private var errorMessage = ""
     private val context = getApplication<Application>().applicationContext
+    private val url = "http://144.24.171.133:8080/" // home url to database server
+    private val urlLocal = "http://10.0.2.2:8080/"  // local url to database. Emulator requires '10.0.2.2' instead of 'localhost'
+
 
     /** Fetches all contacts of a user to put in the contactlist **/
     fun getUsers(): LiveData<List<User>> {
@@ -52,7 +49,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
         var allUsers: MutableList<User> = ArrayList()
         var token : String = userToken
         val client = HttpClient(CIO)
-        val response: HttpResponse = client.request("http://144.24.171.133:8080/get_contacts") {
+        val response: HttpResponse = client.request(urlLocal + "get_contacts") {
             method = HttpMethod.Get
             headers{
                 append(Accept, "*/*")
@@ -80,7 +77,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
             }
         }
         var token: String = userToken
-        val response: HttpResponse = client.post("http://144.24.171.133:8080/add_contact") {
+        val response: HttpResponse = client.post(urlLocal + "add_contact") {
             contentType(ContentType.Application.Json)
             setBody(Contact(phone))
             headers {

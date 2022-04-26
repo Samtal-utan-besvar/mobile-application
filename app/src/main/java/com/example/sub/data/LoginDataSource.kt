@@ -35,20 +35,20 @@ class LoginDataSource {
     /**
      * Function that handles loggedInUser authentication with the database server.
      * <p>
-     * Returns a Result<LoggedInUser> object that specifies if a login HTTP Post request succeeded
-     * or received an error. On success, a loggedInUser object is created containing a user token
-     * received from the Post request.
+     *     Returns a Result<LoggedInUser> object that specifies if a login HTTP Post request
+     *     succeeded or received an error. On success, a loggedInUser object is created containing
+     *     a user token received from the Post request.
      * <p>
-     * The function is using CoroutineScope, so that the HTTP Request is not running on the main
-     * thread. The function is, for that reason, suspended.
+     *     The function is using CoroutineScope, so that the HTTP Request is not running on the
+     *     main thread. The function is, for that reason, suspended.
      * <p>
-     * result.component1(): Value of a successful result
-     * result.component2(): Value of a error
+     *     result.component1(): Value of a successful result
+     *     result.component2(): Value of a error
      */
     suspend fun login(email: String, password: String): Result<LoggedInUser> {
         return try {
             withContext(Dispatchers.IO) {
-                val loginURL = url + "login"
+                val loginURL = urlLocal + "login"
                 val user = LoginCredentials(email, password)
                 val (_, _, result) = loginURL.httpPost()
                     .jsonBody(Gson().toJson(user).toString())
@@ -66,6 +66,11 @@ class LoginDataSource {
         }
     }
 
+    /**
+     * Revoke authentication of JWT token from database.
+     * <p>
+     *     Note: not used in this implementation of the code
+     */
     fun logout() {
         // TODO: revoke authentication
     }
@@ -73,14 +78,13 @@ class LoginDataSource {
     /**
      * Update JWT token.
      * <p>
-     * JWT tokens from the database server expires within one week.
-     * If the user opens the app with a valid JWT token (less then 7 days after last use),
-     * the old token is updated.
+     *     JWT tokens from the database server expires within one week. If the user opens the app
+     *     with a valid JWT token (less then 7 days after last use), the old token is updated.
      */
     suspend fun updateJWTToken(userToken: String): String {
         val client = HttpClient(CIO)
         val token: String = userToken
-        val response: HttpResponse = client.request(url + "authenticate") {
+        val response: HttpResponse = client.request(urlLocal + "authenticate") {
             method = HttpMethod.Get
             headers {
                 append(HttpHeaders.Accept, "*/*")
@@ -88,13 +92,16 @@ class LoginDataSource {
                 append(HttpHeaders.Authorization, token)
             }
         }
-        return response.body()
+        return response.bodyAsText().removeQuotationMarks()     // removes in-String quotation marks around JWTToken
     }
 
     /**
-     * Removes quotation marks "" inside a String from "YOUR_STRING" to YOUR_STRING.
+     * Removes in-String quotation marks "".
+     * <p>
+     *     Converting String from "YOUR_STRING" to YOUR_STRING .
      */
     private fun String.removeQuotationMarks(): String {
+        Log.d("myDebug", this)
         if (startsWith("\"") && endsWith("\"")) {
             return drop(1).dropLast(1)
         }

@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.ActivityPermissionBinding
 import com.example.sub.ui.login.LoginActivity
 import com.google.android.material.snackbar.Snackbar
@@ -17,21 +18,28 @@ import com.google.android.material.snackbar.Snackbar
 class MainActivity : AppCompatActivity() {
     private lateinit var layout: View
     private lateinit var binding: ActivityPermissionBinding
-
+    private lateinit var loggedInUser: LoggedInUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPermissionBinding.inflate(layoutInflater)
         layout = binding.permissionLayout
         setContentView(R.layout.activity_main)
+        loggedInUser = intent.getSerializableExtra("loggedInUser") as LoggedInUser
     }
 
     fun startLoginActivity() {
         let{
             val intent = Intent(it, LoginActivity::class.java)
+            intent.putExtra("logout", true)
             it.startActivity(intent)
         }
         finish()
+    }
+
+    @JvmName("getLoggedInUserMainActivity")
+    fun getLoggedInUser() : LoggedInUser {
+        return loggedInUser
     }
 
     private val requestPermissionLauncher =

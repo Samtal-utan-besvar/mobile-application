@@ -9,25 +9,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.EditorInfo.IME_ACTION_DONE
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import com.example.sub.MainActivity
-import com.example.sub.ProfileFragment
 import com.example.sub.R
+import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.FragmentLoginBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
-const val AUTOLOGIN_DISABLED = false     // For debugging purposes
 
 class LoginFragment : Fragment() {
 
@@ -35,8 +32,6 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private var navController: NavController? = null
-//    val model = ViewModelProvider(requireActivity())[LoginViewModel::class.java]
-
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -48,8 +43,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-        loginViewModel = ViewModelProvider(this,
-            LoginViewModelFactory(context))[LoginViewModel::class.java]
+        loginViewModel = (activity as LoginActivity?)!!.getLoginViewModel()
 
         val usernameEditText = binding.username
         val passwordEditText = binding.password
@@ -57,15 +51,7 @@ class LoginFragment : Fragment() {
         val loadingProgressBar = binding.loading
         val toRegistrationButton = binding.toRegistration
 
-        // Removes loggedInUser object from SharedPreferences so that no loggedInUser can be used for autologin.
-        if (AUTOLOGIN_DISABLED) {
-            val sharedPref = context?.getSharedPreferences("UserSharedPref", Context.MODE_PRIVATE)
-            sharedPref!!.edit().clear().apply()
-        }
 
-        if (loginViewModel.isLoggedIn()) {
-            (activity as LoginActivity?)!!.startMainActivity()  // Starts MainActivity if loggedInUser is found.
-        }
 
         // Checks if the typed email and password follow the defined format in LoginViewModel.
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
@@ -96,7 +82,7 @@ class LoginFragment : Fragment() {
                 }
             })
 
-        // The listener checks the email and password format *while* the text is typed.
+        // The listener checks the email and password format while the text is typed.
         val afterTextChangedListener = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
                 // ignore
@@ -120,7 +106,19 @@ class LoginFragment : Fragment() {
         // Start the login process when the "Logg in" button on the keyboard is pressed.
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
             //  TODO: Never passes the if-statement, fix this or remove this action listener.
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            Log.d("myDebug", "IME_ACTION_DONE " + IME_ACTION_DONE)
+//            Log.d("myDebug", " " + )
+//            Log.d("myDebug", " " + )
+//            Log.d("myDebug", " " + )
+//            Log.d("myDebug", " " + )
+//            Log.d("myDebug", " " + )
+//            Log.d("myDebug", " " + )
+//            Log.d("myDebug", " " + )
+//            Log.d("myDebug", " " + )
+//            Log.d("myDebug", " " + )
+//            Log.d("myDebug", " " + )
+
+            if (actionId == EditorInfo.IME_ACTION_UNSPECIFIED) {
                 viewLifecycleOwner.lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         loginViewModel.login(
@@ -161,7 +159,7 @@ class LoginFragment : Fragment() {
         val welcome = getString(R.string.welcome)
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
-        (activity as LoginActivity?)!!.startMainActivity()
+        (activity as LoginActivity?)!!.startMainActivity(loginViewModel.getUser()!!)
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {

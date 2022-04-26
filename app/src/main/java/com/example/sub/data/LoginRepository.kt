@@ -55,7 +55,8 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     }
 
     /**
-     * Calls register from the data source and saves the loggedInUser object if the result succeeded.
+     * Calls register from the data source and saves the loggedInUser object if the result
+     * succeeded.
      */
     suspend fun register(username: String, password: String): Result<LoggedInUser> {
         val result = dataSource.register(username, password)
@@ -91,6 +92,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
         var loggedInUser =  gson.fromJson(json, LoggedInUser::class.java)
         val token = dataSource.updateJWTToken(loggedInUser.userToken.toString())
         loggedInUser = LoggedInUser(token, null)
+        saveLoggedInUser(loggedInUser)
         return loggedInUser
     }
 
