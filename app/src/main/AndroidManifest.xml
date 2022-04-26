@@ -14,7 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SUB"
-        android:usesCleartextTraffic="${usesCleartextTraffic}"
+        android:usesCleartextTraffic="true"
         >
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.SUB">
