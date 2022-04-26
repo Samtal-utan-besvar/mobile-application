@@ -25,7 +25,7 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [callingFragment.newInstance] factory method to
+ * Use the [CallingFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
 class CallingFragment : Fragment() {
@@ -118,7 +118,7 @@ class CallingFragment : Fragment() {
         simpleChronometer.start() // start a chronometer
     }
 
-        companion object {
+    companion object {
         fun newInstance(): CallingFragment {
             return CallingFragment()
         }
