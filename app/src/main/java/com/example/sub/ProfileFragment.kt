@@ -95,10 +95,6 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 adapter.notifyDataSetChanged()
             }
 
-            //view.findViewById<Button>(R.id.buttonPerm).setOnClickListener{
-            //    Log.d("blabla", "BLABLABLABL")
-            //}
-
             runBlocking {  profileFragmentViewModel.addContact(contactNumber.text.toString())}
             contactFirstName.text = ""
             contactLastName.text = ""
@@ -111,14 +107,8 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
         view.findViewById<View>(R.id.settingsButton).setOnClickListener{
             showMenu(view.findViewById(R.id.settingsButton))
         }
-        /**val spinner: Spinner = view.findViewById<View>(R.id.spinner) as Spinner
-        this.context?.let {
-            ArrayAdapter.createFromResource(it, R.array.logout_array, android.R.layout.simple_spinner_item).also { adapter ->
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinner.adapter = adapter
-            }
-        }**/
     }
+
     private fun showMenu(v: View) {
         PopupMenu(this.context, v).apply {
             setOnMenuItemClickListener(this@ProfileFragment)
@@ -136,25 +126,13 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 loginViewModel.loginRepository.logout()
                 true
             }
+            R.id.requestPerm -> {
+
+                true
+            }
             else -> false
         }
     }
-
-    /**
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        val inflater = MenuInflater(this.context)
-        inflater.inflate(R.menu.logout_menu, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId == R.id.ProfileFragment){
-            println("HOPPLA POLLE")
-            return true
-        }
-        return NavigationUI.onNavDestinationSelected(item!!,
-            requireView().findNavController())
-                || super.onOptionsItemSelected(item)
-    }**/
 
     /** Fetches the username from the LoginViewModel class **/
     private fun getUserName(): String? {
@@ -182,4 +160,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
             return CallingFragment()
         }
     }
+
+
+
 }

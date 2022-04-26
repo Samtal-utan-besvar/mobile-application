@@ -8,27 +8,17 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="140dp"
-        android:layout_height="107dp"
-        android:src="@drawable/ic_launcher_foreground"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@color/design_default_color_on_secondary"
+        android:outlineProvider="background"
         app:layout_constraintBottom_toTopOf="@+id/profileFName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.316"
+        app:layout_constraintHorizontal_bias="0.363"
         app:layout_constraintStart_toEndOf="@+id/profile"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.727" />
-
-    <ImageButton
-        android:id="@+id/profile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_my_calendar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.045"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023" />
+        app:layout_constraintVertical_bias="0.902"
+        app:srcCompat="@drawable/subprofileplaceholdersquare" />
 
     <TextView
         android:id="@+id/profileLName"
@@ -53,7 +43,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.213" />
+        app:layout_constraintVertical_bias="0.347" />
 
     <TextView
         android:id="@+id/profilePN"
@@ -66,16 +56,34 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profileFName"
-        app:layout_constraintVertical_bias="0.106" />
+        app:layout_constraintVertical_bias="0.13" />
+
+    <ImageButton
+        android:id="@+id/profile"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/profilicon_modified"
+        android:scaleType="fitXY"
+        android:src="@drawable/profilicon_modified"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.045"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.023" />
 
     <ImageButton
         android:id="@+id/imageButton3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_manage"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/newnewsettingicon"
+        android:scaleType="fitXY"
+        android:src="@drawable/newnewsettingicon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.954"
+        app:layout_constraintHorizontal_bias="0.958"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023" />
@@ -93,18 +101,21 @@
         app:layout_constraintTop_toBottomOf="@+id/profile"
         app:layout_constraintVertical_bias="0.0" />
 
-    <ImageView
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/callButton"
         android:layout_width="70dp"
-        android:layout_height="58dp"
-        android:background="@android:drawable/sym_action_call"
-        android:backgroundTint="#FFFFFF"
-        android:foregroundTint="#FFFFFF"
-        android:src="@android:drawable/ic_menu_call"
+        android:layout_height="70dp"
+        android:backgroundTint="@android:color/holo_green_light"
+        android:clickable="true"
+        android:src="@drawable/ic_call"
+        app:fabCustomSize="70dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profilePN"
-        tools:srcCompat="@android:drawable/sym_action_call" />
+        app:layout_constraintVertical_bias="0.458"
+        app:maxImageSize="40dp"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
