@@ -8,21 +8,6 @@
     tools:context=".ProfileFragment">
 
     <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:adjustViewBounds="true"
-        android:background="@drawable/newsettingicon"
-        android:scaleType="fitXY"
-        android:src="@drawable/newnewsettingicon"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.72"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023" />
-
-    <ImageButton
         android:id="@+id/addContact"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -127,14 +112,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.122" />
 
-    <Spinner
-        android:id="@+id/spinner"
+    <ImageButton
+        android:id="@+id/settingsButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:adjustViewBounds="true"
         android:background="@drawable/newnewsettingicon"
+        android:contentDescription="@string/settingsButton"
+        android:onClick="showPopup"
+        android:scaleType="fitXY"
+        android:src="@drawable/newnewsettingicon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.997"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />

@@ -36,6 +36,9 @@
     <string name="Record">Record</string>
     <string name="ReqPermission">Request Permission</string>
     <string name="sigServerReq">Signal the Server</string>
+    <string name="Logout">Logout</string>
+    <string name="menuLogout">Logout</string>
+    <string name="settingsButton">settingsButton</string>
 
     <string-array name="logout_array">
         <item>Logout</item>
