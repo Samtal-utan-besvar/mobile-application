@@ -31,9 +31,15 @@
         tools:layout="@layout/fragment_user_profile">
         <action
             android:id="@+id/action_userProfileFragment_to_callingFragment"
-            app:destination="@id/callingFragment" />
+            app:destination="@id/callingFragment"
+            app:popEnterAnim="@anim/nav_default_enter_anim"
+            app:popUpTo="@id/callingFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_userProfileFragment_to_ProfileFragment"
-            app:destination="@id/ProfileFragment" />
+            app:destination="@id/ProfileFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:popUpTo="@id/ProfileFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

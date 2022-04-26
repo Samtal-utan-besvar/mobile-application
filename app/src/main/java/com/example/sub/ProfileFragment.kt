@@ -5,7 +5,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
@@ -42,6 +44,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
@@ -55,8 +58,8 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         addContactBttn = view.findViewById(R.id.addContact)
         addContactText = view.findViewById(R.id.addContactText)
         confirmContact = view.findViewById(R.id.confirmContact)
-        contactFirstName = view.findViewById(R.id.contactFirstName)
-        contactLastName = view.findViewById(R.id.contactLastName)
+        //contactFirstName = view.findViewById(R.id.contactFirstName)
+        //contactLastName = view.findViewById(R.id.contactLastName)
         contactNumber = view.findViewById(R.id.contactNr)
         contactGroup = view.findViewById(R.id.addContactGroup)
         contactList = view.findViewById(R.id.contactList)
@@ -103,7 +106,16 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
             contactList.visibility = View.VISIBLE
         }
         Log.d("myDebug", "getUserToken(): " + getUserToken())
+
+
+        val spinner: Spinner = view.findViewById<View>(R.id.spinner) as Spinner
+        ArrayAdapter.createFromResource(this, R.array.logout_array, android.R.layout.simple_spinner_item).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinner.adapter = adapter
+        }
     }
+
+
 
     /** Fetches the username from the LoginViewModel class **/
     private fun getUserName(): String? {

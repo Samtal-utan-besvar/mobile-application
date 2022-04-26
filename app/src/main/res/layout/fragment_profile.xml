@@ -9,12 +9,15 @@
 
     <ImageButton
         android:id="@+id/imageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_my_calendar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/newsettingicon"
+        android:scaleType="fitXY"
+        android:src="@drawable/newnewsettingicon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.954"
+        app:layout_constraintHorizontal_bias="0.72"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023" />
@@ -47,40 +50,9 @@
         tools:listitem="@android:layout/list_content" />
 
     <EditText
-        android:id="@+id/contactFirstName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="First name"
-        android:inputType="textPersonName"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.218" />
-
-    <EditText
-        android:id="@+id/contactLastName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Last name"
-        android:inputType="textPersonName"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/contactNr"
-        app:layout_constraintEnd_toEndOf="@+id/contactFirstName"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/contactFirstName"
-        app:layout_constraintTop_toBottomOf="@+id/contactFirstName"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <EditText
         android:id="@+id/contactNr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="45dp"
         android:ems="10"
         android:hint="Phone number"
         android:inputType="phone"
@@ -89,8 +61,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/contactFirstName"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/addContactText"
+        app:layout_constraintVertical_bias="0.02" />
 
     <TextView
         android:id="@+id/addContactText"
@@ -108,17 +80,17 @@
 
     <Button
         android:id="@+id/confirmContact"
-        android:layout_width="47dp"
-        android:layout_height="33dp"
+        android:layout_width="52dp"
+        android:layout_height="36dp"
         android:backgroundTint="@color/teal_200"
         android:text="✔"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/contactNr"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.314"
         app:layout_constraintStart_toEndOf="@+id/contactNr"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.316"
+        app:layout_constraintTop_toTopOf="@+id/contactNr"
+        app:layout_constraintVertical_bias="0.246"
         tools:visibility="visible" />
 
     <Button
@@ -141,7 +113,7 @@
         android:layout_height="wrap_content"
         android:background="@color/cardview_dark_background"
         android:visibility="invisible"
-        app:constraint_referenced_ids="contactFirstName,contactLastName,contactNr,addContactText,confirmContact" />
+        app:constraint_referenced_ids="contactNr,addContactText,confirmContact" />
 
     <Button
         android:id="@+id/logout"
@@ -155,15 +127,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.122" />
 
-    <Button
-        android:id="@+id/buttonSignalReq"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="416dp"
-        android:layout_marginEnd="124dp"
-        android:onClick="onClickSignalServer"
-        android:text="@string/sigServerReq"
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/newnewsettingicon"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

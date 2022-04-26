@@ -37,4 +37,8 @@
     <string name="ReqPermission">Request Permission</string>
     <string name="sigServerReq">Signal the Server</string>
 
+    <string-array name="logout_array">
+        <item>Logout</item>
+    </string-array>
+
 </resources>
