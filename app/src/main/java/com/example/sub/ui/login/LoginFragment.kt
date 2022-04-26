@@ -23,7 +23,9 @@ import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.FragmentLoginBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlin.system.measureTimeMillis
 
 
 class LoginFragment : Fragment() {
@@ -50,7 +52,6 @@ class LoginFragment : Fragment() {
         val loginButton = binding.login
         val loadingProgressBar = binding.loading
         val toRegistrationButton = binding.toRegistration
-
 
 
         // Checks if the typed email and password follow the defined format in LoginViewModel.
@@ -105,42 +106,24 @@ class LoginFragment : Fragment() {
 
         // Start the login process when the "Logg in" button on the keyboard is pressed.
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
-            //  TODO: Never passes the if-statement, fix this or remove this action listener.
-            Log.d("myDebug", "IME_ACTION_DONE " + IME_ACTION_DONE)
-//            Log.d("myDebug", " " + )
-//            Log.d("myDebug", " " + )
-//            Log.d("myDebug", " " + )
-//            Log.d("myDebug", " " + )
-//            Log.d("myDebug", " " + )
-//            Log.d("myDebug", " " + )
-//            Log.d("myDebug", " " + )
-//            Log.d("myDebug", " " + )
-//            Log.d("myDebug", " " + )
-//            Log.d("myDebug", " " + )
-
-            if (actionId == EditorInfo.IME_ACTION_UNSPECIFIED) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        loginViewModel.login(
-                            usernameEditText.text.toString(),
-                            passwordEditText.text.toString()
-                        )
-                    }
-                }
+            runBlocking {
+                loadingProgressBar.visibility = View.VISIBLE
+                loginViewModel.login(
+                    usernameEditText.text.toString(),
+                    passwordEditText.text.toString()
+                )
             }
-            false
+            true
         }
 
         // Start the logg in process when the "Logg in" button on the screen (fragment) is pressed.
         loginButton.setOnClickListener {
             loadingProgressBar.visibility = View.VISIBLE
-            viewLifecycleOwner.lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    loginViewModel.login(
-                        usernameEditText.text.toString(),
-                        passwordEditText.text.toString()
-                    )
-                }
+            runBlocking {
+                loginViewModel.login(
+                    usernameEditText.text.toString(),
+                    passwordEditText.text.toString()
+                )
             }
         }
 
@@ -156,9 +139,9 @@ class LoginFragment : Fragment() {
      * This function is called when the login succeeded and a new activity is supposed to start
      */
     private fun updateUiWithUser(model: LoggedInUserView, view: View) {
-        val welcome = getString(R.string.welcome)
-        val appContext = context?.applicationContext ?: return
-        Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
+//        val welcome = getString(R.string.welcome)
+//        val appContext = context?.applicationContext ?: return
+//        Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
         (activity as LoginActivity?)!!.startMainActivity(loginViewModel.getUser()!!)
     }
 

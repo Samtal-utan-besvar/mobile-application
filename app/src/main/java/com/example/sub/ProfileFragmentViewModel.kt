@@ -1,6 +1,7 @@
 package com.example.sub
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import io.ktor.client.*
 import io.ktor.client.call.*

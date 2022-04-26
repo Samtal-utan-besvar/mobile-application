@@ -17,7 +17,7 @@ import com.example.sub.data.LoggedInUser
 
 // for debugging purposes
 const val LOGIN_DISABLED = false
-const val AUTOLOGIN_DISABLED = false
+const val AUTOLOGIN_DISABLED = true
 
 class LoginActivity : AppCompatActivity() {
 

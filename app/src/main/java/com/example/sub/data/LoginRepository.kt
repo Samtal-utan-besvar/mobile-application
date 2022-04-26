@@ -25,7 +25,9 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
 
     init {
         user = if (isLoggedIn) {
-            runBlocking {readLoggedInUser()}
+            runBlocking {
+                readLoggedInUser()
+            }
         } else {
             null
         }
