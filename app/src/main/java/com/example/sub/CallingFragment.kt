@@ -1,6 +1,5 @@
 package com.example.sub
 
-import android.R.attr.data
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sub.session.CallHandler
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
@@ -36,7 +36,6 @@ class CallingFragment : Fragment() {
 
 
     private var navController: NavController? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -116,11 +115,28 @@ class CallingFragment : Fragment() {
         val simpleChronometer =
             view.findViewById(R.id.simpleChronometer) as Chronometer // initiate a chronometer
         simpleChronometer.start() // start a chronometer
+
+        // Temporary. Initiate a call request to the contact
+        callContact()
     }
 
     companion object {
         fun newInstance(): CallingFragment {
             return CallingFragment()
+        }
+    }
+
+    // Temporary. Call contact based on phone number
+    fun callContact() {
+        val phoneNumber1 = "0933503271"
+        val phoneNumber2 = "0933703271"
+
+        val callHandler = CallHandler.getInstance()
+
+        if (android.os.Build.VERSION.SDK_INT == 30) {
+            callHandler.call(phoneNumber2, requireContext())
+        } else {
+            callHandler.call(phoneNumber1, requireContext())
         }
     }
 }
