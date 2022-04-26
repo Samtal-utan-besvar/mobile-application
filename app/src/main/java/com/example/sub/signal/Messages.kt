@@ -1,8 +1,6 @@
 package com.example.sub.signal
 
-import kotlinx.serialization.*
-import kotlinx.serialization.json.JsonNames
-import kotlin.jvm.Transient
+import kotlinx.serialization.Serializable
 
 /**
  * This enum class holds possible values for the 'REASON' keyword of a [Message].

@@ -1,6 +1,5 @@
 package com.example.sub
 
-import android.R.attr.data
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,8 +11,8 @@ import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
-import com.example.sub.session.CallHandler
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sub.session.CallHandler
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item

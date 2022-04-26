@@ -83,7 +83,8 @@ class CallHandler private constructor(
             return null
         } else {
             // No active session. OK to start new one.
-            activeSession = CallSession.asCaller(signalClient!!, localPhoneNumber!!,
+            activeSession = CallSession.asCaller(
+                signalClient, localPhoneNumber,
                 targetPhoneNumber, context)
             return activeSession
         }
@@ -97,14 +98,15 @@ class CallHandler private constructor(
 
         if(activeSession != null){
             // Already have an active call session.
-            signalClient!!.send(callMessage.toResponse(CallResponse.DENY));
+            signalClient.send(callMessage.toResponse(CallResponse.DENY))
         } else {
             // Okay to create a new call session.
             val localPhoneNumber = callMessage.TARGET_PHONE_NUMBER
             val remotePhoneNumber = callMessage.CALLER_PHONE_NUMBER
             val sdp = callMessage.toSessionDescription()
 
-            activeSession = CallSession.asReceiver(signalClient!!, localPhoneNumber,
+            activeSession = CallSession.asReceiver(
+                signalClient, localPhoneNumber,
                 remotePhoneNumber, sdp)
 
             // Notify that there is a new session.

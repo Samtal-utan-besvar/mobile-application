@@ -18,11 +18,11 @@ class CallDialog(private val callSession: CallSession) : DialogFragment() {
             val builder = AlertDialog.Builder(it)
             builder.setMessage(callSession.remotePhoneNumber)
                 .setPositiveButton("Answer",
-                    DialogInterface.OnClickListener { dialog, id ->
+                    { dialog, id ->
                         callSession.accept(requireContext())
                     })
                 .setNegativeButton("Deny",
-                    DialogInterface.OnClickListener { dialog, id ->
+                    { dialog, id ->
                         callSession.deny()
                     })
             // Create the AlertDialog object and return it

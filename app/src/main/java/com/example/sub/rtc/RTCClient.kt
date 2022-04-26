@@ -15,11 +15,9 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
 
     companion object {
         private const val LOCAL_TRACK_ID = "local_track"
-        private const val LOCAL_STREAM_ID = "local_track"
     }
 
     private var observer: PeerConnectionObserver
-    val TAG = "RTCClient"
 
     private var remoteSessionDescription: SessionDescription? = null
 
@@ -261,9 +259,6 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
             Log.d("RTCClient-state","Channel state changed:${channel.state()?.name}}")
             if (channel.state() == DataChannel.State.OPEN) {
                 Log.d("RTCClient-state","Chat established.")
-                sendString("rick roll")
-                val bytes = byteArrayOf(0x2E, 0x38)
-                sendBytes(bytes)
             } else {
                 Log.d("RTCClient-state","Chat ended.")
             }

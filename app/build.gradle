@@ -40,7 +40,6 @@ android {
 }
 
 dependencies {
-    //implementation files('libs/libwebrtc.jar')
     implementation files('libs/google-webrtc-1.0.32006.aar')
 
     implementation 'androidx.core:core-ktx:1.7.0'

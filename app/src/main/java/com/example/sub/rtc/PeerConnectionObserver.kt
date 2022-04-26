@@ -19,7 +19,7 @@ interface PeerConnectionObserver: PeerConnection.Observer {
     }
 
     override fun onIceConnectionReceivingChange(p0: Boolean) {
-        Log.d(TAG, "ice connection receiving change " + p0?.toString())
+        Log.d(TAG, "ice connection receiving change " + p0.toString())
     }
 
     override fun onIceGatheringChange(p0: PeerConnection.IceGatheringState?) {
