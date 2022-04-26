@@ -86,16 +86,28 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     }
 
     /**
-     * Returns saved loggedInUser object from SharedPreferences.
+     * Return saved LoggedInUser object from SharedPreferences.
      */
     private suspend fun readLoggedInUser(): LoggedInUser? {
         val gson = Gson()
-        val json = sharedPref.getString("LOGGED_IN_USER", null) ?: return null
-        var loggedInUser =  gson.fromJson(json, LoggedInUser::class.java)
-        val token = dataSource.updateJWTToken(loggedInUser.userToken.toString())
-        loggedInUser = LoggedInUser(token, null)
-        saveLoggedInUser(loggedInUser)
-        return loggedInUser
+        val json = sharedPref.getString("LOGGED_IN_USER", null)
+        return authenticate(gson.fromJson(json, LoggedInUser::class.java))
+    }
+
+    /**
+     * Returns an authenticated LoggedInUser object on Result.Success. Return null on Result.Error.
+     * <p>
+     * The Authentication results in two possible outcomes: the JWT token becomes updated for
+     * the saved LoggedInUser object, or the authentication becomes rejected; thus, the saved
+     * JWT token of the object was too old.
+     */
+    private suspend fun authenticate(loggedInUser: LoggedInUser): LoggedInUser? {
+        val result = dataSource.updateJWTToken(loggedInUser.userToken.toString())
+        if (result is Result.Success) {
+            saveLoggedInUser(result.data)
+            return result.data
+        }
+        return null
     }
 
     /**

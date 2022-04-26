@@ -82,7 +82,7 @@ class LoginDataSource {
      *     JWT tokens from the database server expires within one week. If the user opens the app
      *     with a valid JWT token (less then 7 days after last use), the old token is updated.
      */
-    suspend fun updateJWTToken(userToken: String): String {
+    suspend fun updateJWTToken(userToken: String): Result<LoggedInUser> {
         val client = HttpClient(CIO)
         val token: String = userToken
         val response: HttpResponse = client.request(urlLocal + "authenticate") {
@@ -93,7 +93,11 @@ class LoginDataSource {
                 append(HttpHeaders.Authorization, token)
             }
         }
-        return response.bodyAsText().removeQuotationMarks()     // removes in-String quotation marks around JWTToken
+        return if (response.status.toString() == "200 OK") {
+            Result.Success(LoggedInUser(response.bodyAsText().removeQuotationMarks(), null))
+        } else {
+            Result.Error(IOException(response.status.toString()))
+        }
     }
 
     /**
@@ -102,7 +106,6 @@ class LoginDataSource {
      *     Converting String from "YOUR_STRING" to YOUR_STRING .
      */
     private fun String.removeQuotationMarks(): String {
-        Log.d("myDebug", this)
         if (startsWith("\"") && endsWith("\"")) {
             return drop(1).dropLast(1)
         }
