@@ -33,8 +33,8 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
     private lateinit var addContactBttn: View
     private lateinit var addContactText: View
     private lateinit var confirmContact: View
-    private lateinit var contactFirstName: TextView
-    private lateinit var contactLastName: TextView
+    //private lateinit var contactFirstName: TextView
+    //private lateinit var contactLastName: TextView
     private lateinit var contactNumber: TextView
     private lateinit var contactList: RecyclerView
     private lateinit var contactGroup: Group
@@ -96,8 +96,8 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
             }
 
             runBlocking {  profileFragmentViewModel.addContact(contactNumber.text.toString())}
-            contactFirstName.text = ""
-            contactLastName.text = ""
+            //contactFirstName.text = ""
+            //contactLastName.text = ""
             contactNumber.text = ""
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
