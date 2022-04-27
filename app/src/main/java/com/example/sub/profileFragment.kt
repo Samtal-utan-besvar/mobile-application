@@ -57,7 +57,7 @@ class profileFragment : Fragment() {
 
                         transcribeButton.text = "press to record"
                         val bigbuff = microphoneHandler.StopAudioRecording()
-                        Log.e("Biggbuff", bigbuff.size.toString())
+                        Log.e("Biggbuff", bigbuff.toString())
 
 
 

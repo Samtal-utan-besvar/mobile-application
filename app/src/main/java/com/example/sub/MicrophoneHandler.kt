@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 class MicrophoneHandler() {
-    private var recordingThread: Deferred<ByteArrayOutputStream>? = null
+    private var recordingThread: Deferred<ByteArray>? = null
     val sampleRate = 16000
     val channelConfig = AudioFormat.CHANNEL_IN_MONO
     val audioFormat = AudioFormat.ENCODING_PCM_16BIT
@@ -29,26 +29,23 @@ class MicrophoneHandler() {
         recordingThread = GlobalScope.async {
             WriteAudioToDataFile(recording)
         }
-        Log.e("blabla", "nöanöanöa")
-
     }
 
     fun StopAudioRecording(): ByteArray {
 
         recording.set(false)
-        var soundBytes = ByteArrayOutputStream()
-        GlobalScope.async {soundBytes = recordingThread!!.await()}
+        var soundBytes : ByteArray
+        runBlocking {soundBytes = recordingThread!!.await()}
 
-        return soundBytes.toByteArray()
+        return soundBytes
 
 
     }
 
 
     @SuppressLint("MissingPermission")
-    fun WriteAudioToDataFile(recording: AtomicBoolean): ByteArrayOutputStream {
+    fun WriteAudioToDataFile(recording: AtomicBoolean): ByteArray {
 
-        Log.e("Thread", "started")
         var bigBuffer = ByteArrayOutputStream()
 
         var minBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
@@ -58,7 +55,7 @@ class MicrophoneHandler() {
 
         if (microphone!!.state != AudioRecord.STATE_INITIALIZED) {
             Log.e("microphone did not start recording", "error initializing AudioRecord");
-            return ByteArrayOutputStream()
+            return ByteArray(0)
         }
 
         microphone.startRecording()
@@ -70,11 +67,10 @@ class MicrophoneHandler() {
             //Log.e("Smolbuf", buffer.toString())
         }
         bigBuffer.flush()
-        Log.e("Thread", "stopped")
         microphone!!.stop()
         microphone!!.release()
         Log.e("Bigbuffer in thread", bigBuffer.size().toString())
-        return bigBuffer
+        return bigBuffer.toByteArray()
     }
 
 }
