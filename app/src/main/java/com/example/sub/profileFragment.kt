@@ -32,6 +32,8 @@ class profileFragment : Fragment() {
 
     @SuppressLint("MissingPermission", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        var microphoneHandler = MicrophoneHandler()
+
         navController = findNavController(view.findViewById(R.id.AnnaKnappen))
         view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
             navController!!.navigate(
@@ -43,7 +45,6 @@ class profileFragment : Fragment() {
         transcribeButton.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
 
-                var microphoneHandler = MicrophoneHandler()
 
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
