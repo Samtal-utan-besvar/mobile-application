@@ -32,7 +32,8 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var addContactBttn: View
     private lateinit var addContactText: View
-    private lateinit var confirmContact: View
+    private lateinit var confirmContactBttn: ImageButton
+    private lateinit var cancelAddContactBttn: ImageButton
     //private lateinit var contactFirstName: TextView
     //private lateinit var contactLastName: TextView
     private lateinit var contactNumber: TextView
@@ -58,7 +59,8 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
         runBlocking {  loginViewModel.getUser()?.userToken?.let { profileFragmentViewModel.setUserToken(it) }}
         addContactBttn = view.findViewById(R.id.addContact)
         addContactText = view.findViewById(R.id.addContactText)
-        confirmContact = view.findViewById(R.id.confirmContact)
+        confirmContactBttn = view.findViewById(R.id.confirmContact)
+        cancelAddContactBttn = view.findViewById(R.id.cancelAddContact)
         //contactFirstName = view.findViewById(R.id.contactFirstName)
         //contactLastName = view.findViewById(R.id.contactLastName)
         contactNumber = view.findViewById(R.id.contactNr)
@@ -85,10 +87,10 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
             contactGroup.visibility = View.VISIBLE
             contactList.visibility = View.GONE
         }
-        view.findViewById<View>(R.id.logout).setOnClickListener {
+        /**view.findViewById<View>(R.id.logout).setOnClickListener {
             loginViewModel.loginRepository.logout()
             (activity as MainActivity?)!!.startLoginActivity()
-        }
+        }**/
 
         view.findViewById<View>(R.id.confirmContact).setOnClickListener {
             if (adapter != null) {
@@ -107,6 +109,12 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
         view.findViewById<View>(R.id.settingsButton).setOnClickListener{
             showMenu(view.findViewById(R.id.settingsButton))
         }
+
+        view.findViewById<View>(R.id.cancelAddContact).setOnClickListener {
+            contactNumber.text = ""
+            contactGroup.visibility = View.GONE
+            contactList.visibility = View.VISIBLE
+        }
     }
 
     private fun showMenu(v: View) {
@@ -124,6 +132,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
         return when (item.itemId) {
             R.id.loggaut -> {
                 loginViewModel.loginRepository.logout()
+                (activity as MainActivity?)!!.startLoginActivity()
                 true
             }
             R.id.requestPerm -> {

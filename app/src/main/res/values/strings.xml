@@ -39,6 +39,7 @@
     <string name="Logout">Logout</string>
     <string name="menuLogout">Logout</string>
     <string name="settingsButton">settingsButton</string>
+    <string name="cancelAddContact">CancelAddContact</string>
 
     <string-array name="logout_array">
         <item>Logout</item>
