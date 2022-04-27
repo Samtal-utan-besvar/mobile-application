@@ -10,7 +10,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
-private const val TRANSCRIPT_URL = "ws://129.151.209.72:6000" // use local ip for devices in local network
+private const val TRANSCRIPT_URL = "ws://129.151.206.9:6000" // use local ip for devices in local network
 // pixel 5: utan 5, Brw
 
 class TranscriptionClient {

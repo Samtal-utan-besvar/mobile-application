@@ -15,6 +15,7 @@ import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
+import kotlin.math.min
 
 class MicrophoneHandler() {
     private var recordingThread: Deferred<ByteArray>? = null
@@ -62,11 +63,12 @@ class MicrophoneHandler() {
 
         while (recording.get()) {
 
-            val read = microphone!!.read(buffer, 0, buffer.size)
-            bigBuffer.write(buffer, 0, read)
+            val read = microphone!!.read(buffer, 0, minBufferSize)
+            bigBuffer.write(buffer, 0, minBufferSize)
             //Log.e("Smolbuf", buffer.toString())
         }
         bigBuffer.flush()
+        bigBuffer.close()
         microphone!!.stop()
         microphone!!.release()
         Log.e("Bigbuffer in thread", bigBuffer.size().toString())

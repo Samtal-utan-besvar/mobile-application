@@ -1,6 +1,7 @@
 package com.example.sub
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,8 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import com.example.sub.transcription.TranscriptionClient
+import java.io.*
 
 
 /**
@@ -33,6 +36,7 @@ class profileFragment : Fragment() {
     @SuppressLint("MissingPermission", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         var microphoneHandler = MicrophoneHandler()
+        var transcriptionclient = TranscriptionClient()
 
         navController = findNavController(view.findViewById(R.id.AnnaKnappen))
         view.findViewById<View>(R.id.AnnaKnappen).setOnClickListener {
@@ -57,8 +61,8 @@ class profileFragment : Fragment() {
 
                         transcribeButton.text = "press to record"
                         val bigbuff = microphoneHandler.StopAudioRecording()
-                        Log.e("Biggbuff", bigbuff.toString())
-
+                        //Log.e("Biggbuff", bigbuff.contentToString())
+                        transcriptionclient.sendSound(80, bigbuff.toString(Charsets.ISO_8859_1))
 
 
                     }
