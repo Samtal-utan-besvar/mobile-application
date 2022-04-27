@@ -2,6 +2,7 @@ package com.example.sub
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -42,11 +43,11 @@ class profileFragment : Fragment() {
         transcribeButton.setOnTouchListener(object : View.OnTouchListener {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
 
-                var callHandler = MicrophoneHandler()
+                var microphoneHandler = MicrophoneHandler()
 
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        callHandler.StartAudioRecording()
+                        microphoneHandler.StartAudioRecording()
                         transcribeButton.text = "recording"
 
 
@@ -54,7 +55,9 @@ class profileFragment : Fragment() {
                     MotionEvent.ACTION_UP -> {
 
                         transcribeButton.text = "press to record"
-                        callHandler.StopAudioRecording()
+                        val bigbuff = microphoneHandler.StopAudioRecording()
+                        Log.e("Biggbuff", bigbuff.size.toString())
+
 
 
                     }
