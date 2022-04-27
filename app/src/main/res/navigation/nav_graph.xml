@@ -45,5 +45,10 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popUpTo="@id/ProfileFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_ProfileFragment2"
+            app:destination="@id/ProfileFragment"
+            app:popUpTo="@id/ProfileFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

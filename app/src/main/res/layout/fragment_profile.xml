@@ -96,7 +96,7 @@
         android:foreground="?attr/actionBarItemBackground"
         android:onClick="showPopup"
         android:scaleType="fitXY"
-        android:src="@drawable/newnewsettingicon"
+        android:src="@drawable/ic_setting_icon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.958"

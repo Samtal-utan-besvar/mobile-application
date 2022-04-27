@@ -44,9 +44,8 @@ class MainActivity : AppCompatActivity() {
         //region Temporary solution.
         val token = if (android.os.Build.VERSION.SDK_INT == 30) TOKEN1 else TOKEN2
 
-
-        val phoneNumber1 = "0933503271"
-        val phoneNumber2 = "0933703271"
+        val phoneNumber1 = "3333333333"
+        val phoneNumber2 = "4444444444"
 
         val localPhoneNumber: String
 
