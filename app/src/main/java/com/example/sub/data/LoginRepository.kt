@@ -102,7 +102,7 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
      * JWT token of the object was too old.
      */
     private suspend fun authenticate(loggedInUser: LoggedInUser): LoggedInUser? {
-        val result = dataSource.updateJWTToken(loggedInUser.userToken.toString())
+        val result = dataSource.updateJWTToken(loggedInUser)
         if (result is Result.Success) {
             saveLoggedInUser(result.data)
             return result.data

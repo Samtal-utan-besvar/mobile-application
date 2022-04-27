@@ -4,18 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
-import com.example.sub.MainActivity
 
+import com.example.sub.MainActivity
 import com.example.sub.R
 import com.example.sub.data.LoggedInUser
-import com.example.sub.data.Result
 
 // for debugging purposes
 const val LOGIN_DISABLED = false
@@ -24,7 +18,6 @@ const val AUTOLOGIN_DISABLED = false
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var loginViewModel: LoginViewModel
-    private lateinit var HTTPResponseCode: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +50,6 @@ class LoginActivity : AppCompatActivity() {
                 startMainActivity(loginViewModel.getUser()!!)
             }
         }
-
         Log.d("myDebug", "loginViewModel.getUser(): " + loginViewModel.getUser())
     }
 
@@ -75,10 +67,6 @@ class LoginActivity : AppCompatActivity() {
 
     fun getLoginViewModel(): LoginViewModel {
         return loginViewModel
-    }
-
-    fun setHTTPResponseCode(r: String) {
-        HTTPResponseCode = r
     }
 
 }
