@@ -16,7 +16,7 @@ private const val TRANSCRIPT_URL = "ws://129.151.206.9:6000" // use local ip for
 class TranscriptionClient {
 
     private var webSocket: WebSocket? = null
-
+    private var answer: String = ""
     init{
         connect()
     }
@@ -46,6 +46,7 @@ class TranscriptionClient {
 
             if (text != "") {
                 Log.d("Answer", text)
+                answer = text
 
             } else if (text == "") {
                 Log.d("Answer", "Empty answer")
@@ -88,6 +89,10 @@ class TranscriptionClient {
         message.put("Data", sound)
         val msgList = listOf(message)
         send(msgList.toString())
+    }
+
+    fun getAnswer(): String{
+        return answer
     }
 
 }

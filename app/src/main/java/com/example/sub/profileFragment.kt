@@ -64,6 +64,15 @@ class profileFragment : Fragment() {
                         //Log.e("Biggbuff", bigbuff.contentToString())
                         transcriptionclient.sendSound(80, bigbuff.toString(Charsets.ISO_8859_1))
 
+                        transcriptionclient.sendAnswer(80, "owner")
+                        var answer = ""
+                        while (answer == ""){
+                            Thread.sleep(100)
+                            answer = transcriptionclient.getAnswer()
+                            transcriptionclient.sendAnswer(80, "owner")
+                        }
+                        Log.e("answer", answer)
+
 
                     }
 
