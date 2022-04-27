@@ -48,12 +48,16 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
      * Calls login from the data source and saves the loggedInUser object if the result succeeded.
      */
     suspend fun login(username: String, password: String): Result<LoggedInUser> {
-        val result = dataSource.login(username, password)
-        if (result is Result.Success) {
-            setLoggedInUser(result.data)
+        val loginResult = dataSource.login(username, password)
+        Log.d("myDebug", "loginResult:   " + loginResult)
+        if (loginResult is Result.Success) {
+            val getUserResult = dataSource.getUserInformation(loginResult.data)
+            if (getUserResult is Result.Success) {
+                setLoggedInUser(getUserResult.data)
+            }
         }
         Log.d("myDebug", "(LOGIN):\t" + user.toString())
-        return result
+        return loginResult
     }
 
     /**

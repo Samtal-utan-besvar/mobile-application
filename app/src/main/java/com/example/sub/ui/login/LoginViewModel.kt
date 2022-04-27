@@ -22,7 +22,7 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
     suspend fun login(username: String, password: String) {
         val result = loginRepository.login(username, password)
         if (result is Result.Success) {
-            _loginResult.postValue(LoginResult(success = LoggedInUserView(displayName = result.data.displayName)))
+            _loginResult.postValue(LoginResult(success = LoggedInUserView(displayName = result.data.firstName)))
         } else {
             _loginResult.postValue(LoginResult(error = R.string.login_failed))
         }
@@ -31,7 +31,7 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
     suspend fun register(username: String, password: String) {
         val result = loginRepository.register(username, password)
         if (result is Result.Success) {
-            _loginResult.postValue(LoginResult(success = LoggedInUserView(displayName = result.data.displayName)))
+            _loginResult.postValue(LoginResult(success = LoggedInUserView(displayName = result.data.firstName)))
         } else {
             _loginResult.postValue(LoginResult(error = R.string.registration_failed))
         }

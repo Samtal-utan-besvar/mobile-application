@@ -6,5 +6,8 @@ import java.io.Serializable
  */
 data class LoggedInUser (
     var userToken: String?,
-    val displayName: String?
+    var phoneNumber: String?,
+    var firstName: String?,
+    var lastName: String?,
+    var email: String?
 ) : Serializable

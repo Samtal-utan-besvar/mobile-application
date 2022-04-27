@@ -41,7 +41,9 @@ class LoginActivity : AppCompatActivity() {
 
         // skips the login fragment, only for debugging
         if (LOGIN_DISABLED) {
-            startMainActivity(LoggedInUser(null,null))
+            startMainActivity(
+                LoggedInUser(null,null,null, null, null)
+            )
         }
 
         // starts MainActivity if loggedInUser is saved and has a valid JWT token.

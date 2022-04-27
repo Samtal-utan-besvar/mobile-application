@@ -2,6 +2,7 @@ package com.example.sub.data
 
 import android.util.Log
 import android.widget.Toast
+import com.example.sub.User
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpPost
 import com.google.gson.Gson
@@ -12,6 +13,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.*
+import org.json.JSONArray
+import org.json.JSONTokener
 import java.io.IOException
 
 /**
@@ -26,7 +29,7 @@ class LoginDataSource {
     suspend fun register(username: String, password: String): Result<LoggedInUser> {
         return try {
             // TODO: handle loggedInUser authentication
-            val fakeUser = LoggedInUser("1", "Jane Registration")
+            val fakeUser = LoggedInUser("1","Jane Registration",null,null,null)
             Result.Success(fakeUser)
         } catch (e: Throwable) {
             Result.Error(IOException("Error logging in", e))
@@ -58,7 +61,14 @@ class LoginDataSource {
                     Result.Error(IOException("Error logging in"))
                 } else {
                     Log.d("myDebug", "Result from login: $result")
-                    val loggedInUser = LoggedInUser(result.component1()!!.removeQuotationMarks(), null)
+                    val token = result.component1()!!.removeQuotationMarks()
+                    val loggedInUser = LoggedInUser(
+                        token,
+                        null,
+                        null,
+                        null,
+                        email
+                    )
                     Result.Success(loggedInUser)
                 }
             }
@@ -95,6 +105,31 @@ class LoginDataSource {
         }
         return if (response.status.toString() == "200 OK") {
             loggedInUser.userToken = response.bodyAsText().removeQuotationMarks()
+            Result.Success(loggedInUser)
+        } else {
+            Result.Error(IOException(response.status.toString()))
+        }
+    }
+
+    suspend fun getUserInformation(loggedInUser: LoggedInUser): Result<LoggedInUser> {
+        val client = HttpClient(CIO)
+        val token: String = loggedInUser.userToken.toString()
+        val response: HttpResponse = client.request(urlLocal + "get_user") {
+            method = HttpMethod.Get
+            headers {
+                append(HttpHeaders.Accept, "*/*")
+                append(HttpHeaders.UserAgent, "ktor client")
+                append(HttpHeaders.Authorization, token)
+            }
+        }
+        return if (response.status.toString() == "200 OK") {
+            val stringBody : String = response.body()
+            Log.d("myDebug", "stringBody:   " + stringBody)
+            val jsonArray = JSONTokener(stringBody).nextValue() as JSONArray
+            loggedInUser.firstName = jsonArray.getJSONObject(0).getString("firstname")
+            loggedInUser.lastName = jsonArray.getJSONObject(0).getString("lastname")
+            loggedInUser.phoneNumber = jsonArray.getJSONObject(0).getString("phone_number")
+            loggedInUser.email = jsonArray.getJSONObject(0).getString("email")
             Result.Success(loggedInUser)
         } else {
             Result.Error(IOException(response.status.toString()))

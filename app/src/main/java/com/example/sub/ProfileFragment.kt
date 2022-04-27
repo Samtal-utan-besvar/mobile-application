@@ -47,7 +47,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        loggedInUser = (activity as MainActivity?)!!.getLoggedInUser()
+        loggedInUser = (activity as MainActivity?)!!.getActiveUser()
         runBlocking {profileFragmentViewModel.setUserToken(getUserToken())}
         addContactBttn = view.findViewById(R.id.addContact)
         addContactText = view.findViewById(R.id.addContactText)
@@ -114,7 +114,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
 
     /** Return the displayName from LoggedInUser object **/
     private fun getUserName(): String? {
-        return loggedInUser.displayName
+        return loggedInUser.firstName + " " + loggedInUser.lastName
     }
 
     /** Return the JWT Token from LoggedInUser object **/

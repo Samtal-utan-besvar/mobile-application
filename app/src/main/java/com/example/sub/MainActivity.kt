@@ -28,6 +28,9 @@ class MainActivity : AppCompatActivity() {
         loggedInUser = intent.getSerializableExtra("loggedInUser") as LoggedInUser
     }
 
+    /**
+     * Starts LoginActivity and finish MainActivity when logout button is pressed.
+     */
     fun startLoginActivity() {
         let{
             val intent = Intent(it, LoginActivity::class.java)
@@ -37,8 +40,15 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-    @JvmName("getLoggedInUserMainActivity")
-    fun getLoggedInUser() : LoggedInUser {
+    /**
+     * Return LoggedInUser object.
+     *
+     * @see com.example.sub.data.LoggedInUser for more information about accessible data.
+     *
+     * e.g.: to access phoneNumber in a fragment:
+     * val phoneNumber = (activity as MainActivity?)!!.getActiveUser().phoneNumber
+     */
+    fun getActiveUser() : LoggedInUser {
         return loggedInUser
     }
 
