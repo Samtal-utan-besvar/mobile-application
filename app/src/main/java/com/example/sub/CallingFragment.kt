@@ -117,6 +117,7 @@ class CallingFragment : Fragment() {
 
                         timer.schedule(5000, 5000) {
                             if(microphoneHandler.recording.get()){
+                                Log.d("bajs", "bajs")
                                 id++
                                 val bigbuff = microphoneHandler.StopAudioRecording()
                                 microphoneHandler.StartAudioRecording()
@@ -130,8 +131,9 @@ class CallingFragment : Fragment() {
                                     transcriptionclient.sendAnswer(id, "owner")
                                 }
                                 Log.d("id:", id.toString())
-                                adapter.add(ChatToItem(answer))
-                                adapter!!.notifyDataSetChanged()
+                                //adapter.add(ChatToItem(answer))
+                                //adapter!!.notifyDataSetChanged()
+                                Log.d("kommer den hit", "kommer den hit")
                                 Log.e("answer", answer)
 
                             }
