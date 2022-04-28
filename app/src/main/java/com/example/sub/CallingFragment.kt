@@ -118,9 +118,7 @@ class CallingFragment : Fragment() {
                         id +=1
                         transcribeButton.text = "press to record"
                         val bigbuff = microphoneHandler.StopAudioRecording()
-                        //Log.e("Biggbuff", bigbuff.contentToString())
-                        transcriptionclient.sendSound(id, bigbuff.toString(Charsets.ISO_8859_1))
-
+                        transcriptionclient.sendSound(id, bigbuff)
 
                         transcriptionclient.sendAnswer(id, "owner")
                         var answer = ""

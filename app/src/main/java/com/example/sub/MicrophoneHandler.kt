@@ -18,7 +18,7 @@ import kotlin.concurrent.thread
 import kotlin.math.min
 
 class MicrophoneHandler() {
-    private var recordingThread: Deferred<ByteArray>? = null
+    private var recordingThread: Deferred<String>? = null
     val sampleRate = 16000
     val channelConfig = AudioFormat.CHANNEL_IN_MONO
     val audioFormat = AudioFormat.ENCODING_PCM_16BIT
@@ -30,12 +30,14 @@ class MicrophoneHandler() {
         recordingThread = GlobalScope.async {
             WriteAudioToDataFile(recording)
         }
+
+
     }
 
-    fun StopAudioRecording(): ByteArray {
+    fun StopAudioRecording(): String {
 
         recording.set(false)
-        var soundBytes : ByteArray
+        var soundBytes : String
         runBlocking {soundBytes = recordingThread!!.await()}
 
         return soundBytes
@@ -45,7 +47,7 @@ class MicrophoneHandler() {
 
 
     @SuppressLint("MissingPermission")
-    fun WriteAudioToDataFile(recording: AtomicBoolean): ByteArray {
+    fun WriteAudioToDataFile(recording: AtomicBoolean): String {
 
         var bigBuffer = ByteArrayOutputStream()
 
@@ -56,7 +58,8 @@ class MicrophoneHandler() {
 
         if (microphone!!.state != AudioRecord.STATE_INITIALIZED) {
             Log.e("microphone did not start recording", "error initializing AudioRecord");
-            return ByteArray(0)
+            var empty = ""
+            return empty
         }
 
         microphone.startRecording()
@@ -72,7 +75,7 @@ class MicrophoneHandler() {
         microphone!!.stop()
         microphone!!.release()
         Log.e("Bigbuffer in thread", bigBuffer.size().toString())
-        return bigBuffer.toByteArray()
+        return bigBuffer.toByteArray().toString(Charsets.ISO_8859_1)
     }
 
 }
