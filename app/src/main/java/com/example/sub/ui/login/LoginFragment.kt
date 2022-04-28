@@ -1,6 +1,5 @@
 package com.example.sub.ui.login
 
-import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -8,24 +7,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.EditorInfo.IME_ACTION_DONE
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.sub.R
-import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.FragmentLoginBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import kotlin.system.measureTimeMillis
 
 
 class LoginFragment : Fragment() {
@@ -142,7 +132,7 @@ class LoginFragment : Fragment() {
 //        val welcome = getString(R.string.welcome)
 //        val appContext = context?.applicationContext ?: return
 //        Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
-        (activity as LoginActivity?)!!.startMainActivity(loginViewModel.getUser()!!)
+        (activity as LoginActivity?)!!.startMainActivity()
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {

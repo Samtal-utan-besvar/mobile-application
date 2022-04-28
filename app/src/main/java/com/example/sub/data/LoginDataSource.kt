@@ -1,8 +1,6 @@
 package com.example.sub.data
 
 import android.util.Log
-import android.widget.Toast
-import com.example.sub.User
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpPost
 import com.google.gson.Gson
@@ -52,7 +50,7 @@ class LoginDataSource {
     suspend fun login(email: String, password: String): Result<LoggedInUser> {
         return try {
             withContext(Dispatchers.IO) {
-                val loginURL = urlLocal + "login"
+                val loginURL = url + "login"
                 val user = LoginCredentials(email, password)
                 val (_, _, result) = loginURL.httpPost()
                     .jsonBody(Gson().toJson(user).toString())
@@ -62,13 +60,7 @@ class LoginDataSource {
                 } else {
                     Log.d("myDebug", "Result from login: $result")
                     val token = result.component1()!!.removeQuotationMarks()
-                    val loggedInUser = LoggedInUser(
-                        token,
-                        null,
-                        null,
-                        null,
-                        email
-                    )
+                    val loggedInUser = LoggedInUser(token,null,null,null, email)
                     Result.Success(loggedInUser)
                 }
             }
@@ -95,7 +87,7 @@ class LoginDataSource {
     suspend fun updateJWTToken(loggedInUser: LoggedInUser): Result<LoggedInUser> {
         val client = HttpClient(CIO)
         val token: String = loggedInUser.userToken.toString()
-        val response: HttpResponse = client.request(urlLocal + "authenticate") {
+        val response: HttpResponse = client.request(url + "authenticate") {
             method = HttpMethod.Get
             headers {
                 append(HttpHeaders.Accept, "*/*")
@@ -114,7 +106,7 @@ class LoginDataSource {
     suspend fun getUserInformation(loggedInUser: LoggedInUser): Result<LoggedInUser> {
         val client = HttpClient(CIO)
         val token: String = loggedInUser.userToken.toString()
-        val response: HttpResponse = client.request(urlLocal + "get_user") {
+        val response: HttpResponse = client.request(url + "get_user") {
             method = HttpMethod.Get
             headers {
                 append(HttpHeaders.Accept, "*/*")
@@ -139,7 +131,7 @@ class LoginDataSource {
     /**
      * Removes in-String quotation marks "".
      * <p>
-     *     Converting String from "YOUR_STRING" to YOUR_STRING .
+     *     Converting String from "YOUR_STRING" to YOUR_STRING.
      */
     private fun String.removeQuotationMarks(): String {
         if (startsWith("\"") && endsWith("\"")) {

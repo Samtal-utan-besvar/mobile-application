@@ -50,7 +50,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
         var allUsers: MutableList<User> = ArrayList()
         var token : String = userToken
         val client = HttpClient(CIO)
-        val response: HttpResponse = client.request(urlLocal + "get_contacts") {
+        val response: HttpResponse = client.request(url + "get_contacts") {
             method = HttpMethod.Get
             headers{
                 append(Accept, "*/*")
@@ -78,7 +78,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
             }
         }
         var token: String = userToken
-        val response: HttpResponse = client.post(urlLocal + "add_contact") {
+        val response: HttpResponse = client.post(url + "add_contact") {
             contentType(ContentType.Application.Json)
             setBody(Contact(phone))
             headers {

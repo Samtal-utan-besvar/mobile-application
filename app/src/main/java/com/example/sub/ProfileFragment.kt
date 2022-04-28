@@ -34,6 +34,8 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     private lateinit var loggedInUser: LoggedInUser
     private var contacts: MutableList<User> = ArrayList()
     private val profileFragmentViewModel : ProfileFragmentViewModel by activityViewModels()
+    private lateinit var phoneNumber: String
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,6 +51,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
 
         loggedInUser = (activity as MainActivity?)!!.getActiveUser()
         runBlocking {profileFragmentViewModel.setUserToken(getUserToken())}
+        phoneNumber = (activity as MainActivity?)!!.getActiveUser().phoneNumber.toString()
         addContactBttn = view.findViewById(R.id.addContact)
         addContactText = view.findViewById(R.id.addContactText)
         confirmContact = view.findViewById(R.id.confirmContact)
@@ -98,7 +101,9 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
         }
-        Log.d("myDebug", "getUserToken(): " + getUserToken())
+
+        Log.d("JWTToken: ", getUserToken())
+        Log.d("phoneNumber: ", phoneNumber)
     }
 
     /** Function used when a contact is clicked on,

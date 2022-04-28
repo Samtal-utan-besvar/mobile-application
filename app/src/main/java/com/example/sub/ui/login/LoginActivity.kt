@@ -41,15 +41,13 @@ class LoginActivity : AppCompatActivity() {
 
         // skips the login fragment, only for debugging
         if (LOGIN_DISABLED) {
-            startMainActivity(
-                LoggedInUser(null,null,null, null, null)
-            )
+            startMainActivity()
         }
 
         // starts MainActivity if loggedInUser is saved and has a valid JWT token.
         if (loginViewModel.isLoggedIn()) {
             if (loginViewModel.getUser() != null) {
-                startMainActivity(loginViewModel.getUser()!!)
+                startMainActivity()
             }
         }
         Log.d("myDebug", "loginViewModel.getUser(): " + loginViewModel.getUser())
@@ -58,10 +56,10 @@ class LoginActivity : AppCompatActivity() {
     /**
      * Starts mainActivity and finish the LoginActivity.
      */
-    fun startMainActivity(loggedInUser : LoggedInUser) {
+    fun startMainActivity() {
         let{
             val intent = Intent(it, MainActivity::class.java)
-            intent.putExtra("loggedInUser", loggedInUser)
+            intent.putExtra("loggedInUser", loginViewModel.getUser())
             it.startActivity(intent)
         }
         finish()

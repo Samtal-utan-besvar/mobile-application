@@ -40,7 +40,8 @@ class RegistrationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-        loginViewModel = (activity as LoginActivity?)!!.getLoginViewModel()
+        loginViewModel = ViewModelProvider(this,
+            LoginViewModelFactory(context))[LoginViewModel::class.java]
 
         val usernameEditText = binding.username
         val passwordEditText = binding.password
@@ -140,7 +141,7 @@ class RegistrationFragment : Fragment() {
         val welcome = getString(R.string.welcome) + model.displayName
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
-        (activity as LoginActivity?)!!.startMainActivity(loginViewModel.getUser()!!)
+        (activity as LoginActivity?)!!.startMainActivity()
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {
