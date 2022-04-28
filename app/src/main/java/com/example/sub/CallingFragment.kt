@@ -1,18 +1,19 @@
 package com.example.sub
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Chronometer
-import android.widget.TextView
-import android.widget.Toast
-import android.widget.ToggleButton
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sub.session.CallHandler
+import com.example.sub.transcription.TranscriptionClient
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
@@ -22,6 +23,7 @@ import com.xwray.groupie.Item
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+
 
 /**
  * A simple [Fragment] subclass.
@@ -44,7 +46,10 @@ class CallingFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_calling, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val microphoneHandler = MicrophoneHandler()
+        val transcriptionclient = TranscriptionClient()
 
         val firstName = arguments?.getString("first_name")
         val lastName = arguments?.getString("last_name")
@@ -109,6 +114,45 @@ class CallingFragment : Fragment() {
                 Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
             }
         }
+        val transcribeButton = view.findViewById<Button>(R.id.buttonTranscribe)
+
+        transcribeButton.setOnTouchListener(object : View.OnTouchListener {
+            @SuppressLint("SetTextI18n")
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+
+
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        microphoneHandler.StartAudioRecording()
+                        transcribeButton.text = "recording"
+
+
+                    }
+                    MotionEvent.ACTION_UP -> {
+
+                        transcribeButton.text = "press to record"
+                        val bigbuff = microphoneHandler.StopAudioRecording()
+                        //Log.e("Biggbuff", bigbuff.contentToString())
+                        transcriptionclient.sendSound(80, bigbuff.toString(Charsets.ISO_8859_1))
+
+                        /*
+                        transcriptionclient.sendAnswer(80, "owner")
+                        var answer = ""
+                        while (answer == ""){
+                            Thread.sleep(100)
+                            answer = transcriptionclient.getAnswer()
+                            transcriptionclient.sendAnswer(80, "owner")
+                        }
+                        Log.e("answer", answer)
+                        */
+
+                    }
+
+                }
+
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
 
         // Timer
         // TODO: place in a suitable place, timer should start when phone call starts, not when this fragment is created

@@ -29,7 +29,6 @@ import com.example.sub.signal.SignalClient
 import com.example.sub.signal.TOKEN1
 import com.example.sub.signal.TOKEN2
 import com.example.sub.ui.login.LoginActivity
-import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
     private lateinit var layout: View
