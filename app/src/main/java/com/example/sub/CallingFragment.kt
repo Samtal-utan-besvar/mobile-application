@@ -54,6 +54,26 @@ class CallingFragment : Fragment() {
         val transcriptionclient = TranscriptionClient()
         var id = 80
         var timer = Timer()
+        var textIds = mutableListOf<Int>()
+
+        timer.schedule(1000, 1000) {
+            var removeIds = mutableListOf<Int>()
+            for (id in textIds){
+                var answer = transcriptionclient.getAnswer(id)
+                if (answer == ""){
+                    transcriptionclient.sendAnswer(id, "owner")
+                }
+                else{
+                    removeIds.add(id)
+                    //adapter.add(ChatToItem(answer))
+                    //adapter!!.notifyDataSetChanged()
+                    Log.e("answer", answer)
+                }
+            }
+            for (id in removeIds) {
+                textIds.remove(id)
+            }
+        }
 
         val firstName = arguments?.getString("first_name")
         val lastName = arguments?.getString("last_name")
@@ -117,51 +137,23 @@ class CallingFragment : Fragment() {
 
                         timer.schedule(5000, 5000) {
                             if(microphoneHandler.recording.get()){
-                                Log.d("bajs", "bajs")
-                                id++
+                                id+=1
                                 val bigbuff = microphoneHandler.StopAudioRecording()
                                 microphoneHandler.StartAudioRecording()
                                 transcriptionclient.sendSound(id, bigbuff)
-
-                                transcriptionclient.sendAnswer(id, "owner")
-                                var answer = ""
-                                while (answer == ""){
-                                    Thread.sleep(100)
-                                    answer = transcriptionclient.getAnswer()
-                                    transcriptionclient.sendAnswer(id, "owner")
-                                }
-                                Log.d("id:", id.toString())
-                                //adapter.add(ChatToItem(answer))
-                                //adapter!!.notifyDataSetChanged()
-                                Log.d("kommer den hit", "kommer den hit")
-                                Log.e("answer", answer)
-
+                                textIds.add(id)
                             }
                         }
-
-
                     }
                     MotionEvent.ACTION_UP -> {
                         timer.cancel()
                         timer.purge()
+                        timer = Timer()
                         id +=1
                         transcribeButton.text = "press to record"
                         val bigbuff = microphoneHandler.StopAudioRecording()
                         transcriptionclient.sendSound(id, bigbuff)
-
-                        transcriptionclient.sendAnswer(id, "owner")
-                        var answer = ""
-                        while (answer == ""){
-                            Thread.sleep(100)
-                            answer = transcriptionclient.getAnswer()
-                            transcriptionclient.sendAnswer(id, "owner")
-                        }
-                        Log.d("id:", id.toString())
-                        adapter.add(ChatToItem(answer))
-                        adapter!!.notifyDataSetChanged()
-                        Log.e("answer", answer)
-
-
+                        textIds.add(id)
                     }
 
                 }
