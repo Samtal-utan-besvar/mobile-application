@@ -17,6 +17,8 @@ import com.example.sub.transcription.TranscriptionClient
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import java.util.*
+import kotlin.concurrent.schedule
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -51,6 +53,7 @@ class CallingFragment : Fragment() {
         val microphoneHandler = MicrophoneHandler()
         val transcriptionclient = TranscriptionClient()
         var id = 80
+        var timer = Timer()
 
         val firstName = arguments?.getString("first_name")
         val lastName = arguments?.getString("last_name")
@@ -112,9 +115,33 @@ class CallingFragment : Fragment() {
                         microphoneHandler.StartAudioRecording()
                         transcribeButton.text = "recording"
 
+                        timer.schedule(5000, 5000) {
+                            if(microphoneHandler.recording.get()){
+                                id++
+                                val bigbuff = microphoneHandler.StopAudioRecording()
+                                microphoneHandler.StartAudioRecording()
+                                transcriptionclient.sendSound(id, bigbuff)
+
+                                transcriptionclient.sendAnswer(id, "owner")
+                                var answer = ""
+                                while (answer == ""){
+                                    Thread.sleep(100)
+                                    answer = transcriptionclient.getAnswer()
+                                    transcriptionclient.sendAnswer(id, "owner")
+                                }
+                                Log.d("id:", id.toString())
+                                adapter.add(ChatToItem(answer))
+                                adapter!!.notifyDataSetChanged()
+                                Log.e("answer", answer)
+
+                            }
+                        }
+
 
                     }
                     MotionEvent.ACTION_UP -> {
+                        timer.cancel()
+                        timer.purge()
                         id +=1
                         transcribeButton.text = "press to record"
                         val bigbuff = microphoneHandler.StopAudioRecording()
