@@ -51,6 +51,7 @@ class TranscriptionClient {
 
             } else if (text == "") {
                 Log.d("Answer", "Empty answer")
+                answer = ""
             } else {
                 Log.d("Answer", "Other answer")
             }
@@ -93,9 +94,9 @@ class TranscriptionClient {
     }
 
     fun getAnswer(): String{
-        var answer_cp = answer
+        var answerCp = answer
         answer = ""
-        return answer_cp
+        return answerCp
     }
 
 }
