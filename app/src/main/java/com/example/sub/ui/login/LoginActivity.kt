@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelProvider
 
 import com.example.sub.MainActivity
 import com.example.sub.R
-import com.example.sub.data.LoggedInUser
 
 // for debugging purposes
 const val LOGIN_DISABLED = false
