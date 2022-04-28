@@ -12,6 +12,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.ActivityPermissionBinding
+import com.example.sub.session.CallHandler
+import com.example.sub.session.CallReceivedListener
+import com.example.sub.session.CallSession
+import com.example.sub.signal.SignalClient
+import com.example.sub.signal.TOKEN1
+import com.example.sub.signal.TOKEN2
 import com.example.sub.ui.login.LoginActivity
 import com.google.android.material.snackbar.Snackbar
 
@@ -26,6 +32,48 @@ class MainActivity : AppCompatActivity() {
         layout = binding.permissionLayout
         setContentView(R.layout.activity_main)
         loggedInUser = intent.getSerializableExtra("loggedInUser") as LoggedInUser
+
+        setUpWebRTC()
+    }
+
+
+    /**
+     * Sets up webRTC and signal client.
+     */
+    private fun setUpWebRTC() {
+
+        //region Temporary solution.
+        val token = if (android.os.Build.VERSION.SDK_INT == 30) TOKEN1 else TOKEN2
+
+
+        val phoneNumber1 = "0933503271"
+        val phoneNumber2 = "0933703271"
+
+        val localPhoneNumber: String
+
+        if (android.os.Build.VERSION.SDK_INT == 30) {
+            localPhoneNumber = phoneNumber1
+        } else {
+            localPhoneNumber = phoneNumber2
+        }
+
+        //endregion
+
+        // Crucial part.
+        SignalClient.connect(token)
+        CallHandler.initInstance(SignalClient, localPhoneNumber)
+
+        CallHandler.getInstance().callReceivedListeners.add( CallListener() )
+    }
+
+
+    // Sets up what happens when someone calls.
+    private inner class CallListener : CallReceivedListener {
+        override fun onCallReceived(callSession: CallSession) {
+            val callDialog = CallDialog(callSession)
+            callDialog.show(supportFragmentManager, "callDialog")
+
+        }
     }
 
     /**
@@ -108,4 +156,3 @@ fun View.showSnackbar(
         snackbar.show()
     }
 }
-

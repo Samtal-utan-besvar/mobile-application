@@ -3,6 +3,7 @@ package com.example.sub
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
+import com.android.volley.toolbox.HttpResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -11,8 +12,12 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.HttpHeaders.Accept
 import kotlinx.coroutines.*
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import org.json.JSONArray
 import org.json.JSONTokener
+import io.ktor.client.plugins.*
+import io.ktor.serialization.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 
@@ -50,7 +55,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
         var allUsers: MutableList<User> = ArrayList()
         var token : String = userToken
         val client = HttpClient(CIO)
-        val response: HttpResponse = client.request(url + "get_contacts") {
+        val response: io.ktor.client.statement.HttpResponse = client.request(url + "get_contacts") {
             method = HttpMethod.Get
             headers{
                 append(Accept, "*/*")
@@ -78,7 +83,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
             }
         }
         var token: String = userToken
-        val response: HttpResponse = client.post(url + "add_contact") {
+        val response: io.ktor.client.statement.HttpResponse = client.post(url + "add_contact") {
             contentType(ContentType.Application.Json)
             setBody(Contact(phone))
             headers {

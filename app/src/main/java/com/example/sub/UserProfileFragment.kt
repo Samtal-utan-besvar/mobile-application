@@ -38,11 +38,15 @@ class UserProfileFragment : Fragment() {
         profileFirstName.text = arguments?.getString("first_name")
         profileLastName.text = arguments?.getString("last_name")
         profilePhoneNumber.text = arguments?.getString("phone_nr")
-        view.findViewById<View>(R.id.callButton).setOnClickListener {
-            navController!!.navigate(
+        val bundle = Bundle()
+        bundle.putString("first_name", profileFirstName.text as String?)
+        bundle.putString("last_name", profileLastName.text as String?)
+        bundle.putString("phone_nr", profilePhoneNumber.text as String?)
 
-                R.id.action_userProfileFragment_to_callingFragment
-            )
+        view.findViewById<View>(R.id.callButton).setOnClickListener {
+
+            navController?.navigate(R.id.action_userProfileFragment_to_callingFragment, bundle)
+
         }
         view.findViewById<View>(R.id.profile).setOnClickListener {
             navController!!.navigate(
