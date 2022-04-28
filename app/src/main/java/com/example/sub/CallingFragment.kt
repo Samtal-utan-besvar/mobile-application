@@ -50,6 +50,7 @@ class CallingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val microphoneHandler = MicrophoneHandler()
         val transcriptionclient = TranscriptionClient()
+        var id = 80
 
         val firstName = arguments?.getString("first_name")
         val lastName = arguments?.getString("last_name")
@@ -73,21 +74,6 @@ class CallingFragment : Fragment() {
         }
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
         recyclerView.adapter = adapter
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
 
 
 
@@ -129,22 +115,25 @@ class CallingFragment : Fragment() {
 
                     }
                     MotionEvent.ACTION_UP -> {
-
+                        id +=1
                         transcribeButton.text = "press to record"
                         val bigbuff = microphoneHandler.StopAudioRecording()
                         //Log.e("Biggbuff", bigbuff.contentToString())
-                        transcriptionclient.sendSound(80, bigbuff.toString(Charsets.ISO_8859_1))
+                        transcriptionclient.sendSound(id, bigbuff.toString(Charsets.ISO_8859_1))
 
-                        /*
-                        transcriptionclient.sendAnswer(80, "owner")
+
+                        transcriptionclient.sendAnswer(id, "owner")
                         var answer = ""
                         while (answer == ""){
                             Thread.sleep(100)
                             answer = transcriptionclient.getAnswer()
-                            transcriptionclient.sendAnswer(80, "owner")
+                            transcriptionclient.sendAnswer(id, "owner")
                         }
+                        Log.d("id:", id.toString())
+                        adapter.add(ChatToItem(answer))
+                        adapter!!.notifyDataSetChanged()
                         Log.e("answer", answer)
-                        */
+
 
                     }
 

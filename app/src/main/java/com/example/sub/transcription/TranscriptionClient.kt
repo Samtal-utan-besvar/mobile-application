@@ -43,6 +43,7 @@ class TranscriptionClient {
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             Log.d("Transcription-receive", text)
+            Log.d("TEXT", text)
 
             if (text != "") {
                 Log.d("Answer", text)
@@ -92,7 +93,9 @@ class TranscriptionClient {
     }
 
     fun getAnswer(): String{
-        return answer
+        var answer_cp = answer
+        answer = ""
+        return answer_cp
     }
 
 }
