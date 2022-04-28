@@ -68,13 +68,11 @@ class MicrophoneHandler() {
 
             val read = microphone!!.read(buffer, 0, minBufferSize)
             bigBuffer.write(buffer, 0, minBufferSize)
-            //Log.e("Smolbuf", buffer.toString())
         }
         bigBuffer.flush()
         bigBuffer.close()
         microphone!!.stop()
         microphone!!.release()
-        Log.e("Bigbuffer in thread", bigBuffer.size().toString())
         return bigBuffer.toByteArray().toString(Charsets.ISO_8859_1)
     }
 

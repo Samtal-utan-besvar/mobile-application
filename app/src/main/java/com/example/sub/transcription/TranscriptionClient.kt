@@ -16,7 +16,7 @@ private const val TRANSCRIPT_URL = "ws://129.151.206.9:6000" // use local ip for
 class TranscriptionClient {
 
     private var webSocket: WebSocket? = null
-    private var answer: String = ""
+    private var answers = mutableMapOf<Int, String>()
     init{
         connect()
     }
@@ -43,15 +43,15 @@ class TranscriptionClient {
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             Log.d("Transcription-receive", text)
-            Log.d("TEXT", text)
 
             if (text != "") {
                 Log.d("Answer", text)
-                answer = text
+                var list = text.split(":")
+                answers[list[0].toInt()] = list[1]
 
             } else if (text == "") {
                 Log.d("Answer", "Empty answer")
-                answer = ""
+
             } else {
                 Log.d("Answer", "Other answer")
             }
@@ -93,10 +93,13 @@ class TranscriptionClient {
         send(msgList.toString())
     }
 
-    fun getAnswer(): String{
-        var answerCp = answer
-        answer = ""
-        return answerCp
+    fun getAnswer(id:Int): String{
+        if (answers.keys.contains(id)){
+            return answers[id].toString()
+        }
+        else{
+            return ""
+        }
     }
 
 }
