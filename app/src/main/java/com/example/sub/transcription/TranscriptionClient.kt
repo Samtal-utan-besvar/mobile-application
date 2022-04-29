@@ -73,7 +73,7 @@ class TranscriptionClient {
     }
 
     fun sendAnswer(id: Int, ownertype: String) {
-        Log.d("Transcription-send", ownertype)
+        Log.d("Transcription-send_answer", ownertype)
         val message = JSONObject()
         message.put("Reason", "answer")
         message.put("Id", id)
@@ -83,7 +83,7 @@ class TranscriptionClient {
     }
 
     fun sendSound(id: Int, sound: String) {
-        Log.d("Transcription-send", "sound")
+        Log.d("Transcription-send-sound", "sound")
         //convert sound to string here()
         val message = JSONObject()
         message.put("Reason", "transcription")
