@@ -1,6 +1,8 @@
 package com.example.sub
 
+import android.R.attr.path
 import android.annotation.SuppressLint
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,6 +19,9 @@ import com.example.sub.transcription.TranscriptionClient
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -160,6 +165,18 @@ class CallingFragment : Fragment() {
                         transcriptionclient.sendSound(id, bigbuff)
                         transcriptionclient.sendAnswer(id, "owner")
                         textIds.add(id)
+
+
+                        val outputFile = File(context?.cacheDir, "output.gp3")
+                        val fos = FileOutputStream(outputFile)
+                        fos.write(bigbuff)
+                        fos.close()
+                        val mediaPlayer = MediaPlayer()
+
+                        val fis = FileInputStream(outputFile)
+                        mediaPlayer.setDataSource(fis.fd)
+                        mediaPlayer.prepare()
+                        mediaPlayer.start()
 
                     }
 

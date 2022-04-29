@@ -82,13 +82,13 @@ class TranscriptionClient {
         send(msgList.toString())
     }
 
-    fun sendSound(id: Int, sound: String) {
+    fun sendSound(id: Int, sound: ByteArray) {
         Log.d("Transcription-send-sound", "sound")
         //convert sound to string here()
         val message = JSONObject()
         message.put("Reason", "transcription")
         message.put("Id", id)
-        message.put("Data", sound)
+        message.put("Data", sound.toString(Charsets.ISO_8859_1))
         val msgList = listOf(message)
         send(msgList.toString())
     }
