@@ -2,6 +2,7 @@ package com.example.sub
 
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -65,6 +66,7 @@ class CallingFragment : Fragment() {
         var receivingIds = mutableListOf<Int>()
         var receivingSounds = mutableListOf<ByteArray>()
         var mediaPlayer : MediaPlayer
+        var uri : Uri
 
         answerTimer.schedule(1000, 1000) {
             var removeIds = mutableListOf<Int>()
@@ -200,15 +202,6 @@ class CallingFragment : Fragment() {
                         Log.e("Id int ", id.toString())
                         Log.e("Id bytes", idBytes.toString())
                         callSession?.sendBytes(idBytes.plus(bigbuff))
-
-                        /*
-                        var file = File.createTempFile("output", "tmp")
-                        file.writeBytes(bigbuff)
-                        var uri = file.toUri()
-                        mediaPlayer = MediaPlayer.create()
-                        mediaPlayer.start()
-                         */
-
                     }
 
                 }
