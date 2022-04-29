@@ -2,6 +2,7 @@ package com.example.sub
 
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -60,7 +61,7 @@ class CallingFragment : Fragment() {
         var recordTimer = Timer()
         var answerTimer = Timer()
         var textIds = mutableListOf<Int>()
-        var mediaPlayer : MediaPlayer
+        var uri : Uri
 
         answerTimer.schedule(1000, 1000) {
             var removeIds = mutableListOf<Int>()
@@ -166,12 +167,39 @@ class CallingFragment : Fragment() {
                         transcriptionclient.sendAnswer(id, "owner")
                         textIds.add(id)
 
-
-                        var file = File.createTempFile("output", "tmp")
+                        var file = File.createTempFile("output", "tmp", context!!.cacheDir)
                         file.writeBytes(bigbuff)
-                        var uri = file.toUri()
-                        mediaPlayer = MediaPlayer.create()
-                        mediaPlayer.start()
+                        var replayFileStream = FileInputStream(file)
+                        Log.d("file: ", file.toUri().toString())
+                            Log.d("SNÄLLA KOM IN HIT", "SNÄLLA KOM IN HIT")
+                            if (!file.toUri().equals(Uri.EMPTY)) {
+                                var mediaPlayer = MediaPlayer()
+                                Log.d("vanlig fil", file.toString())
+                                Log.d("konstig fil", file.toUri().toString())
+
+                                val fd = replayFileStream?.fd
+                                mediaPlayer.setDataSource(fd)
+                                // below line is use to prepare
+                                // and start our media player.
+                                mediaPlayer.prepareAsync()
+                                mediaPlayer.setOnPreparedListener(object: MediaPlayer.OnPreparedListener {
+                                    override fun onPrepared(mediaPlayer:MediaPlayer) {
+                                        mediaPlayer.start()
+                                    }
+                                })
+
+
+                                Log.d("testar", file.toUri().toString())
+                                //mediaPlayer = MediaPlayer.create(context, file.toUri())
+                            }
+
+
+
+
+
+
+
+
 
                     }
 
