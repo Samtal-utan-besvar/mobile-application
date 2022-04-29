@@ -53,25 +53,28 @@ class CallingFragment : Fragment() {
         val microphoneHandler = MicrophoneHandler()
         val transcriptionclient = TranscriptionClient()
         var id = 80
-        var timer = Timer()
+        var recordTimer = Timer()
+        var answerTimer = Timer()
         var textIds = mutableListOf<Int>()
 
-        timer.schedule(1000, 1000) {
+        answerTimer.schedule(1000, 1000) {
             var removeIds = mutableListOf<Int>()
-            for (id in textIds){
-                var answer = transcriptionclient.getAnswer(id)
+            for (textid in textIds){
+                Log.e("Looking for answer", textid.toString())
+                var answer = transcriptionclient.getAnswer(textid)
                 if (answer == ""){
-                    transcriptionclient.sendAnswer(id, "owner")
+                    transcriptionclient.sendAnswer(textid, "owner")
                 }
                 else{
-                    removeIds.add(id)
-                    //adapter.add(ChatToItem(answer))
-                    //adapter!!.notifyDataSetChanged()
+                    removeIds.add(textid)
+                    getActivity()?.runOnUiThread(java.lang.Runnable{
+                        updateUI(answer, "owner")
+                    })
                     Log.e("answer", answer)
                 }
             }
-            for (id in removeIds) {
-                textIds.remove(id)
+            for (textid in removeIds) {
+                textIds.remove(textid)
             }
         }
 
@@ -135,25 +138,29 @@ class CallingFragment : Fragment() {
                         microphoneHandler.StartAudioRecording()
                         transcribeButton.text = "recording"
 
-                        timer.schedule(5000, 5000) {
+
+                        recordTimer.schedule(5000, 5000) {
                             if(microphoneHandler.recording.get()){
                                 id+=1
                                 val bigbuff = microphoneHandler.StopAudioRecording()
                                 microphoneHandler.StartAudioRecording()
                                 transcriptionclient.sendSound(id, bigbuff)
+                                transcriptionclient.sendAnswer(id, "owner")
                                 textIds.add(id)
                             }
                         }
                     }
                     MotionEvent.ACTION_UP -> {
-                        timer.cancel()
-                        timer.purge()
-                        timer = Timer()
+                        recordTimer.cancel()
+                        recordTimer.purge()
+                        recordTimer = Timer()
                         id +=1
                         transcribeButton.text = "press to record"
                         val bigbuff = microphoneHandler.StopAudioRecording()
                         transcriptionclient.sendSound(id, bigbuff)
+                        transcriptionclient.sendAnswer(id, "owner")
                         textIds.add(id)
+
                     }
 
                 }
@@ -170,6 +177,16 @@ class CallingFragment : Fragment() {
 
         // Temporary. Initiate a call request to the contact
         callContact()
+    }
+
+    fun updateUI(message: String, ownerType: String){
+        if (ownerType=="owner"){
+            adapter.add(ChatToItem(message))
+        }
+        else if (ownerType=="receiver"){
+            adapter.add(ChatFromItem(message))
+        }
+        adapter!!.notifyDataSetChanged()
     }
 
     companion object {
