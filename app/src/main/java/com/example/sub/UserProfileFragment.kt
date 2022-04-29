@@ -53,7 +53,6 @@ class UserProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         bundle.putString("phone_nr", profilePhoneNumber.text as String?)
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
         runBlocking {  loginViewModel.getUser()?.userToken?.let { userProfileFragmentViewModel.setUserToken(it) }}
-
         view.findViewById<View>(R.id.callButton).setOnClickListener {
 
             navController?.navigate(R.id.action_userProfileFragment_to_callingFragment, bundle)
