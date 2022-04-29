@@ -128,8 +128,8 @@ class CallingFragment : Fragment() {
 
     // Temporary. Call contact based on phone number
     fun callContact() {
-        val phoneNumber1 = "0933503271"
-        val phoneNumber2 = "0933703271"
+        val phoneNumber1 = "3333333333"
+        val phoneNumber2 = "4444444444"
 
         val callHandler = CallHandler.getInstance()
 
