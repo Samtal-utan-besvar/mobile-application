@@ -92,9 +92,6 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
             contactGroup.visibility = View.VISIBLE
             contactList.visibility = View.GONE
         }
-        view.findViewById<View>(R.id.logout).setOnClickListener {
-            (activity as MainActivity?)!!.startLoginActivity()
-        }
 
         view.findViewById<View>(R.id.confirmContact).setOnClickListener {
             if (adapter != null) {
@@ -108,7 +105,9 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
         }
-        Log.d("myDebug", "getUserToken(): " + getUserToken())
+
+        Log.d("JWTToken: ", getUserToken())
+        Log.d("phoneNumber: ", phoneNumber)
 
         view.findViewById<View>(R.id.settingsButton).setOnClickListener{
             showMenu(view.findViewById(R.id.settingsButton))
@@ -135,7 +134,6 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
         println(item.itemId)
         return when (item.itemId) {
             R.id.loggaut -> {
-                loginViewModel.loginRepository.logout()
                 (activity as MainActivity?)!!.startLoginActivity()
                 true
             }
@@ -145,10 +143,6 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
             }
             else -> false
         }
-    }
-
-        Log.d("JWTToken: ", getUserToken())
-        Log.d("phoneNumber: ", phoneNumber)
     }
 
     /** Function used when a contact is clicked on,

@@ -38,16 +38,13 @@ class UserProfileViewModel(application: Application) : AndroidViewModel(applicat
                 json()
             }
         }
-        var token: String = userToken
-        token = token.drop(1)
-        token = token.dropLast(1)
         val response: io.ktor.client.statement.HttpResponse = client.delete("http://144.24.171.133:8080/delete_contact") {
             contentType(ContentType.Application.Json)
             setBody(Contact(phone))
             headers {
                 append(HttpHeaders.Accept, "*/*")
                 append(HttpHeaders.UserAgent, "ktor client")
-                append(HttpHeaders.Authorization, token)
+                append(HttpHeaders.Authorization, userToken)
             }
         }
         println(response.toString())
