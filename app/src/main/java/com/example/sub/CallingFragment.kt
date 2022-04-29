@@ -117,7 +117,7 @@ class CallingFragment : Fragment() {
         simpleChronometer.start() // start a chronometer
 
         // Temporary. Initiate a call request to the contact
-        callContact()
+        callContact(phoneNr!!)
     }
 
     companion object {
@@ -127,17 +127,10 @@ class CallingFragment : Fragment() {
     }
 
     // Temporary. Call contact based on phone number
-    fun callContact() {
-        val phoneNumber1 = "0933503271"
-        val phoneNumber2 = "0933703271"
-
+    private fun callContact(remotePhoneNumber: String) {
         val callHandler = CallHandler.getInstance()
 
-        if (android.os.Build.VERSION.SDK_INT == 30) {
-            callHandler.call(phoneNumber2, requireContext())
-        } else {
-            callHandler.call(phoneNumber1, requireContext())
-        }
+        callHandler.call(remotePhoneNumber, requireContext())
     }
 }
 
