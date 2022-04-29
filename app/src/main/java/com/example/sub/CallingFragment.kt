@@ -138,7 +138,7 @@ class CallingFragment : Fragment() {
                         microphoneHandler.StartAudioRecording()
                         transcribeButton.text = "recording"
 
-                        /*
+
                         recordTimer.schedule(5000, 5000) {
                             if(microphoneHandler.recording.get()){
                                 id+=1
@@ -149,8 +149,6 @@ class CallingFragment : Fragment() {
                                 textIds.add(id)
                             }
                         }
-
-                         */
                     }
                     MotionEvent.ACTION_UP -> {
                         recordTimer.cancel()
