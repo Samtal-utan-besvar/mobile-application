@@ -5,19 +5,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.constraintlayout.widget.Group
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sub.ui.login.LoginViewModel
-import com.example.sub.ui.login.LoginViewModelFactory
+import com.example.sub.data.LoggedInUser
 import kotlinx.coroutines.runBlocking
 
 /** The ProfileFragment which shows the "Homescreen" and the Contactlist of the
@@ -26,7 +23,6 @@ import kotlinx.coroutines.runBlocking
 class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     var navController: NavController? = null
 
-    private lateinit var loginViewModel: LoginViewModel
     private lateinit var addContactBttn: View
     private lateinit var addContactText: View
     private lateinit var confirmContact: View
@@ -35,8 +31,11 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
     private lateinit var contactNumber: TextView
     private lateinit var contactList: RecyclerView
     private lateinit var contactGroup: Group
+    private lateinit var loggedInUser: LoggedInUser
     private var contacts: MutableList<User> = ArrayList()
     private val profileFragmentViewModel : ProfileFragmentViewModel by activityViewModels()
+    private lateinit var phoneNumber: String
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,8 +49,9 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
-        runBlocking {  loginViewModel.getUser()?.userToken?.let { profileFragmentViewModel.setUserToken(it) }}
+        loggedInUser = (activity as MainActivity?)!!.getActiveUser()
+        runBlocking {profileFragmentViewModel.setUserToken(getUserToken())}
+        phoneNumber = (activity as MainActivity?)!!.getActiveUser().phoneNumber.toString()
         addContactBttn = view.findViewById(R.id.addContact)
         addContactText = view.findViewById(R.id.addContactText)
         confirmContact = view.findViewById(R.id.confirmContact)
@@ -82,7 +82,6 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
             contactList.visibility = View.GONE
         }
         view.findViewById<View>(R.id.logout).setOnClickListener {
-            loginViewModel.loginRepository.logout()
             (activity as MainActivity?)!!.startLoginActivity()
         }
 
@@ -102,12 +101,9 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
         }
-        Log.d("myDebug", "getUserToken(): " + getUserToken())
-    }
 
-    /** Fetches the username from the LoginViewModel class **/
-    private fun getUserName(): String? {
-        return loginViewModel.loginRepository.user?.displayName
+        Log.d("JWTToken: ", getUserToken())
+        Log.d("phoneNumber: ", phoneNumber)
     }
 
     /** Function used when a contact is clicked on,
@@ -121,9 +117,14 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         navController?.navigate(R.id.action_ProfileFragment_to_userProfileFragment, bundle)
     }
 
-    /** Fetches the JWT UserToken from the LoginViewModel class **/
-    private fun getUserToken(): String? {
-        return loginViewModel.loginRepository.user?.userToken
+    /** Return the displayName from LoggedInUser object **/
+    private fun getUserName(): String? {
+        return loggedInUser.firstName + " " + loggedInUser.lastName
+    }
+
+    /** Return the JWT Token from LoggedInUser object **/
+    private fun getUserToken(): String {
+        return loggedInUser.userToken.toString()
     }
 
     companion object {

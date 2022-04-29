@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.ActivityPermissionBinding
 import com.example.sub.session.CallHandler
 import com.example.sub.session.CallReceivedListener
@@ -23,14 +24,14 @@ import com.google.android.material.snackbar.Snackbar
 class MainActivity : AppCompatActivity() {
     private lateinit var layout: View
     private lateinit var binding: ActivityPermissionBinding
-
+    private lateinit var loggedInUser: LoggedInUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPermissionBinding.inflate(layoutInflater)
-        //val view = binding.root
         layout = binding.permissionLayout
         setContentView(R.layout.activity_main)
+        loggedInUser = intent.getSerializableExtra("loggedInUser") as LoggedInUser
 
         setUpWebRTC()
     }
@@ -75,15 +76,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * Starts LoginActivity and finish MainActivity when logout button is pressed.
+     */
     fun startLoginActivity() {
         let{
             val intent = Intent(it, LoginActivity::class.java)
+            intent.putExtra("logout", true)
             it.startActivity(intent)
         }
         finish()
     }
 
+    /**
+     * Return LoggedInUser object.
+     *
+     * @see com.example.sub.data.LoggedInUser for more information about accessible data.
+     *
+     * e.g.: to access phoneNumber in a fragment:
+     * val phoneNumber = (activity as MainActivity?)!!.getActiveUser().phoneNumber
+     */
+    fun getActiveUser() : LoggedInUser {
+        return loggedInUser
+    }
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -123,9 +138,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-
-
 }
 
 fun View.showSnackbar(
