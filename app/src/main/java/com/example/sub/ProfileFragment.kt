@@ -72,7 +72,6 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
         contactGroup = view.findViewById(R.id.addContactGroup)
         contactList = view.findViewById(R.id.contactList)
         contactGroup.visibility = View.GONE
-        profileFragmentViewModel.getUsers()
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.contactList)
         val adapter = contactListAdapter(contacts, this)
@@ -86,6 +85,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 adapter.changeDataSet(strings)
                 adapter.notifyDataSetChanged()
                 contacts = strings as MutableList<User>
+                (activity as MainActivity?)!!.setContactList(strings)
             })
         navController = findNavController(view)
         view.findViewById<View>(R.id.addContact).setOnClickListener {
@@ -104,6 +104,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
             contactNumber.text = ""
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
+            (activity as MainActivity?)!!.setContactList(contacts)
         }
 
         Log.d("JWTToken: ", getUserToken())
@@ -138,7 +139,6 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 true
             }
             R.id.requestPerm -> {
-
                 true
             }
             else -> false
