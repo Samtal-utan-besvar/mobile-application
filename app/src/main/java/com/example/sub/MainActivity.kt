@@ -53,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         // Crucial part.
         SignalClient.connect(token)
         CallHandler.initInstance(SignalClient, localPhoneNumber)
-
         CallHandler.getInstance().callReceivedListeners.add( CallListener() )
     }
 

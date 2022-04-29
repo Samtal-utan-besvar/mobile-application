@@ -139,6 +139,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 true
             }
             R.id.requestPerm -> {
+                view?.let { (activity as MainActivity?)!!.onClickRequestPermission(it) }
                 true
             }
             else -> false
