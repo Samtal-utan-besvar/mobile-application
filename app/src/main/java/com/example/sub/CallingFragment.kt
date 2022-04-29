@@ -129,11 +129,9 @@ class CallingFragment : Fragment() {
             bundle.putString("last_name", lastName)
             bundle.putString("phone_nr", phoneNr)
 
-            callSession?.hangUp()
-
             navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
 
-
+            callSession?.hangUp()
 
         }
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
@@ -217,8 +215,7 @@ class CallingFragment : Fragment() {
         simpleChronometer.start() // start a chronometer
 
         // Temporary. Initiate a call request to the contact
-        callContact(phoneNr!!)
-        callSession?.sessionListeners?.add(ByteHandler(receivingIds, receivingSounds))
+        callSession = CallHandler.getInstance().activeSession
 
 
     }
@@ -234,19 +231,12 @@ class CallingFragment : Fragment() {
     }
 
     fun playSound(sound: ByteArray){
-
     }
 
     companion object {
         fun newInstance(): CallingFragment {
             return CallingFragment()
         }
-    }
-
-    // Temporary. Call contact based on phone number
-    private fun callContact(remotePhoneNumber: String) {
-        val callHandler = CallHandler.getInstance()
-        callSession = callHandler.call(remotePhoneNumber, requireContext())
     }
 
     internal class ByteHandler(receivingIds: MutableList<Int>, sounds: MutableList<ByteArray>) : SessionListener {
