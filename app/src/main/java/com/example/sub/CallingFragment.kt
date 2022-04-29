@@ -1,6 +1,5 @@
 package com.example.sub
 
-import android.R.attr.path
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -10,6 +9,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
@@ -21,7 +21,6 @@ import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -61,6 +60,7 @@ class CallingFragment : Fragment() {
         var recordTimer = Timer()
         var answerTimer = Timer()
         var textIds = mutableListOf<Int>()
+        var mediaPlayer : MediaPlayer
 
         answerTimer.schedule(1000, 1000) {
             var removeIds = mutableListOf<Int>()
@@ -167,15 +167,10 @@ class CallingFragment : Fragment() {
                         textIds.add(id)
 
 
-                        val outputFile = File(context?.cacheDir, "output.gp3")
-                        val fos = FileOutputStream(outputFile)
-                        fos.write(bigbuff)
-                        fos.close()
-                        val mediaPlayer = MediaPlayer()
-
-                        val fis = FileInputStream(outputFile)
-                        mediaPlayer.setDataSource(fis.fd)
-                        mediaPlayer.prepare()
+                        var file = File.createTempFile("output", "tmp")
+                        file.writeBytes(bigbuff)
+                        var uri = file.toUri()
+                        mediaPlayer = MediaPlayer.create()
                         mediaPlayer.start()
 
                     }
