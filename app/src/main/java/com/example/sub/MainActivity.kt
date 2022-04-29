@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.findNavController
 import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.ActivityPermissionBinding
 import com.example.sub.session.CallHandler
@@ -60,7 +61,26 @@ class MainActivity : AppCompatActivity() {
     // Sets up what happens when someone calls.
     private inner class CallListener : CallReceivedListener {
         override fun onCallReceived(callSession: CallSession) {
-            val callDialog = CallDialog(callSession)
+
+            val remotePhoneNumber = callSession.remotePhoneNumber
+            val user = getContactList().stream().filter {
+                    user -> user.number == remotePhoneNumber
+            }.findFirst().orElse(null)
+
+            val displayName = if (user?.firstName == null)
+                remotePhoneNumber else user.firstName!!
+
+            val callDialog = CallDialog(displayName)
+
+            callDialog.setOnAnswer {
+                callSession.accept(applicationContext)
+                //TODO: go to CallingFragment
+            }
+
+            callDialog.setOnDeny {
+                callSession.deny()
+            }
+
             callDialog.show(supportFragmentManager, "callDialog")
 
         }
