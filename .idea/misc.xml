@@ -3,10 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/46700/AndroidStudioProjects/mobile-application/app/src/main/res/layout/chat_from_row.xml" value="0.1" />
+        <entry key="..\:/Users/46700/AndroidStudioProjects/mobile-application/app/src/main/res/layout/chat_to_row.xml" value="0.1" />
+        <entry key="..\:/Users/46700/AndroidStudioProjects/mobile-application/app/src/main/res/layout/fragment_calling.xml" value="0.1" />
         <entry key="..\:/Users/acolu/Desktop/mobile-application/app/src/main/res/layout/fragment_calling.xml" value="0.18297101449275363" />
         <entry key="..\:/Users/acolu/Desktop/mobile-application/app/src/main/res/layout/fragment_profile.xml" value="0.22" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
 </project>
