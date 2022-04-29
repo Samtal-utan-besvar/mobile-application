@@ -93,7 +93,7 @@ class TranscriptionClient {
         send(msgList.toString())
     }
 
-    fun getAnswer(id:Int): String{
+    fun getAnswer(id: Int): String{
         if (answers.keys.contains(id)){
             return answers[id].toString()
         }
