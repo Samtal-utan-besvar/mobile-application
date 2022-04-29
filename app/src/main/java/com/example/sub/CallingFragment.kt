@@ -1,8 +1,10 @@
 package com.example.sub
 
 import android.annotation.SuppressLint
-import android.media.MediaPlayer
+import android.content.Context
+import android.media.*
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,19 +12,18 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.net.toUri
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sub.session.CallHandler
-import com.example.sub.transcription.TranscriptionClient
 import com.example.sub.session.CallSession
+import com.example.sub.transcription.TranscriptionClient
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
-import java.io.File
-import java.io.FileInputStream
+import java.io.*
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -39,6 +40,11 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class CallingFragment : Fragment() {
+
+
+
+    private var mediaRecorder = MediaRecorder()
+
 
     private var adapter = GroupieAdapter()
     private lateinit var userName : TextView
@@ -133,18 +139,36 @@ class CallingFragment : Fragment() {
                 Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
             }
         }
-        val transcribeButton = view.findViewById<Button>(R.id.buttonTranscribe)
 
+        view.findViewById<View>(R.id.playButton).setOnClickListener {
+            val music : MediaPlayer = MediaPlayer.create(activity, R.raw.sample)
+            music.start()
+        }
+        val testMp3 = File.createTempFile("test", "3gp", requireContext().cacheDir)
+        val transcribeButton = view.findViewById<Button>(R.id.buttonTranscribe)
         transcribeButton.setOnTouchListener(object : View.OnTouchListener {
             @SuppressLint("SetTextI18n")
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-
-
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
                         microphoneHandler.StartAudioRecording()
                         transcribeButton.text = "recording"
+                        val outputDir : File = context!!.cacheDir
+                        val testMp3 = File.createTempFile("test", "3gp", outputDir)
 
+                        // Set the audio format and encoder
+                        // Set the audio format and encoder
+                        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+                        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                        // Setup the output location
+                        // Setup the output location
+
+                        mediaRecorder.setOutputFile(context!!.cacheDir.absolutePath + "test.3gp")
+                        // Start the recording
+                        // Start the recording
+                        mediaRecorder.prepare()
+                        mediaRecorder.start()
 
                         recordTimer.schedule(5000, 5000) {
                             if(microphoneHandler.recording.get()){
@@ -164,35 +188,67 @@ class CallingFragment : Fragment() {
                         id +=1
                         transcribeButton.text = "press to record"
                         val bigbuff = microphoneHandler.StopAudioRecording()
+
+                        mediaRecorder.stop();
+                        mediaRecorder.reset();
+                        mediaRecorder.release();
+
+                        val musicPlayer = MediaPlayer()
+                        musicPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+
+                        println(context!!.cacheDir.absolutePath + "test.3gp")
+                        musicPlayer.setDataSource(context!!.cacheDir.absolutePath + "test.3gp")
+                        musicPlayer.prepare() // must call prepare first
+                        musicPlayer.start()
+                        //val bigbuffupdated = bigbuff.copyOfRange(45,bigbuff.size)
+                        //val tempMp3 = File.createTempFile("temp", "wav", context!!.cacheDir)
+                        //tempMp3.deleteOnExit()
+                        //val fos = FileOutputStream(tempMp3)
+                        //fos.write(bigbuffupdated)
+                        //fos.close()
+
+                        //val byteArrayInputStream = ByteArrayInputStream(bigbuff)
+                        //val musicPlayer = MediaPlayer()
+                       // musicPlayer.reset()
+                        //val fis = FileInputStream(tempMp3)
+                        //musicPlayer.setDataSource(fis.fd)
+                        //musicPlayer.prepareAsync()
+                        //musicPlayer.setOnPreparedListener {
+                        //    musicPlayer.start()
+                        //    println("nu är jag här!")
+                       // }
+
                         transcriptionclient.sendSound(id, bigbuff)
                         transcriptionclient.sendAnswer(id, "owner")
                         textIds.add(id)
 
-                        var file = File.createTempFile("output", "tmp", context!!.cacheDir)
-                        file.writeBytes(bigbuff)
-                        var replayFileStream = FileInputStream(file)
-                        Log.d("file: ", file.toUri().toString())
-                            Log.d("SNÄLLA KOM IN HIT", "SNÄLLA KOM IN HIT")
-                            if (!file.toUri().equals(Uri.EMPTY)) {
+
+
+
+
+                        //var file = File.createTempFile("output", "tmp", context!!.cacheDir)
+                        //file.writeBytes(bigbuff)
+                        //var replayFileStream = FileInputStream(file)
+                        //Log.d("file: ", file.toUri().toString())
+                           // Log.d("SNÄLLA KOM IN HIT", "SNÄLLA KOM IN HIT")
+                            /**    if (!file.toUri().equals(Uri.EMPTY)) {
                                 var mediaPlayer = MediaPlayer()
                                 Log.d("vanlig fil", file.toString())
                                 Log.d("konstig fil", file.toUri().toString())
 
                                 val fd = replayFileStream?.fd
                                 mediaPlayer.setDataSource(fd)
-                                // below line is use to prepare
+                               //  below line is use to prepare
                                 // and start our media player.
                                 mediaPlayer.prepareAsync()
                                 mediaPlayer.setOnPreparedListener(object: MediaPlayer.OnPreparedListener {
-                                    override fun onPrepared(mediaPlayer:MediaPlayer) {
+                                  override fun onPrepared(mediaPlayer:MediaPlayer) {
                                         mediaPlayer.start()
-                                    }
+                                   }
                                 })
-
-
                                 Log.d("testar", file.toUri().toString())
-                                //mediaPlayer = MediaPlayer.create(context, file.toUri())
-                            }
+                                mediaPlayer = MediaPlayer.create(context, file.toUri())
+                            }**/
 
 
 
@@ -221,6 +277,10 @@ class CallingFragment : Fragment() {
         callContact(phoneNr!!)
     }
 
+
+
+
+
     fun updateUI(message: String, ownerType: String){
         if (ownerType=="owner"){
             adapter.add(ChatToItem(message))
@@ -242,7 +302,48 @@ class CallingFragment : Fragment() {
         val callHandler = CallHandler.getInstance()
         callSession = callHandler.call(remotePhoneNumber, requireContext())
     }
+
+
+    // MAX - FuNKTIONER ----------------------------
+
+   /** private fun startRecording() {
+        MediaRecorder()
+        recorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            setOutputFile(fileName)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+
+            try {
+                prepare()
+            } catch (e: IOException) {
+                Log.e(LOG_TAG, "prepare() failed")
+            }
+
+            start()
+        }
+    }**/
+
+
+
+
+    // -------------------------------------------
+
+    /**private fun playAssetSound(assetName: String) {
+        try {
+            val afd: AssetFileDescriptor = assets.openFd("sounds/$assetName.mp3")
+            mMediaPlayer = MediaPlayer()
+            mMediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+            afd.close()
+            mMediaPlayer.prepare()
+            mMediaPlayer.start()
+        } catch (ex: Exception) {
+            Toast.makeText(this, ex.message, Toast.LENGTH_LONG).show()
+        }
+    }**/
 }
+
+
 
 class ChatFromItem(val text: String): Item<GroupieViewHolder>(){
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
