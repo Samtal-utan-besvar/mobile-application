@@ -10,21 +10,32 @@ import com.example.sub.session.CallSession
 /**
  * A dialog that shows the phone number of a caller and lets the user accept or deny the call.
  */
-class CallDialog(private val callSession: CallSession) : DialogFragment() {
+class CallDialog(private val displayName: String) : DialogFragment() {
+
+    var onAnswerFunction: (() -> Unit)? = null
+    var onDenyFunction: (() -> Unit)? = null
+
+    fun setOnAnswer(answerFunction: () -> Unit) {
+        onAnswerFunction = answerFunction
+    }
+
+    fun setOnDeny(denyFunction: () -> Unit) {
+        onDenyFunction = denyFunction
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             // Use the Builder class for convenient dialog construction
             val builder = AlertDialog.Builder(it)
-            builder.setMessage(callSession.remotePhoneNumber)
-                .setPositiveButton("Answer",
-                    { dialog, id ->
-                        callSession.accept(requireContext())
-                    })
-                .setNegativeButton("Deny",
-                    { dialog, id ->
-                        callSession.deny()
-                    })
+            builder.setMessage(displayName)
+                .setPositiveButton("Answer"
+                ) { _, _ ->
+                    onAnswerFunction?.invoke()
+                }
+                .setNegativeButton("Deny"
+                ) { _, _ ->
+                    onDenyFunction?.invoke()
+                }
             // Create the AlertDialog object and return it
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")

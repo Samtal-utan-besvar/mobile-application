@@ -60,11 +60,9 @@ class CallingFragment : Fragment() {
             bundle.putString("last_name", lastName)
             bundle.putString("phone_nr", phoneNr)
 
-            callSession?.hangUp()
-
             navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
 
-
+            callSession?.hangUp()
 
         }
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
@@ -117,8 +115,7 @@ class CallingFragment : Fragment() {
             view.findViewById(R.id.simpleChronometer) as Chronometer // initiate a chronometer
         simpleChronometer.start() // start a chronometer
 
-        // Temporary. Initiate a call request to the contact
-        callContact(phoneNr!!)
+        callSession = CallHandler.getInstance().activeSession
     }
 
     companion object {
@@ -127,11 +124,6 @@ class CallingFragment : Fragment() {
         }
     }
 
-    // Temporary. Call contact based on phone number
-    private fun callContact(remotePhoneNumber: String) {
-        val callHandler = CallHandler.getInstance()
-        callSession = callHandler.call(remotePhoneNumber, requireContext())
-    }
 }
 
 class ChatFromItem(val text: String): Item<GroupieViewHolder>(){
