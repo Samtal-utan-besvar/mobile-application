@@ -9,8 +9,8 @@ import java.util.concurrent.TimeUnit
 
 private const val SIGNAL_URL = "ws://144.24.171.133:4000" // use local ip for devices in local network
 
-const val TOKEN1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbXNkZUBkbWFhaW4ucG9nIiwiaWF0IjoxNjUwNDQ1MjcyLCJleHAiOjE2NTEwNTAwNzJ9.zMfKiU2Xxy1Wde-c1PVSe-NNJagoIRMIGeMuV8e3geE"
-const val TOKEN2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbXNkZUBkbWFhaWRkbi5wb2ciLCJpYXQiOjE2NTA0NDUyOTksImV4cCI6MTY1MTA1MDA5OX0.WUhVjyj-Is_2FWk3LnWjAyn0tcYsBAARgPBDbc6-1oM"
+const val TOKEN1 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1haWwzQGRvbWFpbi5zZSIsImlhdCI6MTY1MDk1OTM1OCwiZXhwIjoxNjUxNTY0MTU4fQ.kLMUGjHuYU-4z8gKPj4q3Fq22FwH9BzJ1WJt4tvpjy8"
+const val TOKEN2 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1haWw0QGRvbWFpbi5zZSIsImlhdCI6MTY1MDk1OTUxNSwiZXhwIjoxNjUxNTY0MzE1fQ.ho3n1Ko2Egi550JsmCCDqm-TNBSjmsZNJj4jS7xC7rk"
 
 
 /**

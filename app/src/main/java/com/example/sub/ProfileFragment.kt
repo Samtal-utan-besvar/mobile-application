@@ -2,46 +2,55 @@ package com.example.sub
 
 import android.os.Bundle
 import android.util.Log
+import android.view.*
+import android.widget.*
+
+import com.google.android.material.textfield.TextInputLayout
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.constraintlayout.widget.Group
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sub.ui.login.LoginViewModel
-import com.example.sub.ui.login.LoginViewModelFactory
+import com.example.sub.data.LoggedInUser
 import kotlinx.coroutines.runBlocking
 
 /** The ProfileFragment which shows the "Homescreen" and the Contactlist of the
  * specified user
  */
-class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
+class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, PopupMenu.OnMenuItemClickListener {
     var navController: NavController? = null
 
-    private lateinit var loginViewModel: LoginViewModel
     private lateinit var addContactBttn: View
     private lateinit var addContactText: View
-    private lateinit var confirmContact: View
-    private lateinit var contactFirstName: TextView
-    private lateinit var contactLastName: TextView
+    private lateinit var confirmContactBttn: ImageButton
+    private lateinit var cancelAddContactBttn: ImageButton
+    //private lateinit var contactFirstName: TextView
+    //private lateinit var contactLastName: TextView
     private lateinit var contactNumber: TextView
     private lateinit var contactList: RecyclerView
     private lateinit var contactGroup: Group
+    private lateinit var loggedInUser: LoggedInUser
     private var contacts: MutableList<User> = ArrayList()
     private val profileFragmentViewModel : ProfileFragmentViewModel by activityViewModels()
+    private lateinit var phoneNumber: String
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
@@ -50,13 +59,15 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
-        runBlocking {  loginViewModel.getUser()?.userToken?.let { profileFragmentViewModel.setUserToken(it) }}
+        loggedInUser = (activity as MainActivity?)!!.getActiveUser()
+        runBlocking {profileFragmentViewModel.setUserToken(getUserToken())}
+        phoneNumber = (activity as MainActivity?)!!.getActiveUser().phoneNumber.toString()
         addContactBttn = view.findViewById(R.id.addContact)
         addContactText = view.findViewById(R.id.addContactText)
-        confirmContact = view.findViewById(R.id.confirmContact)
-        contactFirstName = view.findViewById(R.id.contactFirstName)
-        contactLastName = view.findViewById(R.id.contactLastName)
+        confirmContactBttn = view.findViewById(R.id.confirmContact)
+        cancelAddContactBttn = view.findViewById(R.id.cancelAddContact)
+        //contactFirstName = view.findViewById(R.id.contactFirstName)
+        //contactLastName = view.findViewById(R.id.contactLastName)
         contactNumber = view.findViewById(R.id.contactNr)
         contactGroup = view.findViewById(R.id.addContactGroup)
         contactList = view.findViewById(R.id.contactList)
@@ -81,33 +92,57 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
             contactGroup.visibility = View.VISIBLE
             contactList.visibility = View.GONE
         }
-        view.findViewById<View>(R.id.logout).setOnClickListener {
-            loginViewModel.loginRepository.logout()
-            (activity as MainActivity?)!!.startLoginActivity()
-        }
 
         view.findViewById<View>(R.id.confirmContact).setOnClickListener {
             if (adapter != null) {
                 adapter.notifyDataSetChanged()
             }
 
-            //view.findViewById<Button>(R.id.buttonPerm).setOnClickListener{
-            //    Log.d("blabla", "BLABLABLABL")
-            //}
-
             runBlocking {  profileFragmentViewModel.addContact(contactNumber.text.toString())}
-            contactFirstName.text = ""
-            contactLastName.text = ""
+            //contactFirstName.text = ""
+            //contactLastName.text = ""
             contactNumber.text = ""
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
         }
-        Log.d("myDebug", "getUserToken(): " + getUserToken())
+
+        Log.d("JWTToken: ", getUserToken())
+        Log.d("phoneNumber: ", phoneNumber)
+
+        view.findViewById<View>(R.id.settingsButton).setOnClickListener{
+            showMenu(view.findViewById(R.id.settingsButton))
+        }
+
+        view.findViewById<View>(R.id.cancelAddContact).setOnClickListener {
+            contactNumber.text = ""
+            contactGroup.visibility = View.GONE
+            contactList.visibility = View.VISIBLE
+        }
     }
 
-    /** Fetches the username from the LoginViewModel class **/
-    private fun getUserName(): String? {
-        return loginViewModel.loginRepository.user?.displayName
+    private fun showMenu(v: View) {
+        PopupMenu(this.context, v).apply {
+            setOnMenuItemClickListener(this@ProfileFragment)
+            inflate(R.menu.logout_menu)
+            show()
+        }
+    }
+
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        println(R.id.loggaut)
+        println("itemid: ")
+        println(item.itemId)
+        return when (item.itemId) {
+            R.id.loggaut -> {
+                (activity as MainActivity?)!!.startLoginActivity()
+                true
+            }
+            R.id.requestPerm -> {
+
+                true
+            }
+            else -> false
+        }
     }
 
     /** Function used when a contact is clicked on,
@@ -121,9 +156,14 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener {
         navController?.navigate(R.id.action_ProfileFragment_to_userProfileFragment, bundle)
     }
 
-    /** Fetches the JWT UserToken from the LoginViewModel class **/
-    private fun getUserToken(): String? {
-        return loginViewModel.loginRepository.user?.userToken
+    /** Return the displayName from LoggedInUser object **/
+    private fun getUserName(): String? {
+        return loggedInUser.firstName + " " + loggedInUser.lastName
+    }
+
+    /** Return the JWT Token from LoggedInUser object **/
+    private fun getUserToken(): String {
+        return loggedInUser.userToken.toString()
     }
 
     companion object {

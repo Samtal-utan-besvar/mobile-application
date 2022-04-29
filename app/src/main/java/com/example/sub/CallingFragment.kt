@@ -17,6 +17,7 @@ import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sub.session.CallHandler
 import com.example.sub.transcription.TranscriptionClient
+import com.example.sub.session.CallSession
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
@@ -42,7 +43,7 @@ class CallingFragment : Fragment() {
     private var adapter = GroupieAdapter()
     private lateinit var userName : TextView
 
-
+    private var callSession: CallSession? = null
 
     private var navController: NavController? = null
 
@@ -97,7 +98,7 @@ class CallingFragment : Fragment() {
             bundle.putString("last_name", lastName)
             bundle.putString("phone_nr", phoneNr)
 
-            // TODO: Action when close call, disconnect call from server??
+            callSession?.hangUp()
 
             navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
 
@@ -216,7 +217,7 @@ class CallingFragment : Fragment() {
         simpleChronometer.start() // start a chronometer
 
         // Temporary. Initiate a call request to the contact
-        callContact()
+        callContact(phoneNr!!)
     }
 
     fun updateUI(message: String, ownerType: String){
@@ -236,17 +237,9 @@ class CallingFragment : Fragment() {
     }
 
     // Temporary. Call contact based on phone number
-    fun callContact() {
-        val phoneNumber1 = "0933503271"
-        val phoneNumber2 = "0933703271"
-
+    private fun callContact(remotePhoneNumber: String) {
         val callHandler = CallHandler.getInstance()
-
-        if (android.os.Build.VERSION.SDK_INT == 30) {
-            callHandler.call(phoneNumber2, requireContext())
-        } else {
-            callHandler.call(phoneNumber1, requireContext())
-        }
+        callSession = callHandler.call(remotePhoneNumber, requireContext())
     }
 }
 

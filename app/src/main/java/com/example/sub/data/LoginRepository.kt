@@ -3,6 +3,7 @@ package com.example.sub.data
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
+import kotlinx.coroutines.runBlocking
 
 
 /**
@@ -24,7 +25,9 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
 
     init {
         user = if (isLoggedIn) {
-            readLoggedInUser()
+            runBlocking {
+                readLoggedInUser()
+            }
         } else {
             null
         }
@@ -45,16 +48,21 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
      * Calls login from the data source and saves the loggedInUser object if the result succeeded.
      */
     suspend fun login(username: String, password: String): Result<LoggedInUser> {
-        val result = dataSource.login(username, password)
-        if (result is Result.Success) {
-            setLoggedInUser(result.data)
+        val loginResult = dataSource.login(username, password)
+        Log.d("myDebug", "loginResult:   " + loginResult)
+        if (loginResult is Result.Success) {
+            val getUserResult = dataSource.getUserInformation(loginResult.data)
+            if (getUserResult is Result.Success) {
+                setLoggedInUser(getUserResult.data)
+            }
         }
         Log.d("myDebug", "(LOGIN):\t" + user.toString())
-        return result
+        return loginResult
     }
 
     /**
-     * Calls register from the data source and saves the loggedInUser object if the result succeeded.
+     * Calls register from the data source and saves the loggedInUser object if the result
+     * succeeded.
      */
     suspend fun register(username: String, password: String): Result<LoggedInUser> {
         val result = dataSource.register(username, password)
@@ -82,12 +90,28 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     }
 
     /**
-     * Returns saved loggedInUser object from SharedPreferences.
+     * Return saved LoggedInUser object from SharedPreferences.
      */
-    private fun readLoggedInUser(): LoggedInUser? {
+    private suspend fun readLoggedInUser(): LoggedInUser? {
         val gson = Gson()
-        val json = sharedPref.getString("LOGGED_IN_USER", null) ?: return null
-        return gson.fromJson(json, LoggedInUser::class.java)
+        val json = sharedPref.getString("LOGGED_IN_USER", null)
+        return authenticate(gson.fromJson(json, LoggedInUser::class.java))
+    }
+
+    /**
+     * Returns an authenticated LoggedInUser object on Result.Success. Return null on Result.Error.
+     * <p>
+     * The Authentication results in two possible outcomes: the JWT token becomes updated for
+     * the saved LoggedInUser object, or the authentication becomes rejected; thus, the saved
+     * JWT token of the object was too old.
+     */
+    private suspend fun authenticate(loggedInUser: LoggedInUser): LoggedInUser? {
+        val result = dataSource.updateJWTToken(loggedInUser)
+        if (result is Result.Success) {
+            saveLoggedInUser(result.data)
+            return result.data
+        }
+        return null
     }
 
     /**
