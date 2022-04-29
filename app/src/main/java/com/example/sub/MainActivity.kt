@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.ActivityPermissionBinding
 import com.example.sub.session.CallHandler
@@ -74,6 +75,14 @@ class MainActivity : AppCompatActivity() {
 
             callDialog.setOnAnswer {
                 callSession.accept(applicationContext)
+                val navController = callDialog.findNavController()
+
+                val bundle = Bundle()
+                bundle.putString("first_name", user.firstName)
+                bundle.putString("last_name", user.lastName)
+                bundle.putString("phone_nr", user.number)
+
+                navController.navigate(R.id.callingFragment, bundle)
                 //TODO: go to CallingFragment
             }
 
