@@ -24,6 +24,7 @@ import com.xwray.groupie.Item
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.concurrent.schedule
+import kotlin.math.pow
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -92,24 +93,21 @@ class CallingFragment : Fragment() {
 
         receivingTimer.schedule(1000, 1000) {
             var removeIds = mutableListOf<Int>()
-            var index = 0
             for (textid in receivingIds){
                 Log.e("Looking for answer", textid.toString())
                 var answer = transcriptionclient.getAnswer(textid)
                 if (answer == ""){
-                    transcriptionclient.sendAnswer(textid, "receiving")
+                    transcriptionclient.sendAnswer(textid, "receiver")
                 }
                 else{
                     removeIds.add(textid)
                     getActivity()?.runOnUiThread(java.lang.Runnable{
-                        updateUI(answer, "receiving")
-                        playSound(receivingSounds[index])
-                        receivingSounds.removeAt(index)
-                        index -= 1
+                        updateUI(answer, "receiver")
+                        playSound(receivingSounds[0])
+                        receivingSounds.removeAt(0)
                     })
                     Log.e("answer", answer)
                 }
-                index += 1
             }
             for (textid in removeIds) {
                 receivingIds.remove(textid)
@@ -216,6 +214,7 @@ class CallingFragment : Fragment() {
 
         // Temporary. Initiate a call request to the contact
         callSession = CallHandler.getInstance().activeSession
+        callSession!!.sessionListeners.add(ByteHandler(receivingIds, receivingSounds))
 
 
     }
@@ -244,7 +243,7 @@ class CallingFragment : Fragment() {
         var sounds = sounds
         override fun onBytesMessage(bytes: ByteArray) {
             Log.e("Bytes received", bytes.toString())
-            var id = 3*256*bytes[0]+2*256*bytes[1]+1*256*bytes[2]+bytes[3]
+            var id = 256.toDouble().pow(3).toInt()*(bytes[0].toUByte().toInt())+256.toDouble().pow(2).toInt()*(bytes[1].toUByte().toInt())+256*(bytes[2].toUByte().toInt())+(bytes[3].toUByte().toInt())
             Log.e("Received id is", id.toString())
             receivingIds.add(receivingIds.size, id)
             sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
