@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sub.session.CallHandler
+import com.example.sub.session.CallSession
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
@@ -33,7 +34,7 @@ class CallingFragment : Fragment() {
     private var adapter = GroupieAdapter()
     private lateinit var userName : TextView
 
-
+    private var callSession: CallSession? = null
 
     private var navController: NavController? = null
 
@@ -59,7 +60,7 @@ class CallingFragment : Fragment() {
             bundle.putString("last_name", lastName)
             bundle.putString("phone_nr", phoneNr)
 
-            // TODO: Action when close call, disconnect call from server??
+            callSession?.hangUp()
 
             navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
 
@@ -129,8 +130,7 @@ class CallingFragment : Fragment() {
     // Temporary. Call contact based on phone number
     private fun callContact(remotePhoneNumber: String) {
         val callHandler = CallHandler.getInstance()
-
-        callHandler.call(remotePhoneNumber, requireContext())
+        callSession = callHandler.call(remotePhoneNumber, requireContext())
     }
 }
 
