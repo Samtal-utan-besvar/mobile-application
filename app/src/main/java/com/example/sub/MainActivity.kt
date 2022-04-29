@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var layout: View
     private lateinit var binding: ActivityPermissionBinding
     private lateinit var loggedInUser: LoggedInUser
+    private lateinit var contactList : MutableList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +35,13 @@ class MainActivity : AppCompatActivity() {
         setUpWebRTC()
     }
 
+    fun getContactList() : MutableList<User> {
+        return contactList
+    }
 
+    fun setContactList(contactList_ : MutableList<User>) {
+        contactList = contactList_
+    }
     /**
      * Sets up webRTC and signal client.
      */
@@ -46,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         // Crucial part.
         SignalClient.connect(token)
         CallHandler.initInstance(SignalClient, localPhoneNumber)
-
         CallHandler.getInstance().callReceivedListeners.add( CallListener() )
     }
 
