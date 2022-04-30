@@ -14,6 +14,7 @@ import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sub.session.CallHandler
 import com.example.sub.session.CallSession
+import com.example.sub.session.SessionListener
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
@@ -35,6 +36,9 @@ class CallingFragment : Fragment() {
     private lateinit var userName : TextView
 
     private var callSession: CallSession? = null
+    var firstName: String? = null
+    var lastName: String? = null
+    var phoneNr: String? = null
 
     private var navController: NavController? = null
 
@@ -47,23 +51,16 @@ class CallingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        val firstName = arguments?.getString("first_name")
-        val lastName = arguments?.getString("last_name")
-        val phoneNr = arguments?.getString("phone_nr")
+        firstName = arguments?.getString("first_name")
+        lastName = arguments?.getString("last_name")
+        phoneNr = arguments?.getString("phone_nr")
 
         userName = view.findViewById(R.id.caller_name)
         userName.text = firstName
         navController = findNavController(view.findViewById(R.id.closeCall))
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("first_name", firstName)
-            bundle.putString("last_name", lastName)
-            bundle.putString("phone_nr", phoneNr)
-
-            navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
-
             callSession?.hangUp()
-
+            //closeCall()
         }
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
         recyclerView.adapter = adapter
@@ -116,6 +113,22 @@ class CallingFragment : Fragment() {
         simpleChronometer.start() // start a chronometer
 
         callSession = CallHandler.getInstance().activeSession
+        callSession?.sessionListeners?.add( SessionChangeHandler() )
+    }
+
+    inner class SessionChangeHandler : SessionListener {
+        override fun onSessionEnded() {
+            closeCall()
+        }
+    }
+
+    private fun closeCall() {
+        val bundle = Bundle()
+        bundle.putString("first_name", firstName)
+        bundle.putString("last_name", lastName)
+        bundle.putString("phone_nr", phoneNr)
+
+        navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
     }
 
     companion object {
