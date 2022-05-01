@@ -21,12 +21,23 @@ class LoginDataSource {
     private val url = "http://144.24.171.133:8080/" // home url to database server
     private val urlLocal = "http://10.0.2.2:8080/"  // local url to database. Emulator requires '10.0.2.2' instead of 'localhost'
 
-
-    suspend fun register(username: String, password: String): Result<LoggedInUser> {
+    /**
+     * Creates a registration request based on the prompts filled in for 'RegistrationFragment'.
+     * TODO: fix better error handeling
+     */
+    suspend fun register(username: String, password: String, firstname: String,
+                         lastname: String, email: String): Result<LoggedInUser> {
         return try {
-            // TODO: handle loggedInUser authentication
-            val fakeUser = LoggedInUser("1", "Jane Registration")
-            Result.Success(fakeUser)
+            withContext(Dispatchers.IO) {
+                val createURL = url + "create_user"
+                val request = RegistrationRequest(firstname, lastname, username, email, password)
+                val (_, _, result) = createURL.httpPost()
+                    .jsonBody(Gson().toJson(request).toString())
+                    .responseString()
+
+                val loggedInUser = LoggedInUser(result.component1()!!.removeQuotationMarks(), null)
+                Result.Success(loggedInUser)
+            }
         } catch (e: Throwable) {
             Result.Error(IOException("Error logging in", e))
         }
@@ -111,3 +122,13 @@ data class LoginCredentials(
     val password: String
 )
 
+/**
+ * Data class that contains registration information used to make an HTTP Post request
+ */
+data class RegistrationRequest(
+    val firstname: String,
+    val lastname: String,
+    val phone_number: String,
+    val email: String,
+    val password: String
+)

@@ -57,8 +57,9 @@ class LoginRepository(val dataSource: LoginDataSource, context: Context?) {
     /**
      * Calls register from the data source and saves the loggedInUser object if the result succeeded.
      */
-    suspend fun register(username: String, password: String): Result<LoggedInUser> {
-        val result = dataSource.register(username, password)
+    suspend fun register(username: String, password: String, cpassword: String, name: String,
+                         surname: String, email: String): Result<LoggedInUser> {
+        val result = dataSource.register(username, password, name, surname, email)
         if (result is Result.Success) {
             setLoggedInUser(result.data)
         }

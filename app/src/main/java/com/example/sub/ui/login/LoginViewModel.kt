@@ -28,8 +28,9 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
         }
     }
 
-    suspend fun register(username: String, password: String) {
-        val result = loginRepository.register(username, password)
+    suspend fun register(username: String, password: String, cpassword: String, name: String,
+                         surname: String, email: String) {
+        val result = loginRepository.register(username, password, cpassword, name, surname, email)
         if (result is Result.Success) {
             _loginResult.postValue(LoginResult(success = LoggedInUserView(displayName = result.data.displayName)))
         } else {
@@ -51,11 +52,13 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
         }
     }
 
-    fun registrationDataChanged(email: String, password: String) {
+    fun registrationDataChanged(email: String, password: String, cpassword: String) {
         if (!isEmailValid(email)) {
             _loginForm.value = LoginFormState(emailError = R.string.invalid_mail)
         } else if (!isPasswordValid(password)) {
             _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
+        }else if (password!=cpassword) {
+            _loginForm.value = LoginFormState(passwordError = R.string.password_unmatched)
         } else {
             _loginForm.value = LoginFormState(isDataValid = true)
         }

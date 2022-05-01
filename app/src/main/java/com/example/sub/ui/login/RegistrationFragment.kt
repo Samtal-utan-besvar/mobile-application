@@ -49,6 +49,15 @@ class RegistrationFragment : Fragment() {
         val loadingProgressBar = binding.loading
         val toRegistrationButton = binding.toLogin
 
+        // Registration
+        val phoneEditText = binding.username
+        val regpasswordEditText = binding.password
+        val cpasswordEditText = binding.cpassword
+        val nameEditText = binding.regFirstname
+        val surnameEditText = binding.regSurname
+        val emailEditText = binding.regEmail
+
+
         // Checks if the typed email and password follow the defined format in LoginViewModel.
         loginViewModel.loginFormState.observe(viewLifecycleOwner,
             Observer { loginFormState ->
@@ -91,6 +100,7 @@ class RegistrationFragment : Fragment() {
             override fun afterTextChanged(s: Editable) {
                 loginViewModel.registrationDataChanged(
                     usernameEditText.text.toString(),
+                    cpasswordEditText.text.toString(),
                     passwordEditText.text.toString()
                 )
             }
@@ -106,8 +116,13 @@ class RegistrationFragment : Fragment() {
                 viewLifecycleOwner.lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         loginViewModel.register(
-                            usernameEditText.text.toString(),
-                            passwordEditText.text.toString())
+                            phoneEditText.text.toString(),
+                            regpasswordEditText.text.toString(),
+                            cpasswordEditText.text.toString(),
+                            nameEditText.text.toString(),
+                            surnameEditText.text.toString(),
+                            emailEditText.text.toString()
+                        )
                     }
                 }
             }
@@ -120,8 +135,12 @@ class RegistrationFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
                     loginViewModel.register(
-                        usernameEditText.text.toString(),
-                        passwordEditText.text.toString()
+                        phoneEditText.text.toString(),
+                        regpasswordEditText.text.toString(),
+                        cpasswordEditText.text.toString(),
+                        nameEditText.text.toString(),
+                        surnameEditText.text.toString(),
+                        emailEditText.text.toString()
                     )
                 }
             }
@@ -130,6 +149,8 @@ class RegistrationFragment : Fragment() {
         toRegistrationButton.setOnClickListener {
             navController!!.navigate(R.id.action_registrationFragment2_to_loginFragment2)
         }
+
+
     }
 
     /**
