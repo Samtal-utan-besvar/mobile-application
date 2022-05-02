@@ -1,15 +1,21 @@
 package com.example.sub
 
 import android.Manifest
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.sub.data.LoggedInUser
@@ -35,6 +41,21 @@ class MainActivity : AppCompatActivity() {
         loggedInUser = intent.getSerializableExtra("loggedInUser") as LoggedInUser
 
         setUpWebRTC()
+
+        // asks for permission to record audio
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+            } else {
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+            }
+        }
     }
 
     fun getContactList() : MutableList<User> {
@@ -130,6 +151,58 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+                                            grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            1 -> {
+                if (grantResults.isNotEmpty() && grantResults[0] ==
+                    PackageManager.PERMISSION_GRANTED) {
+                    if ((ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION) ==
+                                PackageManager.PERMISSION_GRANTED)) {
+                        Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+//                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this, "Appen behöver få åtkomst till mobilens microfon för att fungera", Toast.LENGTH_SHORT).show()
+//                    showNoticeDialog()
+
+                    // build alert dialog
+                    val dialogBuilder = AlertDialog.Builder(this)
+
+                    // set message of alert dialog
+                    dialogBuilder.setMessage("Appen behöver tillgång till mikrofon. Öppna appinställningar och ändra permissions.")
+                        // if the dialog is cancelable
+                        .setCancelable(false)
+                        // positive button text and action
+                        .setPositiveButton("Öppna inställningar", DialogInterface.OnClickListener {
+                                _, _ -> //finish()
+                            val i = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            i.addCategory(Intent.CATEGORY_DEFAULT)
+                            i.data = Uri.parse("package:$packageName")
+                            startActivity(i)
+
+                        })
+                        // negative button text and action
+                        .setNegativeButton("Avsluta appen", DialogInterface.OnClickListener {
+                                _, _ -> finish()
+                        })
+
+                    // create dialog box
+                    val alert = dialogBuilder.create()
+                    // set title for alert dialog box
+                    alert.setTitle("AlertDialogExample")
+                    // show alert dialog
+                    alert.show()
+
+
+                }
+                return
+            }
+        }
+    }
+
     fun onClickRequestPermission(view: View) {
         when {
             ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
@@ -157,6 +230,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 }
 
 fun View.showSnackbar(
