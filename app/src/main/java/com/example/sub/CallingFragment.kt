@@ -226,6 +226,9 @@ class CallingFragment : Fragment() {
         else if (ownerType=="receiver"){
             adapter.add(ChatFromItem(message))
         }
+        if (adapter.itemCount > 2){
+            adapter.removeGroupAtAdapterPosition(0)
+        }
         adapter!!.notifyDataSetChanged()
     }
 
