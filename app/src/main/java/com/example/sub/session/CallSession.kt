@@ -236,7 +236,9 @@ class CallSession private constructor(val signalClient: SignalClient,
      */
     private fun endSession() {
         rtcClient?.endCall()
-        sessionListeners.forEach { it.onSessionEnded() }
+        sessionListeners.forEach {
+            it.onSessionEnded()
+        }
     }
 
 

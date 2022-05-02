@@ -25,6 +25,8 @@ import java.nio.ByteBuffer
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.math.pow
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -44,6 +46,9 @@ class CallingFragment : Fragment() {
     private lateinit var userName : TextView
 
     private var callSession: CallSession? = null
+    var firstName: String? = null
+    var lastName: String? = null
+    var phoneNr: String? = null
 
     private var navController: NavController? = null
 
@@ -113,23 +118,16 @@ class CallingFragment : Fragment() {
             }
         }
 
-        val firstName = arguments?.getString("first_name")
-        val lastName = arguments?.getString("last_name")
-        val phoneNr = arguments?.getString("phone_nr")
+        firstName = arguments?.getString("first_name")
+        lastName = arguments?.getString("last_name")
+        phoneNr = arguments?.getString("phone_nr")
 
         userName = view.findViewById(R.id.caller_name)
         userName.text = firstName
         navController = findNavController(view.findViewById(R.id.closeCall))
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("first_name", firstName)
-            bundle.putString("last_name", lastName)
-            bundle.putString("phone_nr", phoneNr)
-
-            navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
-
             callSession?.hangUp()
-
+            //closeCall()
         }
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
         recyclerView.adapter = adapter
@@ -218,8 +216,7 @@ class CallingFragment : Fragment() {
         // Temporary. Initiate a call request to the contact
         callSession = CallHandler.getInstance().activeSession
         callSession!!.sessionListeners.add(ByteHandler(receivingIds, receivingSounds))
-
-
+        callSession?.sessionListeners?.add(SessionChangeHandler())
     }
 
     fun updateUI(message: String, ownerType: String){
@@ -233,6 +230,31 @@ class CallingFragment : Fragment() {
     }
 
     fun playSound(sound: ByteArray){
+    }
+
+    inner class SessionChangeHandler : SessionListener {
+        override fun onSessionEnded() {
+            closeCall()
+        }
+    }
+
+
+    /**
+     * Navigates back to the profile fragment.
+     */
+    private fun closeCall() {
+        val bundle = Bundle()
+        bundle.putString("first_name", firstName)
+        bundle.putString("last_name", lastName)
+        bundle.putString("phone_nr", phoneNr)
+
+        // Navigate using global scope.
+        GlobalScope.launch {
+            try {
+                navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
+            } catch (e: Exception) {}
+        }
+
     }
 
     companion object {
