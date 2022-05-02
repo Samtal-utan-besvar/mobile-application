@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 
 import androidx.fragment.app.Fragment
 
@@ -17,8 +18,9 @@ class CallingToFragment : Fragment() {
     private lateinit var profileFirstName: String
     private lateinit var profileLastName : String
     private lateinit var profilePhoneNumber : String
+    private lateinit var userName : TextView
 
-    private lateinit var userName : String
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -31,12 +33,11 @@ class CallingToFragment : Fragment() {
      * profile
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
+        userName = view.findViewById(R.id.caller_name)
         profileFirstName = arguments?.getString("first_name")!!
         profileLastName = arguments?.getString("last_name")!!
         profilePhoneNumber = arguments?.getString("phone_nr")!!
-
-        //userName = view.findViewById(R.id.calling_to_name)
+        userName.text = profileFirstName
 
 
         val bundle = Bundle()
