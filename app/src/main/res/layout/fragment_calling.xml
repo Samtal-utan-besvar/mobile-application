@@ -123,6 +123,7 @@
         app:maxImageSize="40dp"
         app:tint="@color/white"
         app:useCompatPadding="false" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_calling"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
