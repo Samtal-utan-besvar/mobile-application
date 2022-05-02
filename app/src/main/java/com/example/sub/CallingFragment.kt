@@ -18,6 +18,8 @@ import com.example.sub.session.SessionListener
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -122,13 +124,23 @@ class CallingFragment : Fragment() {
         }
     }
 
+
+    /**
+     * Navigates back to the profile fragment.
+     */
     private fun closeCall() {
         val bundle = Bundle()
         bundle.putString("first_name", firstName)
         bundle.putString("last_name", lastName)
         bundle.putString("phone_nr", phoneNr)
 
-        navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
+        // Navigate using global scope.
+        GlobalScope.launch {
+            try {
+                navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
+            } catch (e: Exception) {}
+        }
+
     }
 
     companion object {
