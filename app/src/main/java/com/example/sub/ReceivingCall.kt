@@ -42,11 +42,26 @@ class ReceivingCall : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         var navController: NavController? = null
+        val firstName = arguments?.getString("first_name")
+        val lastName = arguments?.getString("last_name")
+        val phoneNr = arguments?.getString("phone_nr")
 
-        navController = Navigation.findNavController(view.findViewById(R.id.stopCalling))
-        view.findViewById<View>(R.id.stopCalling).setOnClickListener {
+        navController = Navigation.findNavController(view.findViewById(R.id.callButtonReceivingCall))
+        view.findViewById<View>(R.id.callButtonReceivingCall).setOnClickListener {
             val bundle = Bundle()
+            bundle.putString("first_name", firstName)
+            bundle.putString("last_name", lastName)
+            bundle.putString("phone_nr", phoneNr)
             navController?.navigate(R.id.action_receivingCall_to_callingFragment, bundle)
+
+        }
+        navController = Navigation.findNavController(view.findViewById(R.id.refuseCallReceivingCall))
+        view.findViewById<View>(R.id.refuseCallReceivingCall).setOnClickListener {
+            val bundle = Bundle()
+            bundle.putString("first_name", firstName)
+            bundle.putString("last_name", lastName)
+            bundle.putString("phone_nr", phoneNr)
+            navController?.navigate(R.id.action_receivingCall_to_profileFragment, bundle)
 
         }
     }
