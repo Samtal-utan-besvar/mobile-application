@@ -1,12 +1,17 @@
 package com.example.sub
 
 import android.app.Application
+<<<<<<< HEAD
 import android.util.Log
+=======
+import android.app.PendingIntent.getActivity
+>>>>>>> main
 import androidx.lifecycle.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
+<<<<<<< HEAD
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.ContentType.Application.Json
@@ -18,15 +23,33 @@ import org.json.JSONArray
 import org.json.JSONTokener
 import io.ktor.client.plugins.*
 import io.ktor.serialization.*
+=======
+import io.ktor.http.*
+import io.ktor.http.HttpHeaders.Accept
+import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.*
+import org.json.JSONArray
+import org.json.JSONTokener
+>>>>>>> main
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 internal class ProfileFragmentViewModel(application: Application) : AndroidViewModel(application) {
     private val users: MutableLiveData<List<User>> = MutableLiveData()
     private var userToken = ""
     private var errorMessage = ""
     private val context = getApplication<Application>().applicationContext
+<<<<<<< HEAD
+=======
+    private val url = "http://144.24.171.133:8080/" // home url to database server
+    private val urlLocal = "http://10.0.2.2:8080/"  // local url to database. Emulator requires '10.0.2.2' instead of 'localhost'
+
+>>>>>>> main
 
     /** Fetches all contacts of a user to put in the contactlist **/
     fun getUsers(): LiveData<List<User>> {
@@ -52,7 +75,11 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
         var allUsers: MutableList<User> = ArrayList()
         var token : String = userToken
         val client = HttpClient(CIO)
+<<<<<<< HEAD
         val response: HttpResponse = client.request("http://144.24.171.133:8080/get_contacts") {
+=======
+        val response: HttpResponse = client.request(url + "get_contacts") {
+>>>>>>> main
             method = HttpMethod.Get
             headers{
                 append(Accept, "*/*")
@@ -80,7 +107,7 @@ internal class ProfileFragmentViewModel(application: Application) : AndroidViewM
             }
         }
         var token: String = userToken
-        val response: HttpResponse = client.post("http://144.24.171.133:8080/add_contact") {
+        val response: HttpResponse = client.post(url + "add_contact") {
             contentType(ContentType.Application.Json)
             setBody(Contact(phone))
             headers {

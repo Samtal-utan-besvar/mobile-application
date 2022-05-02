@@ -13,7 +13,8 @@
         tools:layout="@layout/fragment_profile">
         <action
             android:id="@+id/action_ProfileFragment_to_userProfileFragment"
-            app:destination="@id/userProfileFragment" />
+            app:destination="@id/userProfileFragment"
+            app:enterAnim="@anim/nav_default_enter_anim" />
     </fragment>
     <fragment
         android:id="@+id/callingFragment"
@@ -22,7 +23,8 @@
         tools:layout="@layout/fragment_calling" >
         <action
             android:id="@+id/action_callingFragment_to_userProfileFragment"
-            app:destination="@id/userProfileFragment" />
+            app:destination="@id/userProfileFragment"
+            app:enterAnim="@anim/nav_default_enter_anim" />
     </fragment>
     <fragment
         android:id="@+id/userProfileFragment"
@@ -31,9 +33,22 @@
         tools:layout="@layout/fragment_user_profile">
         <action
             android:id="@+id/action_userProfileFragment_to_callingFragment"
-            app:destination="@id/callingFragment" />
+            app:destination="@id/callingFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:popEnterAnim="@anim/nav_default_enter_anim"
+            app:popUpTo="@id/callingFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_userProfileFragment_to_ProfileFragment"
-            app:destination="@id/ProfileFragment" />
+            app:destination="@id/ProfileFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popUpTo="@id/ProfileFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_ProfileFragment2"
+            app:destination="@id/ProfileFragment"
+            app:popUpTo="@id/ProfileFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

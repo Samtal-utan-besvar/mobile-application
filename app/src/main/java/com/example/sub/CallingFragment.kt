@@ -5,14 +5,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Chronometer
+import android.widget.TextView
 import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sub.session.CallHandler
+import com.example.sub.session.CallSession
+import com.example.sub.session.SessionListener
+import com.xwray.groupie.GroupieAdapter
+import com.xwray.groupie.GroupieViewHolder
+import com.xwray.groupie.Item
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -26,7 +33,17 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class CallingFragment : Fragment() {
+
+    private var adapter = GroupieAdapter()
+    private lateinit var userName : TextView
+
+    private var callSession: CallSession? = null
+    var firstName: String? = null
+    var lastName: String? = null
+    var phoneNr: String? = null
+
     private var navController: NavController? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,20 +52,44 @@ class CallingFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        navController = findNavController(view)
+
+        firstName = arguments?.getString("first_name")
+        lastName = arguments?.getString("last_name")
+        phoneNr = arguments?.getString("phone_nr")
+
+        userName = view.findViewById(R.id.caller_name)
+        userName.text = firstName
+        navController = findNavController(view.findViewById(R.id.closeCall))
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
-            // TODO: Action when close call, disconnect call from server?
-            navController!!.navigate(
-                R.id.action_callingFragment_to_userProfileFragment
-            )
+            callSession?.hangUp()
+            //closeCall()
         }
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
+        recyclerView.adapter = adapter
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatFromItem("blablablablabla"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
+
+
 
         // onClick for Speaker toggleButton
         val toggleButtonSilentMode: ToggleButton = view.findViewById(R.id.toggleButtonSilentMode)
         toggleButtonSilentMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when speaker is on
-                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()     // remove
+                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
             } else {
                 // TODO: Action when speaker is off
                 Toast.makeText(activity, "speaker off", Toast.LENGTH_LONG).show()    // remove
@@ -72,6 +113,34 @@ class CallingFragment : Fragment() {
         val simpleChronometer =
             view.findViewById(R.id.simpleChronometer) as Chronometer // initiate a chronometer
         simpleChronometer.start() // start a chronometer
+
+        callSession = CallHandler.getInstance().activeSession
+        callSession?.sessionListeners?.add( SessionChangeHandler() )
+    }
+
+    inner class SessionChangeHandler : SessionListener {
+        override fun onSessionEnded() {
+            closeCall()
+        }
+    }
+
+
+    /**
+     * Navigates back to the profile fragment.
+     */
+    private fun closeCall() {
+        val bundle = Bundle()
+        bundle.putString("first_name", firstName)
+        bundle.putString("last_name", lastName)
+        bundle.putString("phone_nr", phoneNr)
+
+        // Navigate using global scope.
+        GlobalScope.launch {
+            try {
+                navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
+            } catch (e: Exception) {}
+        }
+
     }
 
     companion object {
@@ -79,5 +148,23 @@ class CallingFragment : Fragment() {
             return CallingFragment()
         }
     }
+
 }
+
+class ChatFromItem(val text: String): Item<GroupieViewHolder>(){
+    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+        viewHolder.itemView.findViewById<TextView>(R.id.text_view_from).text = text
+
+    }
+
+    override fun getLayout() = R.layout.chat_from_row
+}
+class ChatToItem(val text:String): Item<GroupieViewHolder>(){
+    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
+        viewHolder.itemView.findViewById<TextView>(R.id.text_view_to).text = text
+    }
+
+    override fun getLayout() = R.layout.chat_to_row
+}
+
 

@@ -87,4 +87,8 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
     fun getUser(): LoggedInUser? {
         return loginRepository.user
     }
+
+    fun logout() {
+        loginRepository.logout()
+    }
 }
