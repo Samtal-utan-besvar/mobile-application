@@ -35,6 +35,8 @@ class MainActivity : AppCompatActivity() {
         loggedInUser = intent.getSerializableExtra("loggedInUser") as LoggedInUser
 
         setUpWebRTC()
+
+        Log.d("debug", "---- START MAIN ----")
     }
 
     fun getContactList() : MutableList<User> {
