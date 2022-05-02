@@ -15,7 +15,6 @@ class CallHandler private constructor(
     var callReceivedListeners = ArrayList<CallReceivedListener>()
     var activeSession: CallSession? = null
         private set(session) {
-            field?.sessionListeners?.remove(this)
             field = session
             session?.sessionListeners?.add(this)
             Log.d("CallHandler", "Active session changed to: $activeSession")

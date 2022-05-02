@@ -109,6 +109,7 @@ object SignalClient {
             super.onFailure(webSocket, t, response)
             val msg = response?.message ?: t.message ?: ""
             Log.d("Signal-fail", msg)
+            throw t
         }
     }
 
