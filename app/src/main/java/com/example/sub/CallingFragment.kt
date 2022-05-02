@@ -168,7 +168,7 @@ class CallingFragment : Fragment() {
                         transcriptionclient.sendAnswer(id, "owner")
                         textIds.add(id)
 
-                        var file = File.createTempFile("output", "tmp", context!!.cacheDir)
+                        var file = File.createTempFile("output", "mp3", context!!.cacheDir)
                         file.writeBytes(bigbuff)
                         var replayFileStream = FileInputStream(file)
                         Log.d("file: ", file.toUri().toString())
