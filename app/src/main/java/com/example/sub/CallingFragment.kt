@@ -115,7 +115,7 @@ class CallingFragment : Fragment() {
         simpleChronometer.start() // start a chronometer
 
         callSession = CallHandler.getInstance().activeSession
-        callSession?.sessionListeners?.add( SessionChangeHandler() )
+        callSession?.addListener( SessionChangeHandler() )
     }
 
     inner class SessionChangeHandler : SessionListener {
