@@ -215,8 +215,7 @@ class CallingFragment : Fragment() {
 
         // Temporary. Initiate a call request to the contact
         callSession = CallHandler.getInstance().activeSession
-        callSession!!.sessionListeners.add(ByteHandler(receivingIds, receivingSounds))
-        callSession?.sessionListeners?.add(SessionChangeHandler())
+        callSession?.addListener( SessionChangeHandler(receivingIds, receivingSounds) )
     }
 
     fun updateUI(message: String, ownerType: String){
@@ -235,9 +234,22 @@ class CallingFragment : Fragment() {
     fun playSound(sound: ByteArray){
     }
 
-    inner class SessionChangeHandler : SessionListener {
+
+    inner class SessionChangeHandler(receivingIds: MutableList<Int>, sounds: MutableList<ByteArray>) : SessionListener {
         override fun onSessionEnded() {
             closeCall()
+        }
+        var receivingIds = receivingIds
+        var sounds = sounds
+        override fun onBytesMessage(bytes: ByteArray) {
+            Log.e("Bytes received", bytes.toString())
+            //Converting the first 4 bytes of the bytearray back to an int that will be used as id for transcription server
+            var id = 256.toDouble().pow(3).toInt()*(bytes[0].toUByte().toInt())+256.toDouble().pow(2).toInt()*(bytes[1].toUByte().toInt())+256*(bytes[2].toUByte().toInt())+(bytes[3].toUByte().toInt())
+            Log.e("Received id is", id.toString())
+            //Add to the list of incoming transcriptions.
+            receivingIds.add(receivingIds.size, id)
+            //Since first 4 bytes is the manually attached id, dont copy thoose.
+            sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
         }
     }
 
@@ -263,21 +275,6 @@ class CallingFragment : Fragment() {
     companion object {
         fun newInstance(): CallingFragment {
             return CallingFragment()
-        }
-    }
-
-    internal class ByteHandler(receivingIds: MutableList<Int>, sounds: MutableList<ByteArray>) : SessionListener {
-        var receivingIds = receivingIds
-        var sounds = sounds
-        override fun onBytesMessage(bytes: ByteArray) {
-            Log.e("Bytes received", bytes.toString())
-            //Converting the first 4 bytes of the bytearray back to an int that will be used as id for transcription server
-            var id = 256.toDouble().pow(3).toInt()*(bytes[0].toUByte().toInt())+256.toDouble().pow(2).toInt()*(bytes[1].toUByte().toInt())+256*(bytes[2].toUByte().toInt())+(bytes[3].toUByte().toInt())
-            Log.e("Received id is", id.toString())
-            //Add to the list of incoming transcriptions.
-            receivingIds.add(receivingIds.size, id)
-            //Since first 4 bytes is the manually attached id, dont copy thoose.
-            sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
         }
     }
 

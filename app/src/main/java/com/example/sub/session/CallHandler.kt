@@ -17,7 +17,7 @@ class CallHandler private constructor(
         private set(session) {
             //field?.sessionListeners?.remove(this)
             field = session
-            session?.sessionListeners?.add(this)
+            session?.addListener(this)
             Log.d("CallHandler", "Active session changed to: $activeSession")
         }
 
