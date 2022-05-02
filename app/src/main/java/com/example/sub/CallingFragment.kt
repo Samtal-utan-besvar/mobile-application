@@ -82,7 +82,6 @@ class CallingFragment : Fragment() {
                     getActivity()?.runOnUiThread(java.lang.Runnable{
                         updateUI(answer, "owner")
                     })
-
                     Log.e("answer", answer)
                 }
             }
@@ -174,13 +173,17 @@ class CallingFragment : Fragment() {
 
 
                         recordTimer.schedule(5000, 5000) {
-                            if(microphoneHandler.recording.get()){
-                                id = id?.plus(1)
+                            if(microphoneHandler.getRecordingStatus()){
+                                id = id.plus(1)
                                 val bigbuff = microphoneHandler.StopAudioRecording()
                                 microphoneHandler.StartAudioRecording()
-                                transcriptionclient.sendSound(id!!, bigbuff)
-                                transcriptionclient.sendAnswer(id!!, "owner")
-                                ownerIds.add(id!!)
+                                transcriptionclient.sendSound(id, bigbuff)
+                                transcriptionclient.sendAnswer(id, "owner")
+                                ownerIds.add(id)
+                                var idBytes = ByteBuffer.allocate(4).putInt(id).array();
+                                Log.e("Id int ", id.toString())
+                                Log.e("Id bytes", idBytes.toString())
+                                callSession?.sendBytes(idBytes.plus(bigbuff))
                             }
                         }
                     }
@@ -188,13 +191,13 @@ class CallingFragment : Fragment() {
                         recordTimer.cancel()
                         recordTimer.purge()
                         recordTimer = Timer()
-                        id = id?.plus(1)
+                        id = id.plus(1)
                         transcribeButton.text = "press to record"
                         val bigbuff = microphoneHandler.StopAudioRecording()
-                        transcriptionclient.sendSound(id!!, bigbuff)
-                        transcriptionclient.sendAnswer(id!!, "owner")
-                        ownerIds.add(id!!)
-                        var idBytes = ByteBuffer.allocate(4).putInt(id).array();
+                        transcriptionclient.sendSound(id, bigbuff)
+                        transcriptionclient.sendAnswer(id, "owner")
+                        ownerIds.add(id)
+                        val idBytes = ByteBuffer.allocate(4).putInt(id).array();
                         Log.e("Id int ", id.toString())
                         Log.e("Id bytes", idBytes.toString())
                         callSession?.sendBytes(idBytes.plus(bigbuff))
@@ -243,9 +246,12 @@ class CallingFragment : Fragment() {
         var sounds = sounds
         override fun onBytesMessage(bytes: ByteArray) {
             Log.e("Bytes received", bytes.toString())
+            //Converting the first 4 bytes of the bytearray back to an int that will be used as id for transcription server
             var id = 256.toDouble().pow(3).toInt()*(bytes[0].toUByte().toInt())+256.toDouble().pow(2).toInt()*(bytes[1].toUByte().toInt())+256*(bytes[2].toUByte().toInt())+(bytes[3].toUByte().toInt())
             Log.e("Received id is", id.toString())
+            //Add to the list of incoming transcriptions.
             receivingIds.add(receivingIds.size, id)
+            //Since first 4 bytes is the manually attached id, dont copy thoose.
             sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
         }
     }

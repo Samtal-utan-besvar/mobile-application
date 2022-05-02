@@ -22,7 +22,11 @@ class MicrophoneHandler() {
     val sampleRate = 16000
     val channelConfig = AudioFormat.CHANNEL_IN_MONO
     val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-    @Volatile var recording = AtomicBoolean(true)
+    private @Volatile var recording = AtomicBoolean(true)
+
+    fun getRecordingStatus() : Boolean{
+        return recording.get()
+    }
 
     fun StartAudioRecording(){
         recording.set(true)
