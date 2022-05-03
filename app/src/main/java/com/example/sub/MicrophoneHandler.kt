@@ -1,10 +1,9 @@
 package com.example.sub
 
 import android.annotation.SuppressLint
-import android.media.AudioFormat
-import android.media.AudioRecord
-import android.media.MediaRecorder
+import android.media.*
 import android.util.Log
+import android.view.View
 import com.example.sub.transcription.TranscriptionClient
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.IO
@@ -18,6 +17,7 @@ import kotlin.concurrent.thread
 import kotlin.math.min
 
 class MicrophoneHandler() {
+
     private var recordingThread: Deferred<ByteArray>? = null
     val sampleRate = 16000
     val channelConfig = AudioFormat.CHANNEL_IN_MONO
@@ -34,6 +34,7 @@ class MicrophoneHandler() {
 
     }
 
+
     fun StopAudioRecording(): ByteArray {
 
         recording.set(false)
@@ -42,9 +43,7 @@ class MicrophoneHandler() {
 
         return soundBytes
 
-
     }
-
 
     @SuppressLint("MissingPermission")
     fun WriteAudioToDataFile(recording: AtomicBoolean): ByteArray {

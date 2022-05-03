@@ -43,9 +43,11 @@ class CallingFragment : Fragment() {
 
 
 
-    private var mediaRecorder = MediaRecorder()
+    private var intBufferSize = 0
+    private lateinit var bigbuff : ByteArray
 
-
+    private lateinit var audioRecord: AudioRecord
+    private lateinit var audioTrack: AudioTrack
     private var adapter = GroupieAdapter()
     private lateinit var userName : TextView
 
@@ -69,6 +71,8 @@ class CallingFragment : Fragment() {
         var answerTimer = Timer()
         var textIds = mutableListOf<Int>()
         var uri : Uri
+
+
 
         answerTimer.schedule(1000, 1000) {
             var removeIds = mutableListOf<Int>()
@@ -141,34 +145,48 @@ class CallingFragment : Fragment() {
         }
 
         view.findViewById<View>(R.id.playButton).setOnClickListener {
-            val music : MediaPlayer = MediaPlayer.create(activity, R.raw.sample)
-            music.start()
+            //val music : MediaPlayer = MediaPlayer.create(activity, R.raw.sample)
+            //music.start()
+            playSound(bigbuff, audioTrack)
         }
         val testMp3 = File.createTempFile("test", "3gp", requireContext().cacheDir)
         val transcribeButton = view.findViewById<Button>(R.id.buttonTranscribe)
         transcribeButton.setOnTouchListener(object : View.OnTouchListener {
-            @SuppressLint("SetTextI18n")
+            @SuppressLint("SetTextI18n", "MissingPermission")
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
                         microphoneHandler.StartAudioRecording()
                         transcribeButton.text = "recording"
-                        val outputDir : File = context!!.cacheDir
-                        val testMp3 = File.createTempFile("test", "3gp", outputDir)
-
-                        // Set the audio format and encoder
-                        // Set the audio format and encoder
-                        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
-                        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                        // Setup the output location
-                        // Setup the output location
-
-                        mediaRecorder.setOutputFile(context!!.cacheDir.absolutePath + "test.3gp")
-                        // Start the recording
-                        // Start the recording
-                        mediaRecorder.prepare()
-                        mediaRecorder.start()
+                        val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioAttributes.USAGE_MEDIA)
+                        intBufferSize = AudioRecord.getMinBufferSize(
+                                intRecordSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT
+                        )
+                        /**audioRecord = AudioRecord(
+                                MediaRecorder.AudioSource.MIC,
+                                intRecordSampleRate,
+                                AudioFormat.CHANNEL_IN_STEREO,
+                                AudioFormat.ENCODING_PCM_16BIT,
+                                intBufferSize
+                        )**/
+                        audioTrack = AudioTrack.Builder()
+                                .setAudioAttributes(
+                                        AudioAttributes.Builder()
+                                                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING)
+                                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                                .build()
+                                )
+                                .setAudioFormat(
+                                        AudioFormat.Builder()
+                                                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                                                .setSampleRate(16000)
+                                                .setChannelIndexMask(AudioFormat.CHANNEL_OUT_DEFAULT)
+                                                .build()
+                                )
+                                .setBufferSizeInBytes(intBufferSize)
+                                .build()
+                        audioTrack.playbackRate = 16000
+                        //audioRecord.startRecording()
 
                         recordTimer.schedule(5000, 5000) {
                             if(microphoneHandler.recording.get()){
@@ -187,78 +205,10 @@ class CallingFragment : Fragment() {
                         recordTimer = Timer()
                         id +=1
                         transcribeButton.text = "press to record"
-                        val bigbuff = microphoneHandler.StopAudioRecording()
-
-                        mediaRecorder.stop();
-                        mediaRecorder.reset();
-                        mediaRecorder.release();
-
-                        val musicPlayer = MediaPlayer()
-                        musicPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-
-                        println(context!!.cacheDir.absolutePath + "test.3gp")
-                        musicPlayer.setDataSource(context!!.cacheDir.absolutePath + "test.3gp")
-                        musicPlayer.prepare() // must call prepare first
-                        musicPlayer.start()
-                        //val bigbuffupdated = bigbuff.copyOfRange(45,bigbuff.size)
-                        //val tempMp3 = File.createTempFile("temp", "wav", context!!.cacheDir)
-                        //tempMp3.deleteOnExit()
-                        //val fos = FileOutputStream(tempMp3)
-                        //fos.write(bigbuffupdated)
-                        //fos.close()
-
-                        //val byteArrayInputStream = ByteArrayInputStream(bigbuff)
-                        //val musicPlayer = MediaPlayer()
-                       // musicPlayer.reset()
-                        //val fis = FileInputStream(tempMp3)
-                        //musicPlayer.setDataSource(fis.fd)
-                        //musicPlayer.prepareAsync()
-                        //musicPlayer.setOnPreparedListener {
-                        //    musicPlayer.start()
-                        //    println("nu är jag här!")
-                       // }
-
+                        bigbuff = microphoneHandler.StopAudioRecording()
                         transcriptionclient.sendSound(id, bigbuff)
                         transcriptionclient.sendAnswer(id, "owner")
                         textIds.add(id)
-
-
-
-
-
-                        //var file = File.createTempFile("output", "tmp", context!!.cacheDir)
-                        //file.writeBytes(bigbuff)
-                        //var replayFileStream = FileInputStream(file)
-                        //Log.d("file: ", file.toUri().toString())
-                           // Log.d("SNÄLLA KOM IN HIT", "SNÄLLA KOM IN HIT")
-                            /**    if (!file.toUri().equals(Uri.EMPTY)) {
-                                var mediaPlayer = MediaPlayer()
-                                Log.d("vanlig fil", file.toString())
-                                Log.d("konstig fil", file.toUri().toString())
-
-                                val fd = replayFileStream?.fd
-                                mediaPlayer.setDataSource(fd)
-                               //  below line is use to prepare
-                                // and start our media player.
-                                mediaPlayer.prepareAsync()
-                                mediaPlayer.setOnPreparedListener(object: MediaPlayer.OnPreparedListener {
-                                  override fun onPrepared(mediaPlayer:MediaPlayer) {
-                                        mediaPlayer.start()
-                                   }
-                                })
-                                Log.d("testar", file.toUri().toString())
-                                mediaPlayer = MediaPlayer.create(context, file.toUri())
-                            }**/
-
-
-
-
-
-
-
-
-
-
                     }
 
                 }
@@ -277,7 +227,20 @@ class CallingFragment : Fragment() {
         callContact(phoneNr!!)
     }
 
-
+    fun playSound(buff: ByteArray, at: AudioTrack){
+        audioTrack.play()
+        //audioTrack.write(bigbuff, 0, bigbuff.size)
+        //
+        var count = 0;
+        while (count < buff.size) {
+            val written : Int = audioTrack.write(buff, count, buff.size);
+            if (written <= 0) {
+                break;
+            }
+            count += written
+        }
+        audioTrack.release()
+    }
 
 
 
