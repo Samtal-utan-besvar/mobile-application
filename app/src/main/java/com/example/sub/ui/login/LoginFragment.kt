@@ -103,7 +103,7 @@ class LoginFragment : Fragment() {
                     passwordEditText.text.toString()
                 )
             }
-            true
+            false
         }
 
         // Start the logg in process when the "Logg in" button on the screen (fragment) is pressed.

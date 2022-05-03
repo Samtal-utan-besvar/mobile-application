@@ -37,6 +37,9 @@
 
     <string name="app_info">App info</string>
     <string name="ok">OK</string>
+    <string name="Record">Record</string>
+    <string name="ReqPermission">Request Permission</string>
+    <string name="transcribe">Start transcription</string>
     <string name="sigServerReq">Signal the Server</string>
     <string name="Logout">Logout</string>
     <string name="menuLogout">Logout</string>

@@ -27,7 +27,15 @@ class CallSession private constructor(val signalClient: SignalClient,
     private var hasReceivedIce = false
 
     // List of listeners for getting notified of changes to the session.
-    var sessionListeners = ArrayList<SessionListener>()
+    private var sessionListeners = ArrayList<SessionListener>()
+
+
+    /**
+     * Adds a [SessionListener] to the list of listeners
+     */
+    fun addListener(sessionListener: SessionListener) {
+        sessionListeners.add(sessionListener)
+    }
 
 
     // Observer for the webRTC connection.
