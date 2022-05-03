@@ -1,23 +1,30 @@
 package com.example.sub
 
+import android.annotation.SuppressLint
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Chronometer
-import android.widget.TextView
-import android.widget.Toast
-import android.widget.ToggleButton
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sub.session.CallHandler
+import com.example.sub.transcription.TranscriptionClient
 import com.example.sub.session.CallSession
 import com.example.sub.session.SessionListener
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import java.nio.ByteBuffer
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.math.pow
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -26,6 +33,7 @@ import kotlinx.coroutines.launch
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+
 
 /**
  * A simple [Fragment] subclass.
@@ -44,6 +52,7 @@ class CallingFragment : Fragment() {
 
     private var navController: NavController? = null
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,7 +60,63 @@ class CallingFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_calling, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val microphoneHandler = MicrophoneHandler()
+        val transcriptionclient = TranscriptionClient()
+        var id = arguments?.getString("phone_nr")!!.toLong().mod(1000000000).toInt() //casts the phone number so that fits in the first 4 bytes of sound bytearray
+        var recordTimer = Timer() //used to split audio every 5 seconds
+        var answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
+        var receivingTimer = Timer() //used to retrieve transcriptions of incoming audio from server
+        var ownerIds = mutableListOf<Int>() //outgoing transcriptions id's
+        var receivingIds = mutableListOf<Int>() //incoming transcription id's
+        var receivingSounds = mutableListOf<ByteArray>() //All the sounds to be played
+        var mediaPlayer : MediaPlayer
+        var uri : Uri
+
+        answerTimer.schedule(1000, 1000) {
+            var removeIds = mutableListOf<Int>()
+            for (textid in ownerIds){
+                Log.e("Looking for answer", textid.toString())
+                var answer = transcriptionclient.getAnswer(textid)
+                if (answer == ""){ //ping server for new answer if there is no previously retrieved one
+                    transcriptionclient.sendAnswer(textid, "owner")
+                }
+                else{
+                    removeIds.add(textid)
+                    getActivity()?.runOnUiThread(java.lang.Runnable{
+                        updateUI(answer, "owner")
+                    })
+                    Log.e("answer", answer)
+                }
+            }
+            for (textid in removeIds) {
+                ownerIds.remove(textid)
+            }
+        }
+
+        receivingTimer.schedule(1000, 1000) {
+            var removeIds = mutableListOf<Int>()
+            for (textid in receivingIds){
+                Log.e("Looking for answer", textid.toString())
+                var answer = transcriptionclient.getAnswer(textid)
+                if (answer == ""){
+                    transcriptionclient.sendAnswer(textid, "receiver")
+                }
+                else{
+                    removeIds.add(textid)
+                    getActivity()?.runOnUiThread(java.lang.Runnable{
+                        updateUI(answer, "receiver") //update UI and play sound at the same time for incoming data
+                        playSound(receivingSounds[0])
+                        receivingSounds.removeAt(0)
+                    })
+                    Log.e("answer", answer)
+                }
+            }
+            for (textid in removeIds) {
+                receivingIds.remove(textid)
+            }
+        }
 
         firstName = arguments?.getString("first_name")
         lastName = arguments?.getString("last_name")
@@ -66,21 +131,6 @@ class CallingFragment : Fragment() {
         }
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
         recyclerView.adapter = adapter
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatFromItem("blablablablabla"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
-        adapter.add(ChatToItem("hejhejhejhejhejhejhejhejhejehj"))
 
 
 
@@ -107,6 +157,53 @@ class CallingFragment : Fragment() {
                 Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
             }
         }
+        val transcribeButton = view.findViewById<Button>(R.id.buttonTranscribe)
+
+        transcribeButton.setOnTouchListener(object : View.OnTouchListener {
+            @SuppressLint("SetTextI18n")
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+
+
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        microphoneHandler.StartAudioRecording()
+                        transcribeButton.text = "recording"
+
+                        //this timer checks if microphone is recording. If it is, stop and start it again and send away the data
+                        recordTimer.schedule(5000, 5000) {
+                            if(microphoneHandler.getRecordingStatus()){
+                                id = id.plus(1)
+                                val bigbuff = microphoneHandler.StopAudioRecording()
+                                microphoneHandler.StartAudioRecording()
+                                transcriptionclient.sendSound(id, bigbuff)
+                                transcriptionclient.sendAnswer(id, "owner")
+                                ownerIds.add(id)
+                                var idBytes = ByteBuffer.allocate(4).putInt(id).array();
+                                Log.e("Id int ", id.toString())
+                                Log.e("Id bytes", idBytes.toString())
+                                callSession?.sendBytes(idBytes.plus(bigbuff))
+                            }
+                        }
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        recordTimer.cancel()
+                        recordTimer.purge()
+                        recordTimer = Timer()
+                        id = id.plus(1)
+                        transcribeButton.text = "press to record"
+                        val bigbuff = microphoneHandler.StopAudioRecording()
+                        transcriptionclient.sendSound(id, bigbuff)
+                        transcriptionclient.sendAnswer(id, "owner")
+                        ownerIds.add(id)
+                        val idBytes = ByteBuffer.allocate(4).putInt(id).array() //put the id in the first 4 bytes of the sound
+                        callSession?.sendBytes(idBytes.plus(bigbuff))
+                    }
+
+                }
+
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
 
         // Timer
         // TODO: place in a suitable place, timer should start when phone call starts, not when this fragment is created
@@ -114,13 +211,44 @@ class CallingFragment : Fragment() {
             view.findViewById(R.id.simpleChronometer) as Chronometer // initiate a chronometer
         simpleChronometer.start() // start a chronometer
 
+        // Temporary. Initiate a call request to the contact
         callSession = CallHandler.getInstance().activeSession
-        callSession?.addListener( SessionChangeHandler() )
+        callSession?.addListener( SessionChangeHandler(receivingIds, receivingSounds) )
     }
 
-    inner class SessionChangeHandler : SessionListener {
+    fun updateUI(message: String, ownerType: String){
+        //check for left or right side of call
+        if (ownerType=="owner"){
+            adapter.add(ChatToItem(message))
+        }
+        else if (ownerType=="receiver"){
+            adapter.add(ChatFromItem(message))
+        }
+        if (adapter.itemCount > 2){
+            adapter.removeGroupAtAdapterPosition(0)
+        }
+        adapter!!.notifyDataSetChanged()
+    }
+
+    fun playSound(sound: ByteArray){
+    }
+
+
+    inner class SessionChangeHandler(receivingIds: MutableList<Int>, sounds: MutableList<ByteArray>) : SessionListener {
         override fun onSessionEnded() {
             closeCall()
+        }
+        var receivingIds = receivingIds
+        var sounds = sounds
+        override fun onBytesMessage(bytes: ByteArray) {
+            Log.e("Bytes received", bytes.toString())
+            //Converting the first 4 bytes of the bytearray back to an int that will be used as id for transcription server
+            var id = 256.toDouble().pow(3).toInt()*(bytes[0].toUByte().toInt())+256.toDouble().pow(2).toInt()*(bytes[1].toUByte().toInt())+256*(bytes[2].toUByte().toInt())+(bytes[3].toUByte().toInt())
+            Log.e("Received id is", id.toString())
+            //Add to the list of incoming transcriptions.
+            receivingIds.add(receivingIds.size, id)
+            //Since first 4 bytes is the manually attached id, dont copy thoose.
+            sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
         }
     }
 
