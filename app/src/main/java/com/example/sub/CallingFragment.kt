@@ -147,7 +147,7 @@ class CallingFragment : Fragment() {
         view.findViewById<View>(R.id.playButton).setOnClickListener {
             //val music : MediaPlayer = MediaPlayer.create(activity, R.raw.sample)
             //music.start()
-            playSound(bigbuff, audioTrack)
+            playSound(bigbuff)
         }
         val testMp3 = File.createTempFile("test", "3gp", requireContext().cacheDir)
         val transcribeButton = view.findViewById<Button>(R.id.buttonTranscribe)
@@ -227,10 +227,8 @@ class CallingFragment : Fragment() {
         callContact(phoneNr!!)
     }
 
-    fun playSound(buff: ByteArray, at: AudioTrack){
+    fun playSound(buff: ByteArray){
         audioTrack.play()
-        //audioTrack.write(bigbuff, 0, bigbuff.size)
-        //
         var count = 0;
         while (count < buff.size) {
             val written : Int = audioTrack.write(buff, count, buff.size);
