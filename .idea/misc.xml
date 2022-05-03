@@ -3,15 +3,6 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/46700/AndroidStudioProjects/mobile-application/app/src/main/res/layout/chat_from_row.xml" value="0.1" />
-        <entry key="..\:/Users/46700/AndroidStudioProjects/mobile-application/app/src/main/res/layout/chat_to_row.xml" value="0.1" />
-        <entry key="..\:/Users/46700/AndroidStudioProjects/mobile-application/app/src/main/res/layout/fragment_calling.xml" value="0.1" />
-        <entry key="..\:/Users/acolu/Desktop/mobile-application/app/src/main/res/layout/fragment_calling.xml" value="0.18297101449275363" />
-        <entry key="..\:/Users/acolu/Desktop/mobile-application/app/src/main/res/layout/fragment_profile.xml" value="0.22" />
-      </map>
-    </option>
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
         <entry key="..\:/Users/46700/AndroidStudioProjects/mobile-application/app/src/main/res/layout/chat_from_row.xml" value="0.12681159420289856" />
         <entry key="..\:/Users/46700/AndroidStudioProjects/mobile-application/app/src/main/res/layout/chat_to_row.xml" value="0.12681159420289856" />
         <entry key="..\:/Users/46700/AndroidStudioProjects/mobile-application/app/src/main/res/layout/fragment_calling.xml" value="0.12681159420289856" />
@@ -55,7 +46,7 @@
         <entry key="..\:/Users/maxii/StudioProjects/mobile-application/app/src/main/res/layout/fragment_calling.xml" value="0.20516304347826086" />
         <entry key="..\:/Users/maxii/StudioProjects/mobile-application/app/src/main/res/layout/fragment_login.xml" value="0.20516304347826086" />
         <entry key="..\:/Users/maxii/StudioProjects/mobile-application/app/src/main/res/layout/fragment_profile.xml" value="0.23505434782608695" />
-        <entry key="..\:/Users/maxii/StudioProjects/mobile-application/app/src/main/res/layout/fragment_user_profile.xml" value="0.20516304347826086" />
+        <entry key="..\:/Users/maxii/StudioProjects/mobile-application/app/src/main/res/layout/fragment_user_profile.xml" value="0.5" />
         <entry key="..\:/Users/maxii/StudioProjects/mobile-application/app/src/main/res/layout/row_contact_list2.xml" value="0.33" />
         <entry key="..\:/Users/maxii/StudioProjects/mobile-application/app/src/main/res/menu/logout_menu.xml" value="0.22864583333333333" />
         <entry key="..\:/Users/maxii/StudioProjects/mobile-application/app/src/main/res/menu/user_profile_menu.xml" value="0.22864583333333333" />

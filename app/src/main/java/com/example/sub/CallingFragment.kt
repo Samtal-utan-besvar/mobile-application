@@ -25,9 +25,6 @@ import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import java.io.*
 import com.example.sub.session.SessionListener
-import com.xwray.groupie.GroupieAdapter
-import com.xwray.groupie.GroupieViewHolder
-import com.xwray.groupie.Item
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.concurrent.schedule
@@ -155,10 +152,10 @@ class CallingFragment : Fragment() {
         toggleButtonSilentMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when speaker is on
-                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
+                Toast.makeText(activity, "Högtalare: PÅ", Toast.LENGTH_LONG).show()    // remove
             } else {
                 // TODO: Action when speaker is off
-                Toast.makeText(activity, "speaker off", Toast.LENGTH_LONG).show()    // remove
+                Toast.makeText(activity, "Högtalare: AV", Toast.LENGTH_LONG).show()    // remove
             }
         }
 
@@ -167,18 +164,13 @@ class CallingFragment : Fragment() {
         toggleButtonMute.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when un-muted
-                Toast.makeText(activity, "un-mute", Toast.LENGTH_LONG).show()       // remove
+                Toast.makeText(activity, "Mikrofon: PÅ", Toast.LENGTH_LONG).show()       // remove
             } else {
                 // TODO: Action when muted
-                Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
+                Toast.makeText(activity, "Mikrofon: AV", Toast.LENGTH_LONG).show()          // remove
             }
         }
 
-        view.findViewById<View>(R.id.playButton).setOnClickListener {
-            //val music : MediaPlayer = MediaPlayer.create(activity, R.raw.sample)
-            //music.start()
-            playSound(bigbuff)
-        }
         val testMp3 = File.createTempFile("test", "3gp", requireContext().cacheDir)
         val transcribeButton = view.findViewById<Button>(R.id.buttonTranscribe)
         transcribeButton.setOnTouchListener(object : View.OnTouchListener {
@@ -188,10 +180,6 @@ class CallingFragment : Fragment() {
                     MotionEvent.ACTION_DOWN -> {
                         microphoneHandler.StartAudioRecording()
                         transcribeButton.text = "recording"
-                        val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioAttributes.USAGE_MEDIA)
-                        intBufferSize = AudioRecord.getMinBufferSize(
-                                intRecordSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT
-                        )
                         /**audioRecord = AudioRecord(
                                 MediaRecorder.AudioSource.MIC,
                                 intRecordSampleRate,
@@ -199,23 +187,7 @@ class CallingFragment : Fragment() {
                                 AudioFormat.ENCODING_PCM_16BIT,
                                 intBufferSize
                         )**/
-                        audioTrack = AudioTrack.Builder()
-                                .setAudioAttributes(
-                                        AudioAttributes.Builder()
-                                                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING)
-                                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                                                .build()
-                                )
-                                .setAudioFormat(
-                                        AudioFormat.Builder()
-                                                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                                                .setSampleRate(16000)
-                                                .setChannelIndexMask(AudioFormat.CHANNEL_OUT_DEFAULT)
-                                                .build()
-                                )
-                                .setBufferSizeInBytes(intBufferSize)
-                                .build()
-                        audioTrack.playbackRate = 16000
+
                         //audioRecord.startRecording()
 
                         recordTimer.schedule(5000, 5000) {
@@ -242,7 +214,6 @@ class CallingFragment : Fragment() {
                         bigbuff = microphoneHandler.StopAudioRecording()
                         transcriptionclient.sendSound(id, bigbuff)
                         transcriptionclient.sendAnswer(id, "owner")
-                        textIds.add(id)
                         ownerIds.add(id)
                         val idBytes = ByteBuffer.allocate(4).putInt(id).array() //put the id in the first 4 bytes of the sound
                         callSession?.sendBytes(idBytes.plus(bigbuff))
@@ -266,6 +237,29 @@ class CallingFragment : Fragment() {
     }
 
     fun playSound(buff: ByteArray){
+
+        val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioAttributes.USAGE_MEDIA)
+        intBufferSize = AudioRecord.getMinBufferSize(
+                intRecordSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT
+        )
+
+        audioTrack = AudioTrack.Builder()
+                .setAudioAttributes(
+                        AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                .build()
+                )
+                .setAudioFormat(
+                        AudioFormat.Builder()
+                                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                                .setSampleRate(16000)
+                                .setChannelIndexMask(AudioFormat.CHANNEL_OUT_DEFAULT)
+                                .build()
+                )
+                .setBufferSizeInBytes(intBufferSize)
+                .build()
+        audioTrack.playbackRate = 16000
         audioTrack.play()
         var count = 0;
         while (count < buff.size) {
@@ -292,9 +286,6 @@ class CallingFragment : Fragment() {
             adapter.removeGroupAtAdapterPosition(0)
         }
         adapter!!.notifyDataSetChanged()
-    }
-
-    fun playSound(sound: ByteArray){
     }
 
 
