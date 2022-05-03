@@ -36,7 +36,7 @@
             app:destination="@id/callingFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:popEnterAnim="@anim/nav_default_enter_anim"
-            app:popUpTo="@id/callingFragment"
+            app:popUpTo="@id/ProfileFragment"
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_userProfileFragment_to_ProfileFragment"

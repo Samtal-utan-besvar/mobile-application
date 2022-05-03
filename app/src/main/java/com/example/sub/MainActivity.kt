@@ -1,9 +1,14 @@
 package com.example.sub
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,12 +20,17 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.ActivityPermissionBinding
+import com.example.sub.transcription.TranscriptionClient
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import okhttp3.*
+import java.util.*
 import com.example.sub.session.CallHandler
 import com.example.sub.session.CallReceivedListener
 import com.example.sub.session.CallSession
 import com.example.sub.signal.SignalClient
 import com.example.sub.ui.login.LoginActivity
-import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity(), CallReceivedListener {
     private lateinit var layout: View
@@ -174,6 +184,7 @@ class MainActivity : AppCompatActivity(), CallReceivedListener {
             }
         }
     }
+
 }
 
 fun View.showSnackbar(
