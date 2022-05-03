@@ -24,8 +24,16 @@ import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import java.io.*
+import com.example.sub.session.SessionListener
+import com.xwray.groupie.GroupieAdapter
+import com.xwray.groupie.GroupieViewHolder
+import com.xwray.groupie.Item
+import java.nio.ByteBuffer
 import java.util.*
 import kotlin.concurrent.schedule
+import kotlin.math.pow
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -52,8 +60,12 @@ class CallingFragment : Fragment() {
     private lateinit var userName : TextView
 
     private var callSession: CallSession? = null
+    var firstName: String? = null
+    var lastName: String? = null
+    var phoneNr: String? = null
 
     private var navController: NavController? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,20 +78,24 @@ class CallingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val microphoneHandler = MicrophoneHandler()
         val transcriptionclient = TranscriptionClient()
-        var id = 80
-        var recordTimer = Timer()
-        var answerTimer = Timer()
-        var textIds = mutableListOf<Int>()
+        var id = arguments?.getString("phone_nr")!!.toLong().mod(1000000000).toInt() //casts the phone number so that fits in the first 4 bytes of sound bytearray
+        var recordTimer = Timer() //used to split audio every 5 seconds
+        var answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
+        var receivingTimer = Timer() //used to retrieve transcriptions of incoming audio from server
+        var ownerIds = mutableListOf<Int>() //outgoing transcriptions id's
+        var receivingIds = mutableListOf<Int>() //incoming transcription id's
+        var receivingSounds = mutableListOf<ByteArray>() //All the sounds to be played
+        var mediaPlayer : MediaPlayer
         var uri : Uri
 
 
 
         answerTimer.schedule(1000, 1000) {
             var removeIds = mutableListOf<Int>()
-            for (textid in textIds){
+            for (textid in ownerIds){
                 Log.e("Looking for answer", textid.toString())
                 var answer = transcriptionclient.getAnswer(textid)
-                if (answer == ""){
+                if (answer == ""){ //ping server for new answer if there is no previously retrieved one
                     transcriptionclient.sendAnswer(textid, "owner")
                 }
                 else{
@@ -91,29 +107,43 @@ class CallingFragment : Fragment() {
                 }
             }
             for (textid in removeIds) {
-                textIds.remove(textid)
+                ownerIds.remove(textid)
             }
         }
 
-        val firstName = arguments?.getString("first_name")
-        val lastName = arguments?.getString("last_name")
-        val phoneNr = arguments?.getString("phone_nr")
+        receivingTimer.schedule(1000, 1000) {
+            var removeIds = mutableListOf<Int>()
+            for (textid in receivingIds){
+                Log.e("Looking for answer", textid.toString())
+                var answer = transcriptionclient.getAnswer(textid)
+                if (answer == ""){
+                    transcriptionclient.sendAnswer(textid, "receiver")
+                }
+                else{
+                    removeIds.add(textid)
+                    getActivity()?.runOnUiThread(java.lang.Runnable{
+                        updateUI(answer, "receiver") //update UI and play sound at the same time for incoming data
+                        playSound(receivingSounds[0])
+                        receivingSounds.removeAt(0)
+                    })
+                    Log.e("answer", answer)
+                }
+            }
+            for (textid in removeIds) {
+                receivingIds.remove(textid)
+            }
+        }
+
+        firstName = arguments?.getString("first_name")
+        lastName = arguments?.getString("last_name")
+        phoneNr = arguments?.getString("phone_nr")
 
         userName = view.findViewById(R.id.caller_name)
         userName.text = firstName
         navController = findNavController(view.findViewById(R.id.closeCall))
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("first_name", firstName)
-            bundle.putString("last_name", lastName)
-            bundle.putString("phone_nr", phoneNr)
-
             callSession?.hangUp()
-
-            navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
-
-
-
+            //closeCall()
         }
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
         recyclerView.adapter = adapter
@@ -189,13 +219,17 @@ class CallingFragment : Fragment() {
                         //audioRecord.startRecording()
 
                         recordTimer.schedule(5000, 5000) {
-                            if(microphoneHandler.recording.get()){
-                                id+=1
+                            if(microphoneHandler.getRecordingStatus()){
+                                id = id.plus(1)
                                 val bigbuff = microphoneHandler.StopAudioRecording()
                                 microphoneHandler.StartAudioRecording()
                                 transcriptionclient.sendSound(id, bigbuff)
                                 transcriptionclient.sendAnswer(id, "owner")
-                                textIds.add(id)
+                                ownerIds.add(id)
+                                var idBytes = ByteBuffer.allocate(4).putInt(id).array();
+                                Log.e("Id int ", id.toString())
+                                Log.e("Id bytes", idBytes.toString())
+                                callSession?.sendBytes(idBytes.plus(bigbuff))
                             }
                         }
                     }
@@ -203,12 +237,15 @@ class CallingFragment : Fragment() {
                         recordTimer.cancel()
                         recordTimer.purge()
                         recordTimer = Timer()
-                        id +=1
+                        id = id.plus(1)
                         transcribeButton.text = "press to record"
                         bigbuff = microphoneHandler.StopAudioRecording()
                         transcriptionclient.sendSound(id, bigbuff)
                         transcriptionclient.sendAnswer(id, "owner")
                         textIds.add(id)
+                        ownerIds.add(id)
+                        val idBytes = ByteBuffer.allocate(4).putInt(id).array() //put the id in the first 4 bytes of the sound
+                        callSession?.sendBytes(idBytes.plus(bigbuff))
                     }
 
                 }
@@ -224,7 +261,8 @@ class CallingFragment : Fragment() {
         simpleChronometer.start() // start a chronometer
 
         // Temporary. Initiate a call request to the contact
-        callContact(phoneNr!!)
+        callSession = CallHandler.getInstance().activeSession
+        callSession?.addListener( SessionChangeHandler(receivingIds, receivingSounds) )
     }
 
     fun playSound(buff: ByteArray){
@@ -243,13 +281,58 @@ class CallingFragment : Fragment() {
 
 
     fun updateUI(message: String, ownerType: String){
+        //check for left or right side of call
         if (ownerType=="owner"){
             adapter.add(ChatToItem(message))
         }
         else if (ownerType=="receiver"){
             adapter.add(ChatFromItem(message))
         }
+        if (adapter.itemCount > 2){
+            adapter.removeGroupAtAdapterPosition(0)
+        }
         adapter!!.notifyDataSetChanged()
+    }
+
+    fun playSound(sound: ByteArray){
+    }
+
+
+    inner class SessionChangeHandler(receivingIds: MutableList<Int>, sounds: MutableList<ByteArray>) : SessionListener {
+        override fun onSessionEnded() {
+            closeCall()
+        }
+        var receivingIds = receivingIds
+        var sounds = sounds
+        override fun onBytesMessage(bytes: ByteArray) {
+            Log.e("Bytes received", bytes.toString())
+            //Converting the first 4 bytes of the bytearray back to an int that will be used as id for transcription server
+            var id = 256.toDouble().pow(3).toInt()*(bytes[0].toUByte().toInt())+256.toDouble().pow(2).toInt()*(bytes[1].toUByte().toInt())+256*(bytes[2].toUByte().toInt())+(bytes[3].toUByte().toInt())
+            Log.e("Received id is", id.toString())
+            //Add to the list of incoming transcriptions.
+            receivingIds.add(receivingIds.size, id)
+            //Since first 4 bytes is the manually attached id, dont copy thoose.
+            sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
+        }
+    }
+
+
+    /**
+     * Navigates back to the profile fragment.
+     */
+    private fun closeCall() {
+        val bundle = Bundle()
+        bundle.putString("first_name", firstName)
+        bundle.putString("last_name", lastName)
+        bundle.putString("phone_nr", phoneNr)
+
+        // Navigate using global scope.
+        GlobalScope.launch {
+            try {
+                navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
+            } catch (e: Exception) {}
+        }
+
     }
 
     companion object {
@@ -258,50 +341,6 @@ class CallingFragment : Fragment() {
         }
     }
 
-    // Temporary. Call contact based on phone number
-    private fun callContact(remotePhoneNumber: String) {
-        val callHandler = CallHandler.getInstance()
-        callSession = callHandler.call(remotePhoneNumber, requireContext())
-    }
-
-
-    // MAX - FuNKTIONER ----------------------------
-
-   /** private fun startRecording() {
-        MediaRecorder()
-        recorder = MediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            setOutputFile(fileName)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-
-            try {
-                prepare()
-            } catch (e: IOException) {
-                Log.e(LOG_TAG, "prepare() failed")
-            }
-
-            start()
-        }
-    }**/
-
-
-
-
-    // -------------------------------------------
-
-    /**private fun playAssetSound(assetName: String) {
-        try {
-            val afd: AssetFileDescriptor = assets.openFd("sounds/$assetName.mp3")
-            mMediaPlayer = MediaPlayer()
-            mMediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-            afd.close()
-            mMediaPlayer.prepare()
-            mMediaPlayer.start()
-        } catch (ex: Exception) {
-            Toast.makeText(this, ex.message, Toast.LENGTH_LONG).show()
-        }
-    }**/
 }
 
 

@@ -22,19 +22,26 @@ class MicrophoneHandler() {
     val sampleRate = 16000
     val channelConfig = AudioFormat.CHANNEL_IN_MONO
     val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-    @Volatile var recording = AtomicBoolean(true)
+    private @Volatile var recording = AtomicBoolean(true)
 
+    fun getRecordingStatus() : Boolean{
+        return recording.get()
+    }
+
+    /*
+    Starts a thread that records microphone.
+     */
     fun StartAudioRecording(){
         recording.set(true)
 
         recordingThread = GlobalScope.async {
             WriteAudioToDataFile(recording)
         }
-
-
     }
 
-
+    /*
+    Stops the thead started in start function. Records the sound in an bytearray.
+     */
     fun StopAudioRecording(): ByteArray {
 
         recording.set(false)
@@ -42,9 +49,12 @@ class MicrophoneHandler() {
         runBlocking {soundBytes = recordingThread!!.await()}
 
         return soundBytes
-
     }
 
+    /*
+    A thread is started here that puts all of the input an bytearrayoutputstream. When stop is called,
+    the thread exists and return all of the recorded sound in a bytearray.
+     */
     @SuppressLint("MissingPermission")
     fun WriteAudioToDataFile(recording: AtomicBoolean): ByteArray {
 

@@ -15,6 +15,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.ActivityPermissionBinding
 import com.example.sub.transcription.TranscriptionClient
@@ -29,10 +32,11 @@ import com.example.sub.session.CallSession
 import com.example.sub.signal.SignalClient
 import com.example.sub.ui.login.LoginActivity
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CallReceivedListener {
     private lateinit var layout: View
     private lateinit var binding: ActivityPermissionBinding
     private lateinit var loggedInUser: LoggedInUser
+    private lateinit var contactList : MutableList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +46,17 @@ class MainActivity : AppCompatActivity() {
         loggedInUser = intent.getSerializableExtra("loggedInUser") as LoggedInUser
 
         setUpWebRTC()
+
+        Log.d("debug", "---- START MAIN ----")
+    }
+
+
+    fun getContactList() : MutableList<User> {
+        return contactList
+    }
+
+    fun setContactList(contactList_ : MutableList<User>) {
+        contactList = contactList_
     }
 
 
@@ -56,19 +71,56 @@ class MainActivity : AppCompatActivity() {
         // Crucial part.
         SignalClient.connect(token)
         CallHandler.initInstance(SignalClient, localPhoneNumber)
-
-        CallHandler.getInstance().callReceivedListeners.add( CallListener() )
+        CallHandler.getInstance().callReceivedListeners.add( this )
     }
 
 
-    // Sets up what happens when someone calls.
-    private inner class CallListener : CallReceivedListener {
-        override fun onCallReceived(callSession: CallSession) {
-            val callDialog = CallDialog(callSession)
+    override fun onDestroy() {
+        CallHandler.getInstance().callReceivedListeners.remove(this)
+        SignalClient.close()
+
+        super.onDestroy()
+    }
+
+
+    /**
+     * Sets up what happens when someone calls.
+     */
+    override fun onCallReceived(callSession: CallSession) {
+
+        if (!supportFragmentManager.isDestroyed) {
+            val remotePhoneNumber = callSession.remotePhoneNumber
+            val user = getContactList().stream().filter {
+                    user -> user.number == remotePhoneNumber
+            }.findFirst().orElse(null)
+
+            val displayName = if (user?.firstName == null)
+                remotePhoneNumber else user.firstName!!
+
+            val callDialog = CallDialog(displayName)
+
+            callDialog.setOnAnswer {
+                callSession.accept(applicationContext)
+                val navController = callDialog.findNavController()
+
+                val bundle = Bundle()
+                bundle.putString("first_name", user.firstName)
+                bundle.putString("last_name", user.lastName)
+                bundle.putString("phone_nr", user.number)
+
+                navController.navigate(R.id.callingFragment, bundle)
+                //TODO: go to CallingFragment
+            }
+
+            callDialog.setOnDeny {
+                callSession.deny()
+            }
+
             callDialog.show(supportFragmentManager, "callDialog")
-
         }
+
     }
+
 
     /**
      * Starts LoginActivity and finish MainActivity when logout button is pressed.
