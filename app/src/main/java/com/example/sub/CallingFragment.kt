@@ -64,13 +64,13 @@ class CallingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val microphoneHandler = MicrophoneHandler()
         val transcriptionclient = TranscriptionClient()
-        var id = arguments?.getString("phone_nr")!!.toLong().mod(1000000000).toInt()
-        var recordTimer = Timer()
-        var answerTimer = Timer()
-        var receivingTimer = Timer()
-        var ownerIds = mutableListOf<Int>()
-        var receivingIds = mutableListOf<Int>()
-        var receivingSounds = mutableListOf<ByteArray>()
+        var id = arguments?.getString("phone_nr")!!.toLong().mod(1000000000).toInt() //casts the phone number so that fits in the first 4 bytes of sound bytearray
+        var recordTimer = Timer() //used to split audio every 5 seconds
+        var answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
+        var receivingTimer = Timer() //used to retrieve transcriptions of incoming audio from server
+        var ownerIds = mutableListOf<Int>() //outgoing transcriptions id's
+        var receivingIds = mutableListOf<Int>() //incoming transcription id's
+        var receivingSounds = mutableListOf<ByteArray>() //All the sounds to be played
         var mediaPlayer : MediaPlayer
         var uri : Uri
 
@@ -79,7 +79,7 @@ class CallingFragment : Fragment() {
             for (textid in ownerIds){
                 Log.e("Looking for answer", textid.toString())
                 var answer = transcriptionclient.getAnswer(textid)
-                if (answer == ""){
+                if (answer == ""){ //ping server for new answer if there is no previously retrieved one
                     transcriptionclient.sendAnswer(textid, "owner")
                 }
                 else{
@@ -106,7 +106,7 @@ class CallingFragment : Fragment() {
                 else{
                     removeIds.add(textid)
                     getActivity()?.runOnUiThread(java.lang.Runnable{
-                        updateUI(answer, "receiver")
+                        updateUI(answer, "receiver") //update UI and play sound at the same time for incoming data
                         playSound(receivingSounds[0])
                         receivingSounds.removeAt(0)
                     })
@@ -169,7 +169,7 @@ class CallingFragment : Fragment() {
                         microphoneHandler.StartAudioRecording()
                         transcribeButton.text = "recording"
 
-
+                        //this timer checks if microphone is recording. If it is, stop and start it again and send away the data
                         recordTimer.schedule(5000, 5000) {
                             if(microphoneHandler.getRecordingStatus()){
                                 id = id.plus(1)
@@ -195,9 +195,7 @@ class CallingFragment : Fragment() {
                         transcriptionclient.sendSound(id, bigbuff)
                         transcriptionclient.sendAnswer(id, "owner")
                         ownerIds.add(id)
-                        val idBytes = ByteBuffer.allocate(4).putInt(id).array();
-                        Log.e("Id int ", id.toString())
-                        Log.e("Id bytes", idBytes.toString())
+                        val idBytes = ByteBuffer.allocate(4).putInt(id).array() //put the id in the first 4 bytes of the sound
                         callSession?.sendBytes(idBytes.plus(bigbuff))
                     }
 
@@ -219,6 +217,7 @@ class CallingFragment : Fragment() {
     }
 
     fun updateUI(message: String, ownerType: String){
+        //check for left or right side of call
         if (ownerType=="owner"){
             adapter.add(ChatToItem(message))
         }
