@@ -42,15 +42,15 @@ class RegistrationFragment : Fragment() {
         navController = Navigation.findNavController(view)
         loginViewModel = (activity as LoginActivity?)!!.getLoginViewModel()
 
-        val usernameEditText = binding.username
+        val usernameEditText = binding.regEmail
         val passwordEditText = binding.password
         val registerButton = binding.register
         val loadingProgressBar = binding.loading
         val toRegistrationButton = binding.toLogin
 
         // Registration
-        val phoneEditText = binding.username
-        val regpasswordEditText = binding.password
+        val phoneEditText = binding.phone
+        //val regpasswordEditText = binding.password
         val cpasswordEditText = binding.cpassword
         val nameEditText = binding.regFirstname
         val surnameEditText = binding.regSurname
@@ -64,12 +64,16 @@ class RegistrationFragment : Fragment() {
                     return@Observer
                 }
                 registerButton.isEnabled = loginFormState.isDataValid // Disables the login button if the email and password have incorrect format.
-                loginFormState.emailError?.let {
-                    usernameEditText.error = getString(it)
-                }
                 loginFormState.passwordError?.let {
                     passwordEditText.error = getString(it)
                 }
+                loginFormState.cpasswordError?.let {
+                    cpasswordEditText.error = getString(it)
+                }
+                loginFormState.emailError?.let {
+                    usernameEditText.error = getString(it)
+                }
+
             })
 
         // Calls updateUiWithUser (opens MainActivity) if the login succeeded from a database
@@ -99,14 +103,15 @@ class RegistrationFragment : Fragment() {
             override fun afterTextChanged(s: Editable) {
                 loginViewModel.registrationDataChanged(
                     usernameEditText.text.toString(),
-                    cpasswordEditText.text.toString(),
-                    passwordEditText.text.toString()
+                    passwordEditText.text.toString(),
+                    cpasswordEditText.text.toString()
                 )
             }
         }
 
         usernameEditText.addTextChangedListener(afterTextChangedListener)
         passwordEditText.addTextChangedListener(afterTextChangedListener)
+        cpasswordEditText.addTextChangedListener(afterTextChangedListener)
 
         // Start the login process when the "Registration" button on the keyboard is pressed.
         passwordEditText.setOnEditorActionListener { _, actionId, _ ->
@@ -116,7 +121,7 @@ class RegistrationFragment : Fragment() {
                     withContext(Dispatchers.IO) {
                         loginViewModel.register(
                             phoneEditText.text.toString(),
-                            regpasswordEditText.text.toString(),
+                            passwordEditText.text.toString(),
                             cpasswordEditText.text.toString(),
                             nameEditText.text.toString(),
                             surnameEditText.text.toString(),
@@ -135,7 +140,7 @@ class RegistrationFragment : Fragment() {
                 withContext(Dispatchers.IO) {
                     loginViewModel.register(
                         phoneEditText.text.toString(),
-                        regpasswordEditText.text.toString(),
+                        passwordEditText.text.toString(),
                         cpasswordEditText.text.toString(),
                         nameEditText.text.toString(),
                         surnameEditText.text.toString(),

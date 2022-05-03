@@ -1,5 +1,6 @@
 package com.example.sub.ui.login
 
+import android.util.Log
 import android.telephony.PhoneNumberUtils
 import android.util.Patterns
 import androidx.lifecycle.LiveData
@@ -53,13 +54,16 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
     }
 
     fun registrationDataChanged(email: String, password: String, cpassword: String) {
-        if (!isEmailValid(email)) {
-            _loginForm.value = LoginFormState(emailError = R.string.invalid_mail)
-        } else if (!isPasswordValid(password)) {
+        if (!isPasswordValid(password)) {
             _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
-        }else if (password!=cpassword) {
-            _loginForm.value = LoginFormState(passwordError = R.string.password_unmatched)
-        } else {
+        } else if (password!=cpassword) {
+            Log.d("loggedDebug", password + " " + cpassword)
+            _loginForm.value = LoginFormState(cpasswordError = R.string.password_unmatched)
+        } else if (!isEmailValid(email)) {
+            _loginForm.value = LoginFormState(emailError = R.string.invalid_mail)
+        }
+        else {
+            Log.d("loggedDebug", "should be equal:"+ password + " " + cpassword)
             _loginForm.value = LoginFormState(isDataValid = true)
         }
     }

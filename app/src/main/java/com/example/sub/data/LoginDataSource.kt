@@ -27,20 +27,19 @@ class LoginDataSource {
      * Creates a registration request based on the prompts filled in for 'RegistrationFragment'.
      * TODO: fix better error handeling
      */
-    suspend fun register(username: String, password: String, firstname: String,
+    suspend fun register(phone: String, password: String, firstname: String,
                          lastname: String, email: String): Result<LoggedInUser> {
         return try {
             withContext(Dispatchers.IO) {
                 Log.d("loggedDebug", firstname)
                 val createURL = url + "create_user"
-                val request = RegistrationRequest(firstname, lastname, username, email, password)
+                val request = RegistrationRequest(firstname, lastname, phone, email, password)
                 val (_, _, result) = createURL.httpPost()
                     .jsonBody(Gson().toJson(request).toString())
                     .responseString()
 
                 val token = result.component1()!!.removeQuotationMarks()
-                val loggedInUser = LoggedInUser(token,username,firstname,lastname, email)
-                Log.d("loggedDebug", loggedInUser.toString())
+                val loggedInUser = LoggedInUser(token, phone, firstname, lastname, email)
                 Result.Success(loggedInUser)
             }
         } catch (e: Throwable) {
