@@ -71,19 +71,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.174" />
 
-    <Button
-        android:id="@+id/buttonPerm"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:onClick="onClickRequestPermission"
-        android:text="@string/ReqPermission"
-        app:layout_constraintBottom_toTopOf="@+id/addContactText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.043"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.183" />
-
     <ImageButton
         android:id="@+id/settingsButton"
         android:layout_width="50dp"

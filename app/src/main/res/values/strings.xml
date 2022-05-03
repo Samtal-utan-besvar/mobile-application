@@ -30,11 +30,13 @@
     <string name="nav_register">Skapa konto</string>
 
     <!-- Mic Permissions - text -->
-    <string name="permission_required">Microphone access is needed to start recording.</string>
-    <string name="permission_granted">Permission granted.</string>
+    <string name="mic_required">Appen behöver tillgång till mikrofon. Öppna appinställningar och ändra behörigheter.</string>
+    <string name="open_settings">Öppna inställningar</string>
+    <string name="exit_app">Avsluta appen</string>
+    <string name="permissions">Behörigheter</string>
+
+    <string name="app_info">App info</string>
     <string name="ok">OK</string>
-    <string name="Record">Record</string>
-    <string name="ReqPermission">Request Permission</string>
     <string name="sigServerReq">Signal the Server</string>
     <string name="Logout">Logout</string>
     <string name="menuLogout">Logout</string>

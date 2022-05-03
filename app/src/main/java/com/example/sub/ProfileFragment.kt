@@ -1,6 +1,9 @@
 package com.example.sub
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.*
 import android.widget.*
@@ -138,8 +141,11 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 (activity as MainActivity?)!!.startLoginActivity()
                 true
             }
-            R.id.requestPerm -> {
-                view?.let { (activity as MainActivity?)!!.onClickRequestPermission(it) }
+            R.id.appInfo -> {
+                val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                i.addCategory(Intent.CATEGORY_DEFAULT)
+                i.data = Uri.parse("package:" + context?.packageName)
+                startActivity(i)
                 true
             }
             else -> false

@@ -1,22 +1,16 @@
 package com.example.sub
 
 import android.Manifest
-import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.DialogFragment
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.sub.data.LoggedInUser
 import com.example.sub.databinding.ActivityPermissionBinding
@@ -25,13 +19,12 @@ import com.example.sub.session.CallReceivedListener
 import com.example.sub.session.CallSession
 import com.example.sub.signal.SignalClient
 import com.example.sub.ui.login.LoginActivity
-import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
     private lateinit var layout: View
     private lateinit var binding: ActivityPermissionBinding
     private lateinit var loggedInUser: LoggedInUser
-    private lateinit var contactList : MutableList<User>
+    private lateinit var contactList: MutableList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,27 +37,26 @@ class MainActivity : AppCompatActivity() {
 
         // asks for permission to record audio
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    Manifest.permission.RECORD_AUDIO)) {
                 ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+                    arrayOf(Manifest.permission.RECORD_AUDIO), 1)
             } else {
                 ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+                    arrayOf(Manifest.permission.RECORD_AUDIO), 1)
             }
         }
     }
 
-    fun getContactList() : MutableList<User> {
+    fun getContactList(): MutableList<User> {
         return contactList
     }
 
-    fun setContactList(contactList_ : MutableList<User>) {
+    fun setContactList(contactList_: MutableList<User>) {
         contactList = contactList_
     }
+
     /**
      * Sets up webRTC and signal client.
      */
@@ -76,17 +68,16 @@ class MainActivity : AppCompatActivity() {
         // Crucial part.
         SignalClient.connect(token)
         CallHandler.initInstance(SignalClient, localPhoneNumber)
-        CallHandler.getInstance().callReceivedListeners.add( CallListener() )
+        CallHandler.getInstance().callReceivedListeners.add(CallListener())
     }
-
 
     // Sets up what happens when someone calls.
     private inner class CallListener : CallReceivedListener {
         override fun onCallReceived(callSession: CallSession) {
 
             val remotePhoneNumber = callSession.remotePhoneNumber
-            val user = getContactList().stream().filter {
-                    user -> user.number == remotePhoneNumber
+            val user = getContactList().stream().filter { user ->
+                user.number == remotePhoneNumber
             }.findFirst().orElse(null)
 
             val displayName = if (user?.firstName == null)
@@ -120,7 +111,7 @@ class MainActivity : AppCompatActivity() {
      * Starts LoginActivity and finish MainActivity when logout button is pressed.
      */
     fun startLoginActivity() {
-        let{
+        let {
             val intent = Intent(it, LoginActivity::class.java)
             intent.putExtra("logout", true)
             it.startActivity(intent)
@@ -136,116 +127,39 @@ class MainActivity : AppCompatActivity() {
      * e.g.: to access phoneNumber in a fragment:
      * val phoneNumber = (activity as MainActivity?)!!.getActiveUser().phoneNumber
      */
-    fun getActiveUser() : LoggedInUser {
+    fun getActiveUser(): LoggedInUser {
         return loggedInUser
     }
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                Log.i("Permission: ", "Granted")
-            } else {
-                Log.i("Permission: ", "Denied")
-            }
-        }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
-                                            grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             1 -> {
-                if (grantResults.isNotEmpty() && grantResults[0] ==
-                    PackageManager.PERMISSION_GRANTED) {
-                    if ((ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION) ==
-                                PackageManager.PERMISSION_GRANTED)) {
-                        Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-//                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
-//                    Toast.makeText(this, "Appen behöver få åtkomst till mobilens microfon för att fungera", Toast.LENGTH_SHORT).show()
-//                    showNoticeDialog()
-
-                    // build alert dialog
+                if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {    // if permission denied
+                    Log.d("debug", "PERMISSION DENIED")
                     val dialogBuilder = AlertDialog.Builder(this)
-
-                    // set message of alert dialog
-                    dialogBuilder.setMessage("Appen behöver tillgång till mikrofon. Öppna appinställningar och ändra permissions.")
-                        // if the dialog is cancelable
+                    dialogBuilder.setMessage(R.string.mic_required)
                         .setCancelable(false)
-                        // positive button text and action
-                        .setPositiveButton("Öppna inställningar", DialogInterface.OnClickListener {
-                                _, _ -> //finish()
+                        .setPositiveButton(R.string.open_settings) { _, _ ->
                             val i = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                             i.addCategory(Intent.CATEGORY_DEFAULT)
                             i.data = Uri.parse("package:$packageName")
                             startActivity(i)
-
-                        })
-                        // negative button text and action
-                        .setNegativeButton("Avsluta appen", DialogInterface.OnClickListener {
-                                _, _ -> finish()
-                        })
+                        }
+                        .setNegativeButton(R.string.exit_app) { _, _ ->
+                            finish()
+                        }
 
                     // create dialog box
                     val alert = dialogBuilder.create()
-                    // set title for alert dialog box
-                    alert.setTitle("AlertDialogExample")
-                    // show alert dialog
+                    alert.setTitle(R.string.permissions)
                     alert.show()
-
-
                 }
                 return
             }
         }
-    }
-
-    fun onClickRequestPermission(view: View) {
-        when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                    == PackageManager.PERMISSION_GRANTED -> {
-                layout.showSnackbar(
-                    view, getString(R.string.permission_granted),
-                    Snackbar.LENGTH_INDEFINITE, null
-                ) {}
-            }
-
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            )
-            -> {
-                layout.showSnackbar(
-                    view, getString(R.string.permission_required),
-                    Snackbar.LENGTH_INDEFINITE, getString(R.string.ok)
-                ) {
-                    requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                }
-            }
-            else -> {
-                requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-            }
-        }
-    }
-
-}
-
-fun View.showSnackbar(
-    view: View,
-    msg: String,
-    length: Int,
-    actionMessage: CharSequence?,
-    action: (View) -> Unit
-) {
-    val snackbar = Snackbar.make(view, msg, length)
-    if (actionMessage != null) {
-        snackbar.setAction(actionMessage) {
-            action(this)
-        }.show()
-    } else {
-        snackbar.show()
     }
 }
