@@ -98,7 +98,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 adapter.notifyDataSetChanged()
             }
 
-            runBlocking {  profileFragmentViewModel.addContact(contactNumber.text.toString())}
+            runBlocking {profileFragmentViewModel.addContact(contactNumber.text.toString())}
             //contactFirstName.text = ""
             //contactLastName.text = ""
             contactNumber.text = ""

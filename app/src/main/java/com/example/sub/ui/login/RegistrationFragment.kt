@@ -40,8 +40,7 @@ class RegistrationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-        loginViewModel = ViewModelProvider(this,
-            LoginViewModelFactory(context))[LoginViewModel::class.java]
+        loginViewModel = (activity as LoginActivity?)!!.getLoginViewModel()
 
         val usernameEditText = binding.username
         val passwordEditText = binding.password

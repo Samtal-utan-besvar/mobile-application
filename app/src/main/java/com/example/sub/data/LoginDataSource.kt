@@ -31,13 +31,16 @@ class LoginDataSource {
                          lastname: String, email: String): Result<LoggedInUser> {
         return try {
             withContext(Dispatchers.IO) {
+                Log.d("loggedDebug", firstname)
                 val createURL = url + "create_user"
                 val request = RegistrationRequest(firstname, lastname, username, email, password)
                 val (_, _, result) = createURL.httpPost()
                     .jsonBody(Gson().toJson(request).toString())
                     .responseString()
 
-                val loggedInUser = LoggedInUser(result.component1()!!.removeQuotationMarks(), null)
+                val token = result.component1()!!.removeQuotationMarks()
+                val loggedInUser = LoggedInUser(token,username,firstname,lastname, email)
+                Log.d("loggedDebug", loggedInUser.toString())
                 Result.Success(loggedInUser)
             }
         } catch (e: Throwable) {

@@ -119,14 +119,6 @@ class MainActivity : AppCompatActivity() {
         return loggedInUser
     }
 
-    fun startLoginActivity() {
-        let{
-            val intent = Intent(it, LoginActivity::class.java)
-            it.startActivity(intent)
-        }
-        finish()
-    }
-
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
