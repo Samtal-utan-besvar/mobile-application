@@ -26,7 +26,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.924" />
+        app:layout_constraintVertical_bias="0.936" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contactList"
@@ -34,11 +34,11 @@
         android:layout_height="392dp"
         android:scrollbars="vertical"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/addContact"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.604"
+        app:layout_constraintVertical_bias="0.913"
         tools:listitem="@android:layout/list_content" />
 
     <EditText
@@ -46,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Phone number"
+        android:hint="Telefonnummer:"
         android:inputType="phone"
         android:minHeight="48dp"
         android:visibility="invisible"
@@ -61,15 +61,15 @@
         android:id="@+id/addContactText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add contact: "
+        android:text="Lägg till kontakt:"
         android:textSize="20sp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.342"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/contactNr"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.174" />
+        app:layout_constraintVertical_bias="0.176" />
 
     <ImageButton
         android:id="@+id/settingsButton"

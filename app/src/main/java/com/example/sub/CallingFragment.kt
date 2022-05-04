@@ -1,8 +1,10 @@
 package com.example.sub
 
 import android.annotation.SuppressLint
-import android.media.MediaPlayer
+import android.content.Context
+import android.media.*
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,23 +12,29 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sub.session.CallHandler
-import com.example.sub.transcription.TranscriptionClient
 import com.example.sub.session.CallSession
-import com.example.sub.session.SessionListener
+import com.example.sub.transcription.TranscriptionClient
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import java.io.*
+import com.example.sub.session.SessionListener
+import com.example.sub.signal.SignalClient.send
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.math.pow
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -42,6 +50,13 @@ private const val ARG_PARAM2 = "param2"
  */
 class CallingFragment : Fragment() {
 
+
+
+    private var intBufferSize = 0
+    private lateinit var bigbuff : ByteArray
+
+    private lateinit var audioRecord: AudioRecord
+    private lateinit var audioTrack: AudioTrack
     private var adapter = GroupieAdapter()
     private lateinit var userName : TextView
 
@@ -73,6 +88,8 @@ class CallingFragment : Fragment() {
         var receivingSounds = mutableListOf<ByteArray>() //All the sounds to be played
         var mediaPlayer : MediaPlayer
         var uri : Uri
+
+
 
         answerTimer.schedule(1000, 1000) {
             var removeIds = mutableListOf<Int>()
@@ -139,10 +156,10 @@ class CallingFragment : Fragment() {
         toggleButtonSilentMode.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when speaker is on
-                Toast.makeText(activity, "speaker on", Toast.LENGTH_LONG).show()    // remove
+                Toast.makeText(activity, "Högtalare: PÅ", Toast.LENGTH_LONG).show()    // remove
             } else {
                 // TODO: Action when speaker is off
-                Toast.makeText(activity, "speaker off", Toast.LENGTH_LONG).show()    // remove
+                Toast.makeText(activity, "Högtalare: AV", Toast.LENGTH_LONG).show()    // remove
             }
         }
 
@@ -151,25 +168,33 @@ class CallingFragment : Fragment() {
         toggleButtonMute.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // TODO: Action when un-muted
-                Toast.makeText(activity, "un-mute", Toast.LENGTH_LONG).show()       // remove
+                Toast.makeText(activity, "Mikrofon: PÅ", Toast.LENGTH_LONG).show()       // remove
             } else {
                 // TODO: Action when muted
-                Toast.makeText(activity, "mute", Toast.LENGTH_LONG).show()          // remove
+                Toast.makeText(activity, "Mikrofon: AV", Toast.LENGTH_LONG).show()          // remove
             }
         }
+
+        val testMp3 = File.createTempFile("test", "3gp", requireContext().cacheDir)
         val transcribeButton = view.findViewById<Button>(R.id.buttonTranscribe)
-
         transcribeButton.setOnTouchListener(object : View.OnTouchListener {
-            @SuppressLint("SetTextI18n")
+            @SuppressLint("SetTextI18n", "MissingPermission")
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-
-
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        sendRecordingNow("ja")
                         microphoneHandler.StartAudioRecording()
-                        transcribeButton.text = "recording"
+                        transcribeButton.text = "Spelar in"
+                        /**audioRecord = AudioRecord(
+                                MediaRecorder.AudioSource.MIC,
+                                intRecordSampleRate,
+                                AudioFormat.CHANNEL_IN_STEREO,
+                                AudioFormat.ENCODING_PCM_16BIT,
+                                intBufferSize
+                        )**/
 
-                        //this timer checks if microphone is recording. If it is, stop and start it again and send away the data
+                        //audioRecord.startRecording()
+
                         recordTimer.schedule(5000, 5000) {
                             if(microphoneHandler.getRecordingStatus()){
                                 id = id.plus(1)
@@ -186,12 +211,13 @@ class CallingFragment : Fragment() {
                         }
                     }
                     MotionEvent.ACTION_UP -> {
+                        sendRecordingNow("nej")
                         recordTimer.cancel()
                         recordTimer.purge()
                         recordTimer = Timer()
                         id = id.plus(1)
-                        transcribeButton.text = "press to record"
-                        val bigbuff = microphoneHandler.StopAudioRecording()
+                        transcribeButton.text = "Starta Transkribering"
+                        bigbuff = microphoneHandler.StopAudioRecording()
                         transcriptionclient.sendSound(id, bigbuff)
                         transcriptionclient.sendAnswer(id, "owner")
                         ownerIds.add(id)
@@ -216,6 +242,50 @@ class CallingFragment : Fragment() {
         callSession?.addListener( SessionChangeHandler(receivingIds, receivingSounds) )
     }
 
+    fun playSound(buff: ByteArray){
+
+        val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioAttributes.USAGE_MEDIA)
+        intBufferSize = AudioRecord.getMinBufferSize(
+                intRecordSampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT
+        )
+
+        audioTrack = AudioTrack.Builder()
+                .setAudioAttributes(
+                        AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                .build()
+                )
+                .setAudioFormat(
+                        AudioFormat.Builder()
+                                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                                .setSampleRate(16000)
+                                .setChannelIndexMask(AudioFormat.CHANNEL_OUT_DEFAULT)
+                                .build()
+                )
+                .setBufferSizeInBytes(intBufferSize)
+                .build()
+        audioTrack.playbackRate = 16000
+        audioTrack.play()
+        var count = 0;
+        while (count < buff.size) {
+            val written : Int = audioTrack.write(buff, count, buff.size);
+            if (written <= 0) {
+                break;
+            }
+            count += written
+        }
+        audioTrack.release()
+    }
+
+    fun sendRecordingNow(recording: String) {
+        val message = JSONObject()
+        message.put("Reason", "notifyRecording")
+        message.put("Recording", recording)
+        val msgList = listOf(message)
+        callSession?.sendString(msgList.toString())
+    }
+
     fun updateUI(message: String, ownerType: String){
         //check for left or right side of call
         if (ownerType=="owner"){
@@ -228,9 +298,6 @@ class CallingFragment : Fragment() {
             adapter.removeGroupAtAdapterPosition(0)
         }
         adapter!!.notifyDataSetChanged()
-    }
-
-    fun playSound(sound: ByteArray){
     }
 
 
@@ -250,7 +317,34 @@ class CallingFragment : Fragment() {
             //Since first 4 bytes is the manually attached id, dont copy thoose.
             sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
         }
+
+        override fun onStringMessage(message: String) {
+            println("onStringMessage: ")
+            var recording : String = ""
+            var reason : String = ""
+            val jsonArray = JSONTokener(message).nextValue() as JSONArray
+            for (i in 0 until jsonArray.length()) {
+                reason = jsonArray.getJSONObject(i).getString("Reason")
+                recording = jsonArray.getJSONObject(i).getString("Recording")
+            }
+
+            activity?.runOnUiThread(Runnable {
+                if (reason == "notifyRecording"){
+                    if (recording == "ja"){
+                        //view?.findViewById<View>(R.id.recordingBusy)?.visibility = View.VISIBLE
+                        println("jag är här i ja")
+                        view?.findViewById<View>(R.id.recordingAvailable)?.visibility = View.GONE
+                    }
+                    else{
+                        view?.findViewById<View>(R.id.recordingAvailable)?.visibility = View.VISIBLE
+                    }
+                }
+            })
+
+        }
     }
+
+
 
 
     /**
@@ -278,6 +372,8 @@ class CallingFragment : Fragment() {
     }
 
 }
+
+
 
 class ChatFromItem(val text: String): Item<GroupieViewHolder>(){
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {

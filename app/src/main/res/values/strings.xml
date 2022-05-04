@@ -39,18 +39,19 @@
     <string name="open_settings">Öppna inställningar</string>
     <string name="exit_app">Avsluta appen</string>
     <string name="permissions">Behörigheter</string>
-
     <string name="app_info">App info</string>
+    <string name="permission_required">Vill du tillåta applikationen att spela in ljud</string>
+    <string name="permission_granted">Behörighet godkänd!</string>
     <string name="ok">OK</string>
-    <string name="Record">Record</string>
-    <string name="ReqPermission">Request Permission</string>
-    <string name="transcribe">Start transcription</string>
-    <string name="sigServerReq">Signal the Server</string>
-    <string name="Logout">Logout</string>
-    <string name="menuLogout">Logout</string>
-    <string name="settingsButton">settingsButton</string>
-    <string name="cancelAddContact">CancelAddContact</string>
-    <string name="menuDeleteContact">Delete Contact</string>
+    <string name="Record">Spela in</string>
+    <string name="ReqPermission">Ge åtkomst</string>
+    <string name="transcribe">Starta transkribering</string>
+    <string name="sigServerReq">Signalera servern</string>
+    <string name="Logout">Logga ut</string>
+    <string name="menuLogout">Logga ut</string>
+    <string name="settingsButton">Inställningsknappen</string>
+    <string name="cancelAddContact">AvbrytLäggTillKontakt</string>
+    <string name="menuDeleteContact">Ta bort kontakt</string>
 
     <string-array name="logout_array">
         <item>Logout</item>
