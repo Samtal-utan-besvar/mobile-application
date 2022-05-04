@@ -7,11 +7,12 @@ import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -36,7 +37,7 @@ class MainActivity : AppCompatActivity(), CallReceivedListener {
     private lateinit var layout: View
     private lateinit var binding: ActivityPermissionBinding
     private lateinit var loggedInUser: LoggedInUser
-    private lateinit var contactList : MutableList<User>
+    private lateinit var contactList: MutableList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,15 +48,26 @@ class MainActivity : AppCompatActivity(), CallReceivedListener {
 
         setUpWebRTC()
 
-        Log.d("debug", "---- START MAIN ----")
+        // asks for permission to record audio
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.RECORD_AUDIO)) {
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+            } else {
+                ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+            }
+        }
     }
 
 
-    fun getContactList() : MutableList<User> {
+    fun getContactList(): MutableList<User> {
         return contactList
     }
 
-    fun setContactList(contactList_ : MutableList<User>) {
+    fun setContactList(contactList_: MutableList<User>) {
         contactList = contactList_
     }
 
@@ -90,8 +102,8 @@ class MainActivity : AppCompatActivity(), CallReceivedListener {
 
         if (!supportFragmentManager.isDestroyed) {
             val remotePhoneNumber = callSession.remotePhoneNumber
-            val user = getContactList().stream().filter {
-                    user -> user.number == remotePhoneNumber
+            val user = getContactList().stream().filter { user ->
+                user.number == remotePhoneNumber
             }.findFirst().orElse(null)
 
             val displayName = if (user?.firstName == null)
@@ -126,7 +138,7 @@ class MainActivity : AppCompatActivity(), CallReceivedListener {
      * Starts LoginActivity and finish MainActivity when logout button is pressed.
      */
     fun startLoginActivity() {
-        let{
+        let {
             val intent = Intent(it, LoginActivity::class.java)
             intent.putExtra("logout", true)
             it.startActivity(intent)
@@ -142,64 +154,40 @@ class MainActivity : AppCompatActivity(), CallReceivedListener {
      * e.g.: to access phoneNumber in a fragment:
      * val phoneNumber = (activity as MainActivity?)!!.getActiveUser().phoneNumber
      */
-    fun getActiveUser() : LoggedInUser {
+    fun getActiveUser(): LoggedInUser {
         return loggedInUser
     }
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                Log.i("Permission: ", "Granted")
-            } else {
-                Log.i("Permission: ", "Denied")
-            }
-        }
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            1 -> {
+                if (grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {    // if permission denied
+                    Log.d("debug", "PERMISSION DENIED")
+                    val dialogBuilder = AlertDialog.Builder(this)
+                    dialogBuilder.setMessage(R.string.mic_required)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.open_settings) { _, _ ->
+                            val i = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            i.addCategory(Intent.CATEGORY_DEFAULT)
+                            i.data = Uri.parse("package:$packageName")
+                            startActivity(i)
+                        }
+                        .setNegativeButton(R.string.exit_app) { _, _ ->
+                            finish()
+                        }
 
-    fun onClickRequestPermission(view: View) {
-        when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-                    == PackageManager.PERMISSION_GRANTED -> {
-                layout.showSnackbar(
-                    view, getString(R.string.permission_granted),
-                    Snackbar.LENGTH_INDEFINITE, null
-                ) {}
-            }
-
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            )
-            -> {
-                layout.showSnackbar(
-                    view, getString(R.string.permission_required),
-                    Snackbar.LENGTH_INDEFINITE, getString(R.string.ok)
-                ) {
-                    requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    // create dialog box
+                    val alert = dialogBuilder.create()
+                    alert.setTitle(R.string.permissions)
+                    alert.show()
                 }
-            }
-            else -> {
-                requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                return
             }
         }
     }
 
-}
-
-fun View.showSnackbar(
-    view: View,
-    msg: String,
-    length: Int,
-    actionMessage: CharSequence?,
-    action: (View) -> Unit
-) {
-    val snackbar = Snackbar.make(view, msg, length)
-    if (actionMessage != null) {
-        snackbar.setAction(actionMessage) {
-            action(this)
-        }.show()
-    } else {
-        snackbar.show()
-    }
 }
