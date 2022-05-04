@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -100,7 +101,7 @@ class CallingFragment : Fragment() {
 
 
 
-        answerTimer.schedule(1000, 1000) {
+        answerTimer.schedule(500, 500) {
             var removeIds = mutableListOf<Int>()
             for (textid in ownerIds){
                 Log.e("Looking for answer", textid.toString())
@@ -121,7 +122,8 @@ class CallingFragment : Fragment() {
             }
         }
 
-        receivingTimer.schedule(1000, 1000) {
+        receivingTimer.schedule(500, 500) {
+            var playingSound = AtomicBoolean(false)
             var removeIds = mutableListOf<Int>()
             for (textid in receivingIds){
                 Log.e("Looking for answer", textid.toString())
@@ -130,13 +132,20 @@ class CallingFragment : Fragment() {
                     transcriptionclient.sendAnswer(textid, "receiver")
                 }
                 else{
-                    removeIds.add(textid)
-                    getActivity()?.runOnUiThread(java.lang.Runnable{
-                        updateUI(answer, "receiver") //update UI and play sound at the same time for incoming data
-                        playSound(receivingSounds[0])
-                        receivingSounds.removeAt(0)
-                    })
-                    Log.e("answer", answer)
+                    if (!playingSound.get()) {
+                        removeIds.add(textid)
+                        getActivity()?.runOnUiThread(java.lang.Runnable {
+                            playingSound.set(true)
+                            updateUI(
+                                answer,
+                                "receiver"
+                            ) //update UI and play sound at the same time for incoming data
+                            playSound(receivingSounds[0])
+                            receivingSounds.removeAt(0)
+                            playingSound.set(false)
+                        })
+                        Log.e("answer", answer)
+                    }
                 }
             }
             for (textid in removeIds) {
@@ -282,9 +291,9 @@ class CallingFragment : Fragment() {
         audioTrack.play()
         var count = 0;
         while (count < buff.size) {
-            val written : Int = audioTrack.write(buff, count, buff.size);
+            val written : Int = audioTrack.write(buff, count, buff.size)
             if (written <= 0) {
-                break;
+                break
             }
             count += written
         }
