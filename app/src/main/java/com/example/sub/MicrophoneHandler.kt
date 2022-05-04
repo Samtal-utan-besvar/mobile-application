@@ -76,7 +76,7 @@ class MicrophoneHandler() {
         while (recording.get()) {
 
             val read = microphone!!.read(buffer, 0, minBufferSize)
-            bigBuffer.write(buffer, 0, minBufferSize)
+            bigBuffer.write(buffer, 0, read)
         }
         bigBuffer.flush()
         bigBuffer.close()
