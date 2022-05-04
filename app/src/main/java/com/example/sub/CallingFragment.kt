@@ -355,6 +355,13 @@ class CallingFragment : Fragment() {
             })
 
         }
+
+        override fun onSessionConnected() {
+            activity?.runOnUiThread(Runnable {
+                view?.findViewById<View>(R.id.callingText)?.visibility = View.GONE
+                view?.findViewById<View>(R.id.buttonTranscribe)?.visibility = View.VISIBLE
+            })
+        }
     }
 
 
