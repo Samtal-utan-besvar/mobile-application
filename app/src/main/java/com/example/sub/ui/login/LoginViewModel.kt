@@ -1,5 +1,6 @@
 package com.example.sub.ui.login
 
+import android.util.Log
 import android.telephony.PhoneNumberUtils
 import android.util.Patterns
 import androidx.lifecycle.LiveData
@@ -28,8 +29,9 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
         }
     }
 
-    suspend fun register(username: String, password: String) {
-        val result = loginRepository.register(username, password)
+    suspend fun register(username: String, password: String, cpassword: String, name: String,
+                         surname: String, email: String) {
+        val result = loginRepository.register(username, password, cpassword, name, surname, email)
         if (result is Result.Success) {
             _loginResult.postValue(LoginResult(success = LoggedInUserView(displayName = result.data.firstName)))
         } else {
@@ -51,12 +53,17 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
         }
     }
 
-    fun registrationDataChanged(email: String, password: String) {
-        if (!isEmailValid(email)) {
-            _loginForm.value = LoginFormState(emailError = R.string.invalid_mail)
-        } else if (!isPasswordValid(password)) {
+    fun registrationDataChanged(email: String, password: String, cpassword: String) {
+        if (!isPasswordValid(password)) {
             _loginForm.value = LoginFormState(passwordError = R.string.invalid_password)
-        } else {
+        } else if (password!=cpassword) {
+            Log.d("loggedDebug", password + " " + cpassword)
+            _loginForm.value = LoginFormState(cpasswordError = R.string.password_unmatched)
+        } else if (!isEmailValid(email)) {
+            _loginForm.value = LoginFormState(emailError = R.string.invalid_mail)
+        }
+        else {
+            Log.d("loggedDebug", "should be equal:"+ password + " " + cpassword)
             _loginForm.value = LoginFormState(isDataValid = true)
         }
     }

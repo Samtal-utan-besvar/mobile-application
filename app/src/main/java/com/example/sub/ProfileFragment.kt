@@ -98,7 +98,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 adapter.notifyDataSetChanged()
             }
 
-            runBlocking {  profileFragmentViewModel.addContact(contactNumber.text.toString())}
+            runBlocking {profileFragmentViewModel.addContact(contactNumber.text.toString())}
             //contactFirstName.text = ""
             //contactLastName.text = ""
             contactNumber.text = ""
@@ -119,6 +119,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
         }
+        Log.d("myDebug", "getUserToken(): " + getUserToken())
     }
 
     private fun showMenu(v: View) {

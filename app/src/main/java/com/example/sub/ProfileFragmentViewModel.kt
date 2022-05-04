@@ -17,7 +17,6 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 
 
-
 internal class ProfileFragmentViewModel(application: Application) : AndroidViewModel(application) {
     private val users: MutableLiveData<List<User>> = MutableLiveData()
     private var userToken = ""

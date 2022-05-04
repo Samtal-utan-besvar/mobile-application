@@ -36,7 +36,7 @@ class LoginActivityTest {
     fun loginActivityTest() {
         val appCompatEditText = onView(
             allOf(
-                withId(R.id.username),
+                withId(R.id.phone),
                 childAtPosition(
                     allOf(
                         withId(R.id.container),
