@@ -75,6 +75,8 @@ class CallingFragment : Fragment() {
     private lateinit var answerTimer : Timer //used to retrieve locally recorded transcriptions from server
     private lateinit var receivingTimer : Timer //used to retrieve transcriptions of incoming audio from server
 
+    private var playingSound = AtomicBoolean(false)
+
     private var navController: NavController? = null
 
 
@@ -96,6 +98,7 @@ class CallingFragment : Fragment() {
         ownerIds = mutableListOf<Int>() //outgoing transcriptions id's
         receivingIds = mutableListOf<Int>() //incoming transcription id's
         receivingSounds = mutableListOf<ByteArray>() //All the sounds to be played
+        playingSound.set(false)
         var mediaPlayer : MediaPlayer
         var uri : Uri
 
@@ -123,7 +126,6 @@ class CallingFragment : Fragment() {
         }
 
         receivingTimer.schedule(500, 500) {
-            var playingSound = AtomicBoolean(false)
             var removeIds = mutableListOf<Int>()
             for (textid in receivingIds){
                 Log.e("Looking for answer", textid.toString())
