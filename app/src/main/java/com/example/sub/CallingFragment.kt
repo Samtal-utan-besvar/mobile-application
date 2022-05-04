@@ -67,6 +67,12 @@ class CallingFragment : Fragment() {
 
     private lateinit var microphoneHandler : MicrophoneHandler
     private lateinit var transcriptionclient : TranscriptionClient
+    private lateinit var ownerIds : MutableList<Int> //outgoing transcriptions id's
+    private lateinit var receivingIds : MutableList<Int>//incoming transcription id's
+    private lateinit var receivingSounds : MutableList<ByteArray> //All the sounds to be played
+    private lateinit var recordTimer : Timer //used to split audio every 5 seconds
+    private lateinit var answerTimer : Timer //used to retrieve locally recorded transcriptions from server
+    private lateinit var receivingTimer : Timer //used to retrieve transcriptions of incoming audio from server
 
     private var navController: NavController? = null
 
@@ -83,12 +89,12 @@ class CallingFragment : Fragment() {
         microphoneHandler = MicrophoneHandler()
         transcriptionclient = TranscriptionClient()
         var id = arguments?.getString("phone_nr")!!.toLong().mod(1000000000).toInt() //casts the phone number so that fits in the first 4 bytes of sound bytearray
-        var recordTimer = Timer() //used to split audio every 5 seconds
-        var answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
-        var receivingTimer = Timer() //used to retrieve transcriptions of incoming audio from server
-        var ownerIds = mutableListOf<Int>() //outgoing transcriptions id's
-        var receivingIds = mutableListOf<Int>() //incoming transcription id's
-        var receivingSounds = mutableListOf<ByteArray>() //All the sounds to be played
+        recordTimer = Timer() //used to split audio every 5 seconds
+        answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
+        receivingTimer = Timer() //used to retrieve transcriptions of incoming audio from server
+        ownerIds = mutableListOf<Int>() //outgoing transcriptions id's
+        receivingIds = mutableListOf<Int>() //incoming transcription id's
+        receivingSounds = mutableListOf<ByteArray>() //All the sounds to be played
         var mediaPlayer : MediaPlayer
         var uri : Uri
 
@@ -218,14 +224,18 @@ class CallingFragment : Fragment() {
                         recordTimer.cancel()
                         recordTimer.purge()
                         recordTimer = Timer()
-                        id = id.plus(1)
+
                         transcribeButton.text = "Starta Transkribering"
                         bigbuff = microphoneHandler.StopAudioRecording()
-                        transcriptionclient.sendSound(id, bigbuff)
-                        transcriptionclient.sendAnswer(id, "owner")
-                        ownerIds.add(id)
-                        val idBytes = ByteBuffer.allocate(4).putInt(id).array() //put the id in the first 4 bytes of the sound
-                        callSession?.sendBytes(idBytes.plus(bigbuff))
+                        if (bigbuff.size > 6400) { // 1/5 of a second 
+                            id = id.plus(1)
+                            transcriptionclient.sendSound(id, bigbuff)
+                            transcriptionclient.sendAnswer(id, "owner")
+                            ownerIds.add(id)
+                            val idBytes = ByteBuffer.allocate(4).putInt(id)
+                                .array() //put the id in the first 4 bytes of the sound
+                            callSession?.sendBytes(idBytes.plus(bigbuff))
+                        }
                     }
 
                 }
@@ -354,6 +364,9 @@ class CallingFragment : Fragment() {
      * Navigates back to the profile fragment.
      */
     private fun closeCall() {
+        ownerIds.clear()
+        receivingIds.clear()
+        receivingSounds.clear()
         transcriptionclient.close()
         microphoneHandler.close()
         val bundle = Bundle()
