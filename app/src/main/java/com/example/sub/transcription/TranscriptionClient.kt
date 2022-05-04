@@ -34,6 +34,10 @@ class TranscriptionClient {
         webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
     }
 
+    fun close(){
+        webSocket?.close(1000, "Hang up")
+    }
+
     private inner class TranscribingWebSocketListener : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -58,6 +62,7 @@ class TranscriptionClient {
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            webSocket.close(code, reason)
             super.onClosed(webSocket, code, reason)
             Log.d("Transcription-closed", reason)
         }
@@ -66,6 +71,7 @@ class TranscriptionClient {
             super.onFailure(webSocket, t, response)
             val msg = response?.message ?: t.message ?: ""
             Log.d("Transcription-fail", msg)
+
         }
     }
     private fun send(jsonString: String){

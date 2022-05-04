@@ -65,6 +65,9 @@ class CallingFragment : Fragment() {
     var lastName: String? = null
     var phoneNr: String? = null
 
+    private lateinit var microphoneHandler : MicrophoneHandler
+    private lateinit var transcriptionclient : TranscriptionClient
+
     private var navController: NavController? = null
 
 
@@ -77,8 +80,8 @@ class CallingFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val microphoneHandler = MicrophoneHandler()
-        val transcriptionclient = TranscriptionClient()
+        microphoneHandler = MicrophoneHandler()
+        transcriptionclient = TranscriptionClient()
         var id = arguments?.getString("phone_nr")!!.toLong().mod(1000000000).toInt() //casts the phone number so that fits in the first 4 bytes of sound bytearray
         var recordTimer = Timer() //used to split audio every 5 seconds
         var answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
@@ -351,6 +354,8 @@ class CallingFragment : Fragment() {
      * Navigates back to the profile fragment.
      */
     private fun closeCall() {
+        transcriptionclient.close()
+        microphoneHandler.close()
         val bundle = Bundle()
         bundle.putString("first_name", firstName)
         bundle.putString("last_name", lastName)
@@ -362,6 +367,7 @@ class CallingFragment : Fragment() {
                 navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
             } catch (e: Exception) {}
         }
+
 
     }
 

@@ -85,6 +85,11 @@ class MicrophoneHandler() {
         return bigBuffer.toByteArray()
     }
 
+    fun close(){
+        recording.set(false)
+        recordingThread?.cancel(null)
+    }
+
 }
 
 
