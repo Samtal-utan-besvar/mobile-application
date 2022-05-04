@@ -12,32 +12,38 @@
         android:id="@+id/toggleButtonSilentMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="13dp"
         android:adjustViewBounds="true"
         android:checked="true"
         android:drawableStart="@drawable/toggle_drawable_silent_mode"
         android:scaleType="fitXY"
         android:text="ToggleButton"
+        android:textOff="AV"
+        android:textOn="PÅ"
         app:fabCustomSize="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.855"
+        app:layout_constraintHorizontal_bias="0.869"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.922" />
+        app:layout_constraintTop_toTopOf="@+id/closeCall"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ToggleButton
         android:id="@+id/toggleButtonMute"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="13dp"
         android:checked="true"
         android:drawableStart="@drawable/toggle_drawable_mute"
         android:text="ToggleButton"
+        android:textOff="AV"
+        android:textOn="PÅ"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.144"
+        app:layout_constraintHorizontal_bias="0.133"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.922" />
+        app:layout_constraintTop_toTopOf="@+id/closeCall"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ScrollView
         android:id="@+id/scrollView3"
@@ -130,6 +136,7 @@
         android:layout_height="464dp"
         android:layout_marginTop="52dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@+id/closeCall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
