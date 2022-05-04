@@ -25,12 +25,16 @@ import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
 import java.io.*
 import com.example.sub.session.SessionListener
+import com.example.sub.signal.SignalClient.send
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.math.pow
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONTokener
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -178,8 +182,9 @@ class CallingFragment : Fragment() {
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        sendRecordingNow("ja")
                         microphoneHandler.StartAudioRecording()
-                        transcribeButton.text = "recording"
+                        transcribeButton.text = "Spelar in"
                         /**audioRecord = AudioRecord(
                                 MediaRecorder.AudioSource.MIC,
                                 intRecordSampleRate,
@@ -206,11 +211,12 @@ class CallingFragment : Fragment() {
                         }
                     }
                     MotionEvent.ACTION_UP -> {
+                        sendRecordingNow("nej")
                         recordTimer.cancel()
                         recordTimer.purge()
                         recordTimer = Timer()
                         id = id.plus(1)
-                        transcribeButton.text = "press to record"
+                        transcribeButton.text = "Starta Transkribering"
                         bigbuff = microphoneHandler.StopAudioRecording()
                         transcriptionclient.sendSound(id, bigbuff)
                         transcriptionclient.sendAnswer(id, "owner")
@@ -272,7 +278,13 @@ class CallingFragment : Fragment() {
         audioTrack.release()
     }
 
-
+    fun sendRecordingNow(recording: String) {
+        val message = JSONObject()
+        message.put("Reason", "notifyRecording")
+        message.put("Recording", recording)
+        val msgList = listOf(message)
+        callSession?.sendString(msgList.toString())
+    }
 
     fun updateUI(message: String, ownerType: String){
         //check for left or right side of call
@@ -305,7 +317,34 @@ class CallingFragment : Fragment() {
             //Since first 4 bytes is the manually attached id, dont copy thoose.
             sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
         }
+
+        override fun onStringMessage(message: String) {
+            println("onStringMessage: ")
+            var recording : String = ""
+            var reason : String = ""
+            val jsonArray = JSONTokener(message).nextValue() as JSONArray
+            for (i in 0 until jsonArray.length()) {
+                reason = jsonArray.getJSONObject(i).getString("Reason")
+                recording = jsonArray.getJSONObject(i).getString("Recording")
+            }
+
+            activity?.runOnUiThread(Runnable {
+                if (reason == "notifyRecording"){
+                    if (recording == "ja"){
+                        //view?.findViewById<View>(R.id.recordingBusy)?.visibility = View.VISIBLE
+                        println("jag är här i ja")
+                        view?.findViewById<View>(R.id.recordingAvailable)?.visibility = View.GONE
+                    }
+                    else{
+                        view?.findViewById<View>(R.id.recordingAvailable)?.visibility = View.VISIBLE
+                    }
+                }
+            })
+
+        }
     }
+
+
 
 
     /**
