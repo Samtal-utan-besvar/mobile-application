@@ -77,9 +77,9 @@ class TranscriptionClient(context: Context) {
         @SuppressLint("RestrictedApi")//this suprress is for getActivity(context) which has a known lint-error
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             super.onFailure(webSocket, t, response)
+            val msg = response?.message ?: t.message ?: ""
+            Log.d("Transcription-fail", msg)
             getActivity(context)?.runOnUiThread(java.lang.Runnable{
-                val msg = response?.message ?: t.message ?: ""
-                Log.d("Transcription-fail", msg)
 
                 val builder = AlertDialog.Builder(context)
                 //set title for alert dialog

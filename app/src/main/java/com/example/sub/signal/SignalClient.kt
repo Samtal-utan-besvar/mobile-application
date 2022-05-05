@@ -36,7 +36,7 @@ object SignalClient {
 
         val client = OkHttpClient.Builder()
             .readTimeout(3, TimeUnit.SECONDS)
-            .pingInterval(4, TimeUnit.SECONDS)
+            //.pingInterval(4, TimeUnit.SECONDS)
             //.sslSocketFactory()
             .build()
         val request = Request.Builder()
@@ -114,10 +114,8 @@ object SignalClient {
             super.onFailure(webSocket, t, response)
             val msg = response?.message ?: t.message ?: ""
             Log.d("Signal-fail", msg)
-            getActivity(context)?.runOnUiThread(java.lang.Runnable{
-                val msg = response?.message ?: t.message ?: ""
-                Log.d("Transcription-fail", msg)
 
+            getActivity(context)?.runOnUiThread(java.lang.Runnable{
                 val builder = AlertDialog.Builder(context)
                 //set title for alert dialog
                 builder.setTitle("Serverfel")
