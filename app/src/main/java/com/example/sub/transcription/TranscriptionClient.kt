@@ -1,8 +1,13 @@
 package com.example.sub.transcription
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
+import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.*
@@ -13,10 +18,11 @@ import java.util.concurrent.TimeUnit
 private const val TRANSCRIPT_URL = "ws://129.151.206.9:6000" // use local ip for devices in local network
 // pixel 5: utan 5, Brw
 
-class TranscriptionClient {
+class TranscriptionClient(context: Context) {
 
     private var webSocket: WebSocket? = null
     private var answers = mutableMapOf<Int, String>()
+    private var context = context
     init{
         connect()
     }
@@ -25,6 +31,7 @@ class TranscriptionClient {
         // wss test
         val client = OkHttpClient.Builder()
             .readTimeout(3, TimeUnit.SECONDS)
+            .pingInterval(5, TimeUnit.SECONDS)
             //.sslSocketFactory()
             .build()
         val request = Request.Builder()
@@ -67,11 +74,30 @@ class TranscriptionClient {
             Log.d("Transcription-closed", reason)
         }
 
+        @SuppressLint("RestrictedApi")//this suprress is for getActivity(context) which has a known lint-error
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             super.onFailure(webSocket, t, response)
-            val msg = response?.message ?: t.message ?: ""
-            Log.d("Transcription-fail", msg)
+            getActivity(context)?.runOnUiThread(java.lang.Runnable{
+                val msg = response?.message ?: t.message ?: ""
+                Log.d("Transcription-fail", msg)
 
+                val builder = AlertDialog.Builder(context)
+                //set title for alert dialog
+                builder.setTitle("Transkriberingsfel")
+                //set message for alert dialog
+                builder.setMessage("Du har tappat kontakten med transkriberingservern, starta om samtalet för att återuppta kontakten.")
+                builder.setIcon(android.R.drawable.ic_dialog_alert)
+
+                //performing cancel action
+                builder.setNeutralButton("Okej") { dialogInterface, which ->
+                }
+
+                // Create the AlertDialog
+                val alertDialog: AlertDialog = builder.create()
+                // Set other dialog properties
+                alertDialog.setCancelable(false)
+                alertDialog.show()
+            })
         }
     }
     private fun send(jsonString: String){
