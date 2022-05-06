@@ -35,6 +35,11 @@
     <string name="nav_register">Skapa konto</string>
 
     <!-- Mic Permissions - text -->
+    <string name="mic_required">Appen behöver tillgång till mikrofon. Öppna appinställningar och ändra behörigheter.</string>
+    <string name="open_settings">Öppna inställningar</string>
+    <string name="exit_app">Avsluta appen</string>
+    <string name="permissions">Behörigheter</string>
+    <string name="app_info">App info</string>
     <string name="permission_required">Vill du tillåta applikationen att spela in ljud</string>
     <string name="permission_granted">Behörighet godkänd!</string>
     <string name="ok">OK</string>

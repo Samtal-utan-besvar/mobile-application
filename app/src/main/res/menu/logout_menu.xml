@@ -2,6 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/loggaut"
         android:title="@string/menuLogout" />
-    <item android:id="@+id/requestPerm"
-        android:title="@string/ReqPermission" />
+    <item android:id="@+id/appInfo"
+        android:title="@string/app_info" />
 </menu>
