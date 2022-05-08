@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.sub.data.LoggedInUser
@@ -32,6 +33,7 @@ import com.example.sub.session.CallReceivedListener
 import com.example.sub.session.CallSession
 import com.example.sub.signal.SignalClient
 import com.example.sub.ui.login.LoginActivity
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), CallReceivedListener {
     private lateinit var layout: View
@@ -104,31 +106,17 @@ class MainActivity : AppCompatActivity(), CallReceivedListener {
             val remotePhoneNumber = callSession.remotePhoneNumber
             val user = getContactList().stream().filter { user ->
                 user.number == remotePhoneNumber
-            }.findFirst().orElse(null)
+            }.findFirst().orElse(User("Okänd", "Uppringare", remotePhoneNumber))
 
-            val displayName = if (user?.firstName == null)
-                remotePhoneNumber else user.firstName!!
+            val bundle = Bundle()
+            bundle.putString("first_name", user.firstName)
+            bundle.putString("last_name", user.lastName)
+            bundle.putString("phone_nr", user.number)
 
-            val callDialog = CallDialog(displayName)
-
-            callDialog.setOnAnswer {
-                callSession.accept(applicationContext)
-                val navController = callDialog.findNavController()
-
-                val bundle = Bundle()
-                bundle.putString("first_name", user.firstName)
-                bundle.putString("last_name", user.lastName)
-                bundle.putString("phone_nr", user.number)
-
-                navController.navigate(R.id.callingFragment, bundle)
-                //TODO: go to CallingFragment
+            val navController = findNavController(R.id.nav_host_fragment)
+            lifecycleScope.launch {
+                navController.navigate(R.id.receivingCall, bundle)
             }
-
-            callDialog.setOnDeny {
-                callSession.deny()
-            }
-
-            callDialog.show(supportFragmentManager, "callDialog")
         }
 
     }
