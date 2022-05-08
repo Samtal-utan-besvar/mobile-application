@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), CallReceivedListener {
         val localPhoneNumber = loggedInUser.phoneNumber!!
 
         // Crucial part.
-        SignalClient.connect(token, applicationContext)
+        SignalClient.connect(token, this)
         CallHandler.initInstance(SignalClient, localPhoneNumber)
         CallHandler.getInstance().callReceivedListeners.add( this )
     }

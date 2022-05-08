@@ -36,7 +36,7 @@ object SignalClient {
 
         val client = OkHttpClient.Builder()
             .readTimeout(3, TimeUnit.SECONDS)
-            //.pingInterval(4, TimeUnit.SECONDS)
+            .pingInterval(5, TimeUnit.SECONDS)
             //.sslSocketFactory()
             .build()
         val request = Request.Builder()
@@ -50,8 +50,7 @@ object SignalClient {
     /**
      * This is a class utilized for listening to changes of the websocket.
      */
-    private class SignalingWebSocketListener(context : Context) : WebSocketListener() {
-        var context = context
+    private class SignalingWebSocketListener(val context: Context) : WebSocketListener() {
 
         /**
          * Gets called when the websocket connection is established.
@@ -115,18 +114,19 @@ object SignalClient {
             val msg = response?.message ?: t.message ?: ""
             Log.d("Signal-fail", msg)
 
+
+
+            val builder = AlertDialog.Builder(context)
+            //set title for alert dialog
+            builder.setTitle("Serverfel")
+            //set message for alert dialog
+            builder.setMessage("Du har tappat kontakten med signalservern, kontrollera din internetanslutning och starta om appen för att återuppta kontakten.")
+            builder.setIcon(android.R.drawable.ic_dialog_alert)
+
+            //performing cancel action
+            builder.setNeutralButton("Okej") { dialogInterface, which ->
+            }
             getActivity(context)?.runOnUiThread(java.lang.Runnable{
-                val builder = AlertDialog.Builder(context)
-                //set title for alert dialog
-                builder.setTitle("Serverfel")
-                //set message for alert dialog
-                builder.setMessage("Du har tappat kontakten med signalservern, starta om appen för att återuppta kontakten.")
-                builder.setIcon(android.R.drawable.ic_dialog_alert)
-
-                //performing cancel action
-                builder.setNeutralButton("Okej") { dialogInterface, which ->
-                }
-
                 // Create the AlertDialog
                 val alertDialog: AlertDialog = builder.create()
                 // Set other dialog properties

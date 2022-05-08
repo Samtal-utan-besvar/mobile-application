@@ -79,13 +79,14 @@ class TranscriptionClient(context: Context) {
             super.onFailure(webSocket, t, response)
             val msg = response?.message ?: t.message ?: ""
             Log.d("Transcription-fail", msg)
+
             getActivity(context)?.runOnUiThread(java.lang.Runnable{
 
                 val builder = AlertDialog.Builder(context)
                 //set title for alert dialog
                 builder.setTitle("Transkriberingsfel")
                 //set message for alert dialog
-                builder.setMessage("Du har tappat kontakten med transkriberingservern, starta om samtalet för att återuppta kontakten.")
+                builder.setMessage("Du har tappat kontakten med transkriberingservern, kontrollera din internetanslutning starta om samtalet för att återuppta kontakten.")
                 builder.setIcon(android.R.drawable.ic_dialog_alert)
 
                 //performing cancel action
@@ -98,6 +99,8 @@ class TranscriptionClient(context: Context) {
                 alertDialog.setCancelable(false)
                 alertDialog.show()
             })
+
+
         }
     }
     private fun send(jsonString: String){
