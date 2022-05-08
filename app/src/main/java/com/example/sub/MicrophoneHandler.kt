@@ -1,10 +1,9 @@
 package com.example.sub
 
 import android.annotation.SuppressLint
-import android.media.AudioFormat
-import android.media.AudioRecord
-import android.media.MediaRecorder
+import android.media.*
 import android.util.Log
+import android.view.View
 import com.example.sub.transcription.TranscriptionClient
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.IO
@@ -18,22 +17,31 @@ import kotlin.concurrent.thread
 import kotlin.math.min
 
 class MicrophoneHandler() {
+
     private var recordingThread: Deferred<ByteArray>? = null
     val sampleRate = 16000
     val channelConfig = AudioFormat.CHANNEL_IN_MONO
     val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-    @Volatile var recording = AtomicBoolean(true)
+    private @Volatile var recording = AtomicBoolean(true)
 
+    fun getRecordingStatus() : Boolean{
+        return recording.get()
+    }
+
+    /*
+    Starts a thread that records microphone.
+     */
     fun StartAudioRecording(){
         recording.set(true)
 
         recordingThread = GlobalScope.async {
             WriteAudioToDataFile(recording)
         }
-
-
     }
 
+    /*
+    Stops the thead started in start function. Records the sound in an bytearray.
+     */
     fun StopAudioRecording(): ByteArray {
 
         recording.set(false)
@@ -41,11 +49,12 @@ class MicrophoneHandler() {
         runBlocking {soundBytes = recordingThread!!.await()}
 
         return soundBytes
-
-
     }
 
-
+    /*
+    A thread is started here that puts all of the input an bytearrayoutputstream. When stop is called,
+    the thread exists and return all of the recorded sound in a bytearray.
+     */
     @SuppressLint("MissingPermission")
     fun WriteAudioToDataFile(recording: AtomicBoolean): ByteArray {
 
@@ -67,13 +76,18 @@ class MicrophoneHandler() {
         while (recording.get()) {
 
             val read = microphone!!.read(buffer, 0, minBufferSize)
-            bigBuffer.write(buffer, 0, minBufferSize)
+            bigBuffer.write(buffer, 0, read)
         }
         bigBuffer.flush()
         bigBuffer.close()
         microphone!!.stop()
         microphone!!.release()
         return bigBuffer.toByteArray()
+    }
+
+    fun close(){
+        recording.set(false)
+        recordingThread?.cancel(null)
     }
 
 }

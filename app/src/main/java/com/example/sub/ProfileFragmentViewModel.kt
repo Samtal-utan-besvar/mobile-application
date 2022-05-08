@@ -1,6 +1,7 @@
 package com.example.sub
 
 import android.app.Application
+import android.app.PendingIntent.getActivity
 import androidx.lifecycle.*
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -14,7 +15,6 @@ import org.json.JSONArray
 import org.json.JSONTokener
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
-
 
 
 internal class ProfileFragmentViewModel(application: Application) : AndroidViewModel(application) {

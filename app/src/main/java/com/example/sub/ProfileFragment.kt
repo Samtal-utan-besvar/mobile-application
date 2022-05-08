@@ -1,6 +1,9 @@
 package com.example.sub
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.*
 import android.widget.*
@@ -72,7 +75,6 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
         contactGroup = view.findViewById(R.id.addContactGroup)
         contactList = view.findViewById(R.id.contactList)
         contactGroup.visibility = View.GONE
-        profileFragmentViewModel.getUsers()
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.contactList)
         val adapter = contactListAdapter(contacts, this)
@@ -86,6 +88,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 adapter.changeDataSet(strings)
                 adapter.notifyDataSetChanged()
                 contacts = strings as MutableList<User>
+                (activity as MainActivity?)!!.setContactList(strings)
             })
         navController = findNavController(view)
         view.findViewById<View>(R.id.addContact).setOnClickListener {
@@ -98,12 +101,13 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 adapter.notifyDataSetChanged()
             }
 
-            runBlocking {  profileFragmentViewModel.addContact(contactNumber.text.toString())}
+            runBlocking {profileFragmentViewModel.addContact(contactNumber.text.toString())}
             //contactFirstName.text = ""
             //contactLastName.text = ""
             contactNumber.text = ""
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
+            (activity as MainActivity?)!!.setContactList(contacts)
         }
 
         Log.d("JWTToken: ", getUserToken())
@@ -118,6 +122,7 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
             contactGroup.visibility = View.GONE
             contactList.visibility = View.VISIBLE
         }
+        Log.d("myDebug", "getUserToken(): " + getUserToken())
     }
 
     private fun showMenu(v: View) {
@@ -137,8 +142,11 @@ class ProfileFragment : Fragment(), contactListAdapter.ListItemClickListener, Po
                 (activity as MainActivity?)!!.startLoginActivity()
                 true
             }
-            R.id.requestPerm -> {
-
+            R.id.appInfo -> {
+                val i = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                i.addCategory(Intent.CATEGORY_DEFAULT)
+                i.data = Uri.parse("package:" + context?.packageName)
+                startActivity(i)
                 true
             }
             else -> false

@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import com.example.sub.session.CallHandler
 import com.example.sub.ui.login.LoginViewModel
 import com.example.sub.ui.login.LoginViewModelFactory
 import com.google.gson.Gson
@@ -53,9 +54,9 @@ class UserProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         bundle.putString("phone_nr", profilePhoneNumber.text as String?)
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory(context))[LoginViewModel::class.java]
         runBlocking {  loginViewModel.getUser()?.userToken?.let { userProfileFragmentViewModel.setUserToken(it) }}
-
         view.findViewById<View>(R.id.callButton).setOnClickListener {
 
+            callContact(profilePhoneNumber.text as String)
             navController?.navigate(R.id.action_userProfileFragment_to_callingToFragment, bundle)
 
         }
@@ -69,6 +70,13 @@ class UserProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
             showMenu(view.findViewById(R.id.userProfileSettings))
         }
     }
+
+
+    private fun callContact(remotePhoneNumber: String) {
+        val callHandler = CallHandler.getInstance()
+        callHandler.call(remotePhoneNumber, requireContext())
+    }
+
 
     private fun showMenu(v: View) {
         PopupMenu(this.context, v).apply {

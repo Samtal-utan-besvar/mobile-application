@@ -112,7 +112,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
         }
 
         makeDataChannel()
-        initAudio()
+       // initAudio()
         createOffer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 setLocalDescription(sdpObserver, desc)
@@ -132,7 +132,7 @@ class RTCClient(observer: PeerConnectionObserver, context: Context) {
             mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
         }
 
-        initAudio()
+       // initAudio()
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 setLocalDescription(sdpObserver, desc)
