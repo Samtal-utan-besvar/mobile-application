@@ -49,7 +49,7 @@ class ReceivingCall : Fragment() {
         profileFirstName = arguments?.getString("first_name")!!
         profileLastName = arguments?.getString("last_name")!!
         profilePhoneNumber = arguments?.getString("phone_nr")!!
-        userName.text = profileFirstName
+        userName.text = profileFirstName + " " + profileLastName + " ringer dig"
 
         session = CallHandler.getInstance().activeSession
 

@@ -45,7 +45,7 @@ class CallingToFragment : Fragment() {
         profileFirstName = arguments?.getString("first_name")!!
         profileLastName = arguments?.getString("last_name")!!
         profilePhoneNumber = arguments?.getString("phone_nr")!!
-        userName.text = profileFirstName
+        userName.text = "Ringer " + profileFirstName + " " + profileLastName
 
         session = CallHandler.getInstance().activeSession
 
