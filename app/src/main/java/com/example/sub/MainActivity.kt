@@ -15,6 +15,7 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.findNavController
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity(), CallReceivedListener {
         val localPhoneNumber = loggedInUser.phoneNumber!!
 
         // Crucial part.
-        SignalClient.connect(token)
+        SignalClient.connect(token, this)
         CallHandler.initInstance(SignalClient, localPhoneNumber)
         CallHandler.getInstance().callReceivedListeners.add( this )
     }

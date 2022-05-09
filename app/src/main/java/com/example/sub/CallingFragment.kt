@@ -87,7 +87,7 @@ class CallingFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         microphoneHandler = MicrophoneHandler()
-        transcriptionclient = TranscriptionClient()
+        transcriptionclient = TranscriptionClient(requireContext())
         var id = arguments?.getString("phone_nr")!!.toLong().mod(1000000000).toInt() //casts the phone number so that fits in the first 4 bytes of sound bytearray
         recordTimer = Timer() //used to split audio every 5 seconds
         answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
