@@ -8,6 +8,7 @@
 
     >
 
+    <!--
     <ToggleButton
         android:id="@+id/toggleButtonSilentMode"
         android:layout_width="wrap_content"
@@ -27,7 +28,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/closeCall"
         app:layout_constraintVertical_bias="0.0" />
+        -->
 
+    <!--
     <ToggleButton
         android:id="@+id/toggleButtonMute"
         android:layout_width="wrap_content"
@@ -44,6 +47,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/closeCall"
         app:layout_constraintVertical_bias="0.0" />
+        -->
 
     <ScrollView
         android:id="@+id/scrollView3"
@@ -98,37 +102,25 @@
         app:layout_constraintVertical_bias="0.012" />
 
 
-    <Button
-        android:id="@+id/buttonTranscribe"
-        android:layout_width="230dp"
-        android:layout_height="wrap_content"
-        android:text="@string/transcribe"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.819" />
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/closeCall"
         style="@null"
-        android:contentDescription="Button to close the call"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:backgroundTint="@android:color/holo_red_dark"
         android:backgroundTintMode="add"
         android:clickable="true"
+        android:contentDescription="Button to close the call"
         android:src="@drawable/ic_hangup"
         app:borderWidth="0dp"
-        app:fabCustomSize="70dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:fabCustomSize="40dp"
+        app:layout_constraintBottom_toBottomOf="@id/buttonTranscribe"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.944"
-        app:maxImageSize="40dp"
+        app:layout_constraintHorizontal_bias="0.3"
+        app:layout_constraintStart_toEndOf="@id/buttonTranscribe"
+        app:layout_constraintTop_toTopOf="@id/buttonTranscribe"
+        app:layout_constraintVertical_bias="0.5"
+        app:maxImageSize="30dp"
         app:tint="@color/white"
         app:useCompatPadding="false" />
 
@@ -156,26 +148,38 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/buttonTranscribe"
         app:layout_constraintEnd_toStartOf="@+id/buttonTranscribe"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.75"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/buttonTranscribe"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_bias="0.5"
         tools:ignore="DuplicateClickableBoundsCheck" />
+
+    <com.example.sub.RecordProgress
+        android:id="@+id/buttonTranscribe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/transcribe"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.950" />
 
     <ImageButton
         android:id="@+id/recordingAvailable"
-        android:contentDescription="Button that shows recording is available"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginEnd="12dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Button that shows recording is available"
         android:scaleType="fitXY"
         android:src="@android:drawable/presence_online"
         app:layout_constraintBottom_toBottomOf="@+id/buttonTranscribe"
         app:layout_constraintEnd_toStartOf="@+id/buttonTranscribe"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.75"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/buttonTranscribe"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

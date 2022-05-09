@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <FrameLayout
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        >
+
+        <ImageButton
+            android:id="@+id/recordButton"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:adjustViewBounds="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="RecordButton"
+            android:defaultFocusHighlightEnabled="true"
+            android:focusable="auto"
+            android:foreground="?attr/actionBarItemBackground"
+            android:layout_gravity="center"
+            android:padding="0dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_record_button"/>
+
+        <com.mikhaellopez.circularprogressbar.CircularProgressBar
+            android:id="@+id/circularProgressBar"
+            android:layout_width="95dp"
+            android:layout_height="95dp"
+            android:layout_gravity="center"
+            app:cpb_background_progressbar_color="#00bbbbbb"
+            app:cpb_background_progressbar_width="0dp"
+            app:cpb_progress_direction="to_right"
+            app:cpb_progressbar_color="#F5BE4E"
+            app:cpb_progressbar_width="5dp"
+            app:cpb_round_border="true" />
+
+    </FrameLayout>
+
+
+
+</merge>
