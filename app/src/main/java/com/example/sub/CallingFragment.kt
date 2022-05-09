@@ -83,7 +83,7 @@ class CallingFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         microphoneHandler = MicrophoneHandler()
-        transcriptionclient = TranscriptionClient()
+        transcriptionclient = TranscriptionClient(requireContext())
         var id = arguments?.getString("phone_nr")!!.toLong().mod(1000000000).toInt() //casts the phone number so that fits in the first 4 bytes of sound bytearray
         recordTimer = Timer() //used to split audio every 5 seconds
         answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
@@ -157,7 +157,7 @@ class CallingFragment : Fragment() {
         recyclerView.adapter = adapter
 
 
-
+        /*
         // onClick for Speaker toggleButton
         val toggleButtonSilentMode: ToggleButton = view.findViewById(R.id.toggleButtonSilentMode)
         toggleButtonSilentMode.setOnCheckedChangeListener { _, isChecked ->
@@ -169,6 +169,7 @@ class CallingFragment : Fragment() {
                 Toast.makeText(activity, "Högtalare: AV", Toast.LENGTH_LONG).show()    // remove
             }
         }
+
 
         // onClick for Mute toggleButton
         val toggleButtonMute: ToggleButton = view.findViewById(R.id.toggleButtonMute)
@@ -182,16 +183,19 @@ class CallingFragment : Fragment() {
             }
         }
 
+         */
+
         val testMp3 = File.createTempFile("test", "3gp", requireContext().cacheDir)
-        val transcribeButton = view.findViewById<Button>(R.id.buttonTranscribe)
+        val transcribeButton = view.findViewById<RecordProgress>(R.id.buttonTranscribe)
         transcribeButton.setOnTouchListener(object : View.OnTouchListener {
             @SuppressLint("SetTextI18n", "MissingPermission")
             override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        transcribeButton.start(5000)
                         sendRecordingNow("ja")
                         microphoneHandler.StartAudioRecording()
-                        transcribeButton.text = "Spelar in"
+                        //transcribeButton.text = "Spelar in"
                         /**audioRecord = AudioRecord(
                                 MediaRecorder.AudioSource.MIC,
                                 intRecordSampleRate,
@@ -214,16 +218,18 @@ class CallingFragment : Fragment() {
                                 Log.e("Id int ", id.toString())
                                 Log.e("Id bytes", idBytes.toString())
                                 callSession?.sendBytes(idBytes.plus(bigbuff))
+                                transcribeButton.restart()
                             }
                         }
                     }
                     MotionEvent.ACTION_UP -> {
+                        transcribeButton.stop()
                         sendRecordingNow("nej")
                         recordTimer.cancel()
                         recordTimer.purge()
                         recordTimer = Timer()
 
-                        transcribeButton.text = "Starta Transkribering"
+                        //transcribeButton.text = "Starta Transkribering"
                         bigbuff = microphoneHandler.StopAudioRecording()
                         if (bigbuff.size > 6400) { // 1/5 of a second 
                             id = id.plus(1)

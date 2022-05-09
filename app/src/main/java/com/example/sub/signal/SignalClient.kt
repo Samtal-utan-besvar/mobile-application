@@ -1,10 +1,17 @@
 package com.example.sub.signal
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
 import android.util.Log
+import com.google.android.material.internal.ContextUtils
+import com.google.android.material.internal.ContextUtils.getActivity
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.*
 import org.json.JSONObject
+import org.webrtc.ContextUtils.getApplicationContext
+import java.security.AccessController.getContext
 import java.util.concurrent.TimeUnit
 
 private const val SIGNAL_URL = "ws://144.24.171.133:4000" // use local ip for devices in local network
@@ -24,17 +31,18 @@ object SignalClient {
     /**
      * Requests and establishes a connection with the signal server.
      */
-    fun connect(token: String) {
+    fun connect(token: String, context: Context) {
         this.token = token
 
         val client = OkHttpClient.Builder()
             .readTimeout(3, TimeUnit.SECONDS)
+            .pingInterval(5, TimeUnit.SECONDS)
             //.sslSocketFactory()
             .build()
         val request = Request.Builder()
             .url(SIGNAL_URL) // 'ws'
             .build()
-        val wsListener = SignalingWebSocketListener()
+        val wsListener = SignalingWebSocketListener(context)
         webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
     }
 
@@ -42,8 +50,7 @@ object SignalClient {
     /**
      * This is a class utilized for listening to changes of the websocket.
      */
-    private class SignalingWebSocketListener : WebSocketListener() {
-
+    private class SignalingWebSocketListener(val context: Context) : WebSocketListener() {
 
         /**
          * Gets called when the websocket connection is established.
@@ -101,11 +108,31 @@ object SignalClient {
          * Gets called when an error occurs with the websocket connection, sent messages or
          * received messages.
          */
+        @SuppressLint("RestrictedApi") //this suprress is for getActivity(context) which has a known lint-error
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             super.onFailure(webSocket, t, response)
             val msg = response?.message ?: t.message ?: ""
             Log.d("Signal-fail", msg)
-            throw t
+
+
+
+            val builder = AlertDialog.Builder(context)
+            //set title for alert dialog
+            builder.setTitle("Serverfel")
+            //set message for alert dialog
+            builder.setMessage("Du har tappat kontakten med signalservern, kontrollera din internetanslutning och starta om appen för att återuppta kontakten.")
+            builder.setIcon(android.R.drawable.ic_dialog_alert)
+
+            //performing cancel action
+            builder.setNeutralButton("Okej") { dialogInterface, which ->
+            }
+            getActivity(context)?.runOnUiThread(java.lang.Runnable{
+                // Create the AlertDialog
+                val alertDialog: AlertDialog = builder.create()
+                // Set other dialog properties
+                alertDialog.setCancelable(false)
+                alertDialog.show()
+            })
         }
     }
 
