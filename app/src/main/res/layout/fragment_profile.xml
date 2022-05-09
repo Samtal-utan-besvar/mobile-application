@@ -129,4 +129,5 @@
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="cancelAddContact,confirmContact,addContactText,contactNr" />
 
+
 </androidx.constraintlayout.widget.ConstraintLayout>
