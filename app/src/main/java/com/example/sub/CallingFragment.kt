@@ -148,7 +148,11 @@ class CallingFragment : Fragment() {
         userName.text = firstName
         navController = findNavController(view.findViewById(R.id.closeCall))
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
+
+            //getFragmentManager()?.popBackStack()
             callSession?.hangUp()
+
+
 
 
             //closeCall()
@@ -380,14 +384,15 @@ class CallingFragment : Fragment() {
 
 
 
+
         // Navigate using global scope.
         GlobalScope.launch {
             try {
 
-                getFragmentManager()?.popBackStackImmediate()
-                //navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
+                //getFragmentManager()?.popBackStackImmediate()
+                navController?.navigate(R.id.userProfileFragment, bundle)
             } catch (e: Exception) {
-                Log.d("error message:", e.toString())
+                Log.d("error messagelalalala:", e.toString())
 
             }
         }
