@@ -62,6 +62,7 @@ class ReceivingCall : Fragment() {
             bundle.putString("first_name", profileFirstName)
             bundle.putString("last_name", profileLastName)
             bundle.putString("phone_nr", profilePhoneNumber)
+
             closeView()
 
         }
@@ -106,6 +107,7 @@ class ReceivingCall : Fragment() {
             GlobalScope.launch {
                 try {
                     navController?.navigate(R.id.action_receivingCall_to_callingFragment, bundle)
+                    getActivity()?.getSupportFragmentManager()?.popBackStack();
                 } catch (e: Exception) {}
             }
         }
