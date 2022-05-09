@@ -86,7 +86,7 @@ class TranscriptionClient(context: Context) {
                 //set title for alert dialog
                 builder.setTitle("Transkriberingsfel")
                 //set message for alert dialog
-                builder.setMessage("Du har tappat kontakten med transkriberingservern, kontrollera din internetanslutning starta om samtalet för att återuppta kontakten.")
+                builder.setMessage("Du har tappat kontakten med transkriberingservern, kontrollera din internetanslutning och starta om samtalet för att återuppta kontakten.")
                 builder.setIcon(android.R.drawable.ic_dialog_alert)
 
                 //performing cancel action
