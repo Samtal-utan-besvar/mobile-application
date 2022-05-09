@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -371,7 +372,6 @@ class CallingFragment : Fragment() {
         bundle.putString("first_name", firstName)
         bundle.putString("last_name", lastName)
         bundle.putString("phone_nr", phoneNr)
-
         // Navigate using global scope.
         GlobalScope.launch {
             try {

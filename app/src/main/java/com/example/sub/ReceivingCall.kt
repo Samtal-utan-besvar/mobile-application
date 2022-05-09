@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.sub.session.CallHandler
@@ -30,6 +31,8 @@ class ReceivingCall : Fragment() {
     private lateinit var profileFirstName: String
     private lateinit var profileLastName : String
     private lateinit var profilePhoneNumber : String
+    private lateinit var userName : TextView
+
 
     var session : CallSession? = null
 
@@ -42,9 +45,11 @@ class ReceivingCall : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        userName = view.findViewById(R.id.nameOfPersonCalling)
         profileFirstName = arguments?.getString("first_name")!!
         profileLastName = arguments?.getString("last_name")!!
         profilePhoneNumber = arguments?.getString("phone_nr")!!
+        userName.text = profileFirstName
 
         session = CallHandler.getInstance().activeSession
 
@@ -106,8 +111,8 @@ class ReceivingCall : Fragment() {
 
             GlobalScope.launch {
                 try {
-                    navController?.navigate(R.id.action_receivingCall_to_callingFragment, bundle)
                     getActivity()?.getSupportFragmentManager()?.popBackStack();
+                    navController?.navigate(R.id.action_receivingCall_to_callingFragment, bundle)
                 } catch (e: Exception) {}
             }
         }

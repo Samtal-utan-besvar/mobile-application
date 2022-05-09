@@ -96,6 +96,7 @@ class CallingToFragment : Fragment() {
 
             GlobalScope.launch {
                 try {
+                    getActivity()?.getSupportFragmentManager()?.popBackStack();
                     navController?.navigate(R.id.action_callingToFragment_to_callingFragment, bundle)
                 } catch (e: Exception) {}
             }
