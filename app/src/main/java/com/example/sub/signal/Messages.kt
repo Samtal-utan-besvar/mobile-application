@@ -41,8 +41,8 @@ data class ConnectMessage(
 
 @Serializable
 data class CallMessage(
-    val CALLER_PHONE_NUMBER: String,
-    val TARGET_PHONE_NUMBER: String,
+    val SENDER_PHONE_NUMBER: String,
+    val RECEIVER_PHONE_NUMBER: String,
     val SDP: String
 ) : Message(MessageReason.CALL)
 
@@ -50,24 +50,24 @@ data class CallMessage(
 @Serializable
 data class CallResponseMessage(
     val RESPONSE: String,
-    val CALLER_PHONE_NUMBER: String,
-    val TARGET_PHONE_NUMBER: String,
+    val SENDER_PHONE_NUMBER: String,
+    val RECEIVER_PHONE_NUMBER: String,
     val SDP: String
 ) : Message(MessageReason.CALL_RESPONSE)
 
 
 @Serializable
 data class IceCandidateMessage(
-    val ORIGIN_PHONE_NUMBER: String,
-    val TARGET_PHONE_NUMBER: String,
+    val SENDER_PHONE_NUMBER: String,
+    val RECEIVER_PHONE_NUMBER: String,
     val CANDIDATE: String
 ) : Message(MessageReason.ICE_CANDIDATE)
 
 
 @Serializable
 data class HangupMessage(
-    val CALLER_PHONE_NUMBER: String,
-    val TARGET_PHONE_NUMBER: String
+    val SENDER_PHONE_NUMBER: String,
+    val RECEIVER_PHONE_NUMBER: String
 ) : Message(MessageReason.HANG_UP)
 
 

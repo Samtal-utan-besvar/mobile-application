@@ -18,13 +18,13 @@ import org.webrtc.SessionDescription
  * [SessionDescription], no string conversion needed.
  */
 fun CallMessage(
-    CALLER_PHONE_NUMBER: String,
-    TARGET_PHONE_NUMBER: String,
+    SENDER_PHONE_NUMBER: String,
+    RECEIVER_PHONE_NUMBER: String,
     sdp: SessionDescription
 ): CallMessage =
     CallMessage(
-        CALLER_PHONE_NUMBER,
-        TARGET_PHONE_NUMBER,
+        SENDER_PHONE_NUMBER,
+        RECEIVER_PHONE_NUMBER,
         sdp.description)
 
 
@@ -34,7 +34,7 @@ fun CallMessage(
  * a [SessionDescription] should also be passed.
  */
 fun CallMessage.toResponse(callResponse: CallResponse, sdp: SessionDescription? = null): CallResponseMessage {
-    return CallResponseMessage(callResponse, CALLER_PHONE_NUMBER, TARGET_PHONE_NUMBER, sdp)
+    return CallResponseMessage(callResponse, SENDER_PHONE_NUMBER, RECEIVER_PHONE_NUMBER, sdp)
 }
 
 
@@ -57,13 +57,13 @@ fun CallMessage.toSessionDescription() : SessionDescription {
  */
 fun CallResponseMessage(
     callResponse: CallResponse,
-    CALLER_PHONE_NUMBER: String,
-    TARGET_PHONE_NUMBER: String,
+    SENDER_PHONE_NUMBER: String,
+    RECEIVER_PHONE_NUMBER: String,
     sdp: SessionDescription? = null): CallResponseMessage =
     CallResponseMessage(
         callResponse.toString(),
-        CALLER_PHONE_NUMBER,
-        TARGET_PHONE_NUMBER,
+        SENDER_PHONE_NUMBER,
+        RECEIVER_PHONE_NUMBER,
         if (sdp == null) "rick roll" else sdp.description)
 
 
@@ -94,8 +94,8 @@ fun CallResponseMessage.toSessionDescription() : SessionDescription {
  */
 fun IceCandidateMessage.Companion.fromIceCandidate(
     iceCandidate: IceCandidate,
-    originPhoneNumber: String,
-    targetPhoneNumber: String
+    senderPhoneNumber: String,
+    receiverPhoneNumber: String
 ): IceCandidateMessage {
 
     val jsonObject = JSONObject()
@@ -104,8 +104,8 @@ fun IceCandidateMessage.Companion.fromIceCandidate(
     jsonObject.put("sdp", iceCandidate.sdp)
 
     return IceCandidateMessage(
-        originPhoneNumber,
-        targetPhoneNumber,
+        senderPhoneNumber,
+        receiverPhoneNumber,
         jsonObject.toString()
     )
 }
