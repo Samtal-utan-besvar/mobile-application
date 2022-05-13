@@ -20,7 +20,7 @@ import java.io.IOException
  */
 class LoginDataSource {
 
-    private val url = "http://144.24.171.133:8080/" // home url to database server
+    private val url = "http://10.0.2.2:8080/" // home url to database server
     private val urlLocal = "http://10.0.2.2:8080/"  // local url to database. Emulator requires '10.0.2.2' instead of 'localhost'
 
     /**

@@ -14,7 +14,7 @@ import org.webrtc.ContextUtils.getApplicationContext
 import java.security.AccessController.getContext
 import java.util.concurrent.TimeUnit
 
-private const val SIGNAL_URL = "ws://144.24.171.133:4000" // use local ip for devices in local network
+private const val SIGNAL_URL = "ws://10.0.2.2:4000" // use local ip for devices in local network
 
 /**
  * This class is a client that can connect with a signal server. The client uses websocket for
