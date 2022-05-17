@@ -100,7 +100,7 @@ class CallingFragment : Fragment() {
 
 
 
-        answerTimer.schedule(1000, 1000) {
+        answerTimer.schedule(500, 500) {
             var removeIds = mutableListOf<Int>()
             for (textid in ownerIds){
                 Log.e("Looking for answer", textid.toString())
@@ -121,7 +121,7 @@ class CallingFragment : Fragment() {
             }
         }
 
-        receivingTimer.schedule(1000, 1000) {
+        receivingTimer.schedule(500, 500) {
             var removeIds = mutableListOf<Int>()
             for (textid in receivingIds){
                 Log.e("Looking for answer", textid.toString())
