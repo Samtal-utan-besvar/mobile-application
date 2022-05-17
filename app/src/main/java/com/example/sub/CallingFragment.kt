@@ -133,9 +133,9 @@ class CallingFragment : Fragment() {
                     removeIds.add(textid)
                     getActivity()?.runOnUiThread(java.lang.Runnable{
                         updateUI(answer, "receiver") //update UI and play sound at the same time for incoming data
-                        playSound(receivingSounds[0])
-                        receivingSounds.removeAt(0)
                     })
+                    playSound(receivingSounds[0])
+                    receivingSounds.removeAt(0)
                     Log.e("answer", answer)
                 }
             }
