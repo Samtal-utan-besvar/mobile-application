@@ -26,6 +26,7 @@ import com.xwray.groupie.Item
 import java.io.*
 import com.example.sub.session.SessionListener
 import com.example.sub.signal.SignalClient.send
+import com.example.sub.transcription.TranscriptionListener
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.concurrent.schedule
@@ -88,6 +89,7 @@ class CallingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         microphoneHandler = MicrophoneHandler()
         transcriptionclient = TranscriptionClient(requireContext())
+        transcriptionclient.transcriptionListeners.add(TranscriptionHandler())
         var id = arguments?.getString("phone_nr")!!.toLong().mod(1000000000).toInt() //casts the phone number so that fits in the first 4 bytes of sound bytearray
         recordTimer = Timer() //used to split audio every 5 seconds
         answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
@@ -99,7 +101,7 @@ class CallingFragment : Fragment() {
         var uri : Uri
 
 
-
+        /*
         answerTimer.schedule(500, 500) {
             var removeIds = mutableListOf<Int>()
             for (textid in ownerIds){
@@ -121,9 +123,14 @@ class CallingFragment : Fragment() {
             }
         }
 
+         */
+
+        /*
         receivingTimer.schedule(500, 500) {
             var removeIds = mutableListOf<Int>()
             for (textid in receivingIds){
+                transcriptionclient.sendAnswer(textid, "receiver")
+                /*
                 Log.e("Looking for answer", textid.toString())
                 var answer = transcriptionclient.getAnswer(textid)
                 if (answer == ""){
@@ -138,11 +145,18 @@ class CallingFragment : Fragment() {
                     receivingSounds.removeAt(0)
                     Log.e("answer", answer)
                 }
+
+                 */
             }
+            /*
             for (textid in removeIds) {
                 receivingIds.remove(textid)
             }
+
+             */
         }
+
+         */
 
         firstName = arguments?.getString("first_name")
         lastName = arguments?.getString("last_name")
@@ -261,6 +275,31 @@ class CallingFragment : Fragment() {
         callSession?.addListener( SessionChangeHandler(receivingIds, receivingSounds) )
     }
 
+    inner class TranscriptionHandler : TranscriptionListener {
+
+        override fun onTranscriptionComplete(id: String, text: String) {
+
+            val isOwner = !receivingIds.contains(id.toInt())
+
+            val ownerType = if (isOwner) "owner" else "receiver"
+
+            activity?.runOnUiThread(java.lang.Runnable{
+                updateUI(text, ownerType) //update UI and play sound at the same time for incoming data
+            })
+
+            if (!isOwner) {
+                playSound(receivingSounds[0])
+                receivingSounds.removeAt(0)
+                Log.e("answer", text)
+                receivingIds.remove(id.toInt())
+            }
+
+
+
+        }
+
+    }
+
     fun playSound(buff: ByteArray){
 
         val intRecordSampleRate = AudioTrack.getNativeOutputSampleRate(AudioAttributes.USAGE_MEDIA)
@@ -335,6 +374,7 @@ class CallingFragment : Fragment() {
             receivingIds.add(receivingIds.size, id)
             //Since first 4 bytes is the manually attached id, dont copy thoose.
             sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
+            transcriptionclient.sendAnswer(id, "receiver")
         }
 
         override fun onStringMessage(message: String) {

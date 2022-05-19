@@ -23,6 +23,9 @@ class TranscriptionClient(context: Context) {
     private var webSocket: WebSocket? = null
     private var answers = mutableMapOf<Int, String>()
     private var context = context
+
+    val transcriptionListeners = ArrayList<TranscriptionListener>()
+
     init{
         connect()
     }
@@ -43,6 +46,7 @@ class TranscriptionClient(context: Context) {
 
     fun close(){
         webSocket?.close(1000, "Hang up")
+        transcriptionListeners.clear()
     }
 
     private inner class TranscribingWebSocketListener : WebSocketListener() {
@@ -57,8 +61,13 @@ class TranscriptionClient(context: Context) {
 
             if (text != "") {
                 Log.d("Answer", text)
-                var list = text.split(":")
-                answers[list[0].toInt()] = list[1]
+                val list = text.split(":")
+                val id = list[0]
+                val text = list[1]
+
+                transcriptionListeners.forEach {
+                    it.onTranscriptionComplete(id, text)
+                }
 
             } else if (text == "") {
                 Log.d("Answer", "Empty answer")
