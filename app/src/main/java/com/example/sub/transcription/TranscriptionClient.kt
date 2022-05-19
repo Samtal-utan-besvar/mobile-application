@@ -116,7 +116,7 @@ class TranscriptionClient(context: Context) {
         webSocket?.send(jsonString)
     }
 
-    fun sendAnswer(id: Int, ownertype: String) {
+    fun sendAnswer(id: String, ownertype: String) {
         Log.d("Transcription-send_answer", ownertype)
         val message = JSONObject()
         message.put("Reason", "answer")
@@ -126,7 +126,7 @@ class TranscriptionClient(context: Context) {
         send(msgList.toString())
     }
 
-    fun sendSound(id: Int, sound: ByteArray) {
+    fun sendSound(id: String, sound: ByteArray) {
         Log.d("Transcription-send-sound", "sound")
         //convert sound to string here()
         val message = JSONObject()

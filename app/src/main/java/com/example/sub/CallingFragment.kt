@@ -27,6 +27,7 @@ import java.io.*
 import com.example.sub.session.SessionListener
 import com.example.sub.signal.SignalClient.send
 import com.example.sub.transcription.TranscriptionListener
+import com.example.sub.transcription.UuidUtils
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.concurrent.schedule
@@ -68,8 +69,8 @@ class CallingFragment : Fragment() {
 
     private lateinit var microphoneHandler : MicrophoneHandler
     private lateinit var transcriptionclient : TranscriptionClient
-    private lateinit var ownerIds : MutableList<Int> //outgoing transcriptions id's
-    private lateinit var receivingIds : MutableList<Int>//incoming transcription id's
+    private lateinit var ownerIds : MutableList<String> //outgoing transcriptions id's
+    private lateinit var receivingIds : MutableList<String>//incoming transcription id's
     private lateinit var receivingSounds : MutableList<ByteArray> //All the sounds to be played
     private lateinit var recordTimer : Timer //used to split audio every 5 seconds
     private lateinit var answerTimer : Timer //used to retrieve locally recorded transcriptions from server
@@ -94,8 +95,8 @@ class CallingFragment : Fragment() {
         recordTimer = Timer() //used to split audio every 5 seconds
         answerTimer = Timer() //used to retrieve locally recorded transcriptions from server
         receivingTimer = Timer() //used to retrieve transcriptions of incoming audio from server
-        ownerIds = mutableListOf<Int>() //outgoing transcriptions id's
-        receivingIds = mutableListOf<Int>() //incoming transcription id's
+        ownerIds = mutableListOf<String>() //outgoing transcriptions id's
+        receivingIds = mutableListOf<String>() //incoming transcription id's
         receivingSounds = mutableListOf<ByteArray>() //All the sounds to be played
         var mediaPlayer : MediaPlayer
         var uri : Uri
@@ -224,16 +225,7 @@ class CallingFragment : Fragment() {
 
                         recordTimer.schedule(5000, 5000) {
                             if(microphoneHandler.getRecordingStatus()){
-                                id = id.plus(1)
-                                val bigbuff = microphoneHandler.StopAudioRecording()
-                                microphoneHandler.StartAudioRecording()
-                                transcriptionclient.sendSound(id, bigbuff)
-                                transcriptionclient.sendAnswer(id, "owner")
-                                ownerIds.add(id)
-                                var idBytes = ByteBuffer.allocate(4).putInt(id).array();
-                                Log.e("Id int ", id.toString())
-                                Log.e("Id bytes", idBytes.toString())
-                                callSession?.sendBytes(idBytes.plus(bigbuff))
+                                sendRecording()
                                 transcribeButton.restart()
                             }
                         }
@@ -246,16 +238,7 @@ class CallingFragment : Fragment() {
                         recordTimer = Timer()
 
                         //transcribeButton.text = "Starta Transkribering"
-                        bigbuff = microphoneHandler.StopAudioRecording()
-                        if (bigbuff.size > 6400) { // 1/5 of a second 
-                            id = id.plus(1)
-                            transcriptionclient.sendSound(id, bigbuff)
-                            transcriptionclient.sendAnswer(id, "owner")
-                            ownerIds.add(id)
-                            val idBytes = ByteBuffer.allocate(4).putInt(id)
-                                .array() //put the id in the first 4 bytes of the sound
-                            callSession?.sendBytes(idBytes.plus(bigbuff))
-                        }
+                        sendRecording()
                     }
 
                 }
@@ -275,11 +258,23 @@ class CallingFragment : Fragment() {
         callSession?.addListener( SessionChangeHandler(receivingIds, receivingSounds) )
     }
 
+    fun sendRecording() {
+        bigbuff = microphoneHandler.StopAudioRecording()
+        if (bigbuff.size > 6400) { // 1/5 of a second
+            val id = UUID.randomUUID()
+            transcriptionclient.sendSound(id.toString(), bigbuff)
+            transcriptionclient.sendAnswer(id.toString(), "owner")
+            ownerIds.add(id.toString())
+            val idBytes = UuidUtils.asBytes(id)
+            callSession?.sendBytes(idBytes.plus(bigbuff))
+        }
+    }
+
     inner class TranscriptionHandler : TranscriptionListener {
 
         override fun onTranscriptionComplete(id: String, text: String) {
 
-            val isOwner = !receivingIds.contains(id.toInt())
+            val isOwner = !receivingIds.contains(id)
 
             val ownerType = if (isOwner) "owner" else "receiver"
 
@@ -291,7 +286,7 @@ class CallingFragment : Fragment() {
                 playSound(receivingSounds[0])
                 receivingSounds.removeAt(0)
                 Log.e("answer", text)
-                receivingIds.remove(id.toInt())
+                receivingIds.remove(id)
             }
 
 
@@ -359,7 +354,7 @@ class CallingFragment : Fragment() {
     }
 
 
-    inner class SessionChangeHandler(receivingIds: MutableList<Int>, sounds: MutableList<ByteArray>) : SessionListener {
+    inner class SessionChangeHandler(receivingIds: MutableList<String>, sounds: MutableList<ByteArray>) : SessionListener {
         override fun onSessionEnded() {
             closeCall()
         }
@@ -368,13 +363,16 @@ class CallingFragment : Fragment() {
         override fun onBytesMessage(bytes: ByteArray) {
             Log.e("Bytes received", bytes.toString())
             //Converting the first 4 bytes of the bytearray back to an int that will be used as id for transcription server
-            var id = 256.toDouble().pow(3).toInt()*(bytes[0].toUByte().toInt())+256.toDouble().pow(2).toInt()*(bytes[1].toUByte().toInt())+256*(bytes[2].toUByte().toInt())+(bytes[3].toUByte().toInt())
+            //var id = 256.toDouble().pow(3).toInt()*(bytes[0].toUByte().toInt())+256.toDouble().pow(2).toInt()*(bytes[1].toUByte().toInt())+256*(bytes[2].toUByte().toInt())+(bytes[3].toUByte().toInt())
+            val idLength = 16
+            val idBytes = bytes.copyOfRange(0, idLength)
+            val id = UuidUtils.asUuid(idBytes)
             Log.e("Received id is", id.toString())
             //Add to the list of incoming transcriptions.
-            receivingIds.add(receivingIds.size, id)
+            receivingIds.add(receivingIds.size, id.toString())
             //Since first 4 bytes is the manually attached id, dont copy thoose.
-            sounds.add(sounds.size, bytes.copyOfRange(4, bytes.size))
-            transcriptionclient.sendAnswer(id, "receiver")
+            sounds.add(sounds.size, bytes.copyOfRange(idLength, bytes.size))
+            transcriptionclient.sendAnswer(id.toString(), "receiver")
         }
 
         override fun onStringMessage(message: String) {
