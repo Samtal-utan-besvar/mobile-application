@@ -71,7 +71,7 @@ class CallingFragment : Fragment() {
     private lateinit var transcriptionclient : TranscriptionClient
     private lateinit var ownerIds : MutableList<String> //outgoing transcriptions id's
     private lateinit var receivingIds : MutableList<String>//incoming transcription id's
-    private lateinit var receivingSounds : MutableList<ByteArray> //All the sounds to be played
+    private lateinit var receivingSounds : MutableMap<String, ByteArray> //All the sounds to be played
     private lateinit var recordTimer : Timer //used to split audio every 5 seconds
     private lateinit var answerTimer : Timer //used to retrieve locally recorded transcriptions from server
     private lateinit var receivingTimer : Timer //used to retrieve transcriptions of incoming audio from server
@@ -97,7 +97,7 @@ class CallingFragment : Fragment() {
         receivingTimer = Timer() //used to retrieve transcriptions of incoming audio from server
         ownerIds = mutableListOf<String>() //outgoing transcriptions id's
         receivingIds = mutableListOf<String>() //incoming transcription id's
-        receivingSounds = mutableListOf<ByteArray>() //All the sounds to be played
+        receivingSounds = mutableMapOf<String, ByteArray>() //All the sounds to be played
         var mediaPlayer : MediaPlayer
         var uri : Uri
 
@@ -283,8 +283,8 @@ class CallingFragment : Fragment() {
             })
 
             if (!isOwner) {
-                playSound(receivingSounds[0])
-                receivingSounds.removeAt(0)
+                playSound(receivingSounds[id]!!)
+                receivingSounds.remove(id)
                 Log.e("answer", text)
                 receivingIds.remove(id)
             }
@@ -354,7 +354,7 @@ class CallingFragment : Fragment() {
     }
 
 
-    inner class SessionChangeHandler(receivingIds: MutableList<String>, sounds: MutableList<ByteArray>) : SessionListener {
+    inner class SessionChangeHandler(receivingIds: MutableList<String>, sounds: MutableMap<String, ByteArray>) : SessionListener {
         override fun onSessionEnded() {
             closeCall()
         }
@@ -366,13 +366,13 @@ class CallingFragment : Fragment() {
             //var id = 256.toDouble().pow(3).toInt()*(bytes[0].toUByte().toInt())+256.toDouble().pow(2).toInt()*(bytes[1].toUByte().toInt())+256*(bytes[2].toUByte().toInt())+(bytes[3].toUByte().toInt())
             val idLength = 16
             val idBytes = bytes.copyOfRange(0, idLength)
-            val id = UuidUtils.asUuid(idBytes)
-            Log.e("Received id is", id.toString())
+            val id = UuidUtils.asUuid(idBytes).toString()
+            Log.e("Received id is", id)
             //Add to the list of incoming transcriptions.
-            receivingIds.add(receivingIds.size, id.toString())
+            receivingIds.add(receivingIds.size, id)
             //Since first 4 bytes is the manually attached id, dont copy thoose.
-            sounds.add(sounds.size, bytes.copyOfRange(idLength, bytes.size))
-            transcriptionclient.sendAnswer(id.toString(), "receiver")
+            sounds[id] = bytes.copyOfRange(idLength, bytes.size)
+            transcriptionclient.sendAnswer(id, "receiver")
         }
 
         override fun onStringMessage(message: String) {
