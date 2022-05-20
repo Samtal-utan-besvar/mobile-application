@@ -113,9 +113,10 @@ class ReceivingCall : Fragment() {
             bundle.putString("last_name", profileLastName as String?)
             bundle.putString("phone_nr", profilePhoneNumber as String?)
 
+            isClosed = true
             GlobalScope.launch {
                 try {
-                    //getActivity()?.getSupportFragmentManager()?.popBackStack();
+                    activity?.supportFragmentManager?.popBackStack()
                     navController?.navigate(R.id.action_receivingCall_to_callingFragment, bundle)
                 } catch (e: Exception) {}
             }

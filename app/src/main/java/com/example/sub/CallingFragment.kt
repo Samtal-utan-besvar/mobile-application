@@ -16,6 +16,7 @@ import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sub.session.CallHandler
 import com.example.sub.session.CallSession
+import com.example.sub.session.CallStatus
 import com.example.sub.session.SessionListener
 import com.example.sub.transcription.TranscriptionClient
 import com.xwray.groupie.GroupieAdapter
@@ -366,6 +367,12 @@ class CallingFragment : Fragment() {
     }
 
 
+    override fun onDestroy() {
+        if (callSession?.getStatus() == CallStatus.IN_CALL) {
+            callSession?.hangUp()
+        }
+        super.onDestroy()
+    }
 
 
     /**
@@ -388,7 +395,6 @@ class CallingFragment : Fragment() {
         // Navigate using global scope.
         GlobalScope.launch {
             try {
-
                 //getFragmentManager()?.popBackStackImmediate()
                 navController?.navigate(R.id.userProfileFragment, bundle)
             } catch (e: Exception) {
