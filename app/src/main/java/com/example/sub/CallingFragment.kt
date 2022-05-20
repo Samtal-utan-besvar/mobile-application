@@ -144,6 +144,7 @@ class CallingFragment : Fragment() {
                         recordTimer.schedule(5000, 5000) {
                             if(microphoneHandler.getRecordingStatus()){
                                 sendRecording()
+                                microphoneHandler.StartAudioRecording()
                                 transcribeButton.restart()
                             }
                         }
