@@ -27,6 +27,7 @@ class CallingToFragment : Fragment() {
     private lateinit var profilePhoneNumber : String
     private lateinit var userName : TextView
 
+    var isClosed = false
     var session : CallSession? = null
 
     override fun onCreateView(
@@ -77,10 +78,14 @@ class CallingToFragment : Fragment() {
      * Navigates back to the previous view.
      */
     fun closeView() {
-        GlobalScope.launch {
-            try {
-                navController?.popBackStack()
-            } catch (e: Exception) {}
+        if (!isClosed) {
+            isClosed = true
+            GlobalScope.launch {
+                try {
+                    navController?.popBackStack()
+                } catch (e: Exception) {
+                }
+            }
         }
     }
 
@@ -96,7 +101,7 @@ class CallingToFragment : Fragment() {
 
             GlobalScope.launch {
                 try {
-                    getActivity()?.getSupportFragmentManager()?.popBackStack();
+                    //getActivity()?.getSupportFragmentManager()?.popBackStack();
                     navController?.navigate(R.id.action_callingToFragment_to_callingFragment, bundle)
                 } catch (e: Exception) {}
             }
