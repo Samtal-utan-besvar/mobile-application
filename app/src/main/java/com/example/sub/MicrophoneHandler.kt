@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
@@ -23,6 +24,8 @@ class MicrophoneHandler() {
     val channelConfig = AudioFormat.CHANNEL_IN_MONO
     val audioFormat = AudioFormat.ENCODING_PCM_16BIT
     private @Volatile var recording = AtomicBoolean(true)
+    private @Volatile var extractData = AtomicBoolean(false)
+    private val channel = Channel<ByteArray>()
 
     fun getRecordingStatus() : Boolean{
         return recording.get()
@@ -33,9 +36,8 @@ class MicrophoneHandler() {
      */
     fun StartAudioRecording(){
         recording.set(true)
-
         recordingThread = GlobalScope.async {
-            WriteAudioToDataFile(recording)
+            WriteAudioToDataFile(recording, extractData, channel)
         }
     }
 
@@ -51,12 +53,19 @@ class MicrophoneHandler() {
         return soundBytes
     }
 
+    fun extractData(): ByteArray{
+        extractData.set(true)
+        var soundData : ByteArray
+        runBlocking {soundData = channel.receive()}
+        return soundData
+    }
+
     /*
     A thread is started here that puts all of the input an bytearrayoutputstream. When stop is called,
     the thread exists and return all of the recorded sound in a bytearray.
      */
     @SuppressLint("MissingPermission")
-    fun WriteAudioToDataFile(recording: AtomicBoolean): ByteArray {
+    suspend fun WriteAudioToDataFile(recording: AtomicBoolean, extract: AtomicBoolean, chan: Channel<ByteArray>): ByteArray {
 
         var bigBuffer = ByteArrayOutputStream()
 
@@ -77,6 +86,15 @@ class MicrophoneHandler() {
 
             val read = microphone!!.read(buffer, 0, minBufferSize)
             bigBuffer.write(buffer, 0, read)
+
+            //If true, 5 seconds has passed and data needs to be extracted and the buffer reset
+            if (extract.get()){
+                bigBuffer.flush()
+                bigBuffer.close()
+                chan.send(bigBuffer.toByteArray())
+                bigBuffer = ByteArrayOutputStream()
+                extract.set(false)
+            }
         }
         bigBuffer.flush()
         bigBuffer.close()
