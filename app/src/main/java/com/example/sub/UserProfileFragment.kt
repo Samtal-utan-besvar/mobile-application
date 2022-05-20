@@ -57,7 +57,7 @@ class UserProfileFragment : Fragment(), PopupMenu.OnMenuItemClickListener {
         view.findViewById<View>(R.id.callButton).setOnClickListener {
 
             callContact(profilePhoneNumber.text as String)
-            navController?.navigate(R.id.action_userProfileFragment_to_callingFragment, bundle)
+            navController?.navigate(R.id.action_userProfileFragment_to_callingToFragment, bundle)
 
         }
         view.findViewById<View>(R.id.profile).setOnClickListener {
