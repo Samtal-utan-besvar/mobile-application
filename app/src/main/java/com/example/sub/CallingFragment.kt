@@ -1,42 +1,39 @@
 package com.example.sub
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.media.*
-import android.net.Uri
-import android.os.Build
+import android.media.AudioAttributes
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.AudioTrack
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.annotation.RequiresApi
+import android.widget.Chronometer
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sub.session.CallHandler
 import com.example.sub.session.CallSession
+import com.example.sub.session.CallStatus
+import com.example.sub.session.SessionListener
 import com.example.sub.transcription.TranscriptionClient
+import com.example.sub.transcription.TranscriptionListener
+import com.example.sub.transcription.UuidUtils
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
-import java.io.*
-import com.example.sub.session.SessionListener
-import com.example.sub.signal.SignalClient.send
-import com.example.sub.transcription.TranscriptionListener
-import com.example.sub.transcription.UuidUtils
-import java.nio.ByteBuffer
-import java.util.*
-import kotlin.concurrent.schedule
-import kotlin.math.pow
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
+import java.util.*
+import kotlin.concurrent.schedule
 
 
 /**
@@ -96,6 +93,8 @@ class CallingFragment : Fragment() {
         userName.text = firstName
         navController = findNavController(view.findViewById(R.id.closeCall))
         view.findViewById<View>(R.id.closeCall).setOnClickListener {
+
+            //getFragmentManager()?.popBackStack()
             callSession?.hangUp()
         }
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view_calling)
@@ -344,6 +343,14 @@ class CallingFragment : Fragment() {
     }
 
 
+    override fun onDestroy() {
+        if (callSession?.getStatus() == CallStatus.IN_CALL) {
+            callSession?.hangUp()
+        }
+        super.onDestroy()
+    }
+
+
     /**
      * Navigates back to the profile fragment.
      */
@@ -361,8 +368,12 @@ class CallingFragment : Fragment() {
         // Navigate using global scope.
         GlobalScope.launch {
             try {
-                navController?.navigate(R.id.action_callingFragment_to_userProfileFragment, bundle)
-            } catch (e: Exception) {}
+                //getFragmentManager()?.popBackStackImmediate()
+                navController?.navigate(R.id.userProfileFragment, bundle)
+            } catch (e: Exception) {
+                Log.d("error messagelalalala:", e.toString())
+
+            }
         }
 
 

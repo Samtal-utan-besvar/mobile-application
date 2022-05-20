@@ -158,6 +158,14 @@ class CallSession private constructor(val signalClient: SignalClient,
 
 
     /**
+     * Returns the [CallStatus] of the session.
+     */
+    fun getStatus() : CallStatus {
+        return status
+    }
+
+
+    /**
      * Sets the [CallStatus] of the session.
      */
     private fun setStatus(status: CallStatus) {
