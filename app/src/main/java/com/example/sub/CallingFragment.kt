@@ -96,7 +96,7 @@ class CallingFragment : Fragment() {
 
 
 
-        answerTimer.schedule(1000, 1000) {
+        answerTimer.schedule(500, 500) {
             var removeIds = mutableListOf<Int>()
             for (textid in ownerIds){
                 Log.e("Looking for answer", textid.toString())
@@ -117,7 +117,7 @@ class CallingFragment : Fragment() {
             }
         }
 
-        receivingTimer.schedule(1000, 1000) {
+        receivingTimer.schedule(500, 500) {
             var removeIds = mutableListOf<Int>()
             for (textid in receivingIds){
                 Log.e("Looking for answer", textid.toString())
@@ -129,9 +129,9 @@ class CallingFragment : Fragment() {
                     removeIds.add(textid)
                     getActivity()?.runOnUiThread(java.lang.Runnable{
                         updateUI(answer, "receiver") //update UI and play sound at the same time for incoming data
-                        playSound(receivingSounds[0])
-                        receivingSounds.removeAt(0)
                     })
+                    playSound(receivingSounds[0])
+                    receivingSounds.removeAt(0)
                     Log.e("answer", answer)
                 }
             }

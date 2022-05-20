@@ -218,7 +218,7 @@ class CallSession private constructor(val signalClient: SignalClient,
             override fun onCreateSuccess(p0: SessionDescription?) {
                 if (p0 != null) {
                     val callMessage = CallResponseMessage(CallResponse.ACCEPT,
-                        remotePhoneNumber, localPhoneNumber, p0)
+                        localPhoneNumber, remotePhoneNumber, p0)
                     signalClient.send(callMessage)
                 }
             }
@@ -232,7 +232,7 @@ class CallSession private constructor(val signalClient: SignalClient,
      */
     fun deny() {
         val callMessage =
-            CallResponseMessage(CallResponse.DENY, remotePhoneNumber, localPhoneNumber)
+            CallResponseMessage(CallResponse.DENY, localPhoneNumber, remotePhoneNumber)
         signalClient.send(callMessage)
         setStatus(CallStatus.DENIED)
     }

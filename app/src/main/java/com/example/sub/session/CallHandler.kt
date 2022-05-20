@@ -101,8 +101,8 @@ class CallHandler private constructor(
             signalClient.send(callMessage.toResponse(CallResponse.DENY))
         } else {
             // Okay to create a new call session.
-            val localPhoneNumber = callMessage.TARGET_PHONE_NUMBER
-            val remotePhoneNumber = callMessage.CALLER_PHONE_NUMBER
+            val localPhoneNumber = callMessage.RECEIVER_PHONE_NUMBER
+            val remotePhoneNumber = callMessage.SENDER_PHONE_NUMBER
             val sdp = callMessage.toSessionDescription()
 
             activeSession = CallSession.asReceiver(
