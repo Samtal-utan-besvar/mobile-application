@@ -143,8 +143,7 @@ class CallingFragment : Fragment() {
 
                         recordTimer.schedule(5000, 5000) {
                             if(microphoneHandler.getRecordingStatus()){
-                                sendRecording()
-                                microphoneHandler.StartAudioRecording()
+                                sendMiddleRecording()
                                 transcribeButton.restart()
                             }
                         }
@@ -181,6 +180,18 @@ class CallingFragment : Fragment() {
      */
     fun sendRecording() {
         bigbuff = microphoneHandler.StopAudioRecording()
+        if (bigbuff.size > 6400) { // 1/5 of a second
+            val id = UUID.randomUUID()
+            transcriptionclient.sendSound(id.toString(), bigbuff)
+            transcriptionclient.sendAnswer(id.toString(), "owner")
+            ownerIds.add(id.toString())
+            val idBytes = UuidUtils.asBytes(id)
+            callSession?.sendBytes(idBytes.plus(bigbuff))
+        }
+    }
+
+    fun sendMiddleRecording(){
+        bigbuff = microphoneHandler.extractData()
         if (bigbuff.size > 6400) { // 1/5 of a second
             val id = UUID.randomUUID()
             transcriptionclient.sendSound(id.toString(), bigbuff)
