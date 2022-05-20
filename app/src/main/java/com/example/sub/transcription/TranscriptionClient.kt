@@ -3,32 +3,24 @@ package com.example.sub.transcription
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.widget.Toast
 import com.google.android.material.internal.ContextUtils.getActivity
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import okhttp3.*
-import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 private const val TRANSCRIPT_URL = "ws://129.151.206.9:6000" // use local ip for devices in local network
-// pixel 5: utan 5, Brw
 
-class TranscriptionClient(context: Context) {
+class TranscriptionClient(private var context: Context) {
 
     private var webSocket: WebSocket? = null
-    private var answers = mutableMapOf<Int, String>()
-    private var context = context
-
     val transcriptionListeners = ArrayList<TranscriptionListener>()
+
 
     init{
         connect()
     }
+
 
     fun connect(){
         // wss test
@@ -44,44 +36,39 @@ class TranscriptionClient(context: Context) {
         webSocket = client.newWebSocket(request, wsListener) // this provide to make 'Open ws connection'
     }
 
+
     fun close(){
         webSocket?.close(1000, "Hang up")
         transcriptionListeners.clear()
     }
 
+
     private inner class TranscribingWebSocketListener : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
-            //send(ConnectSignalMessage())
             Log.d("WS-Listener: ", "Websocket Opened!")
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
             Log.d("Transcription-receive", text)
 
-            if (text != "") {
-                Log.d("Answer", text)
-                val list = text.split(":")
-                val id = list[0]
-                val text = list[1]
+            Log.d("Answer", text)
+            val list = text.split(":")
+            val id = list[0]
+            val data = list[1]
 
-                transcriptionListeners.forEach {
-                    it.onTranscriptionComplete(id, text)
-                }
-
-            } else if (text == "") {
-                Log.d("Answer", "Empty answer")
-
-            } else {
-                Log.d("Answer", "Other answer")
+            transcriptionListeners.forEach {
+                it.onTranscriptionComplete(id, data)
             }
         }
+
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
             webSocket.close(code, reason)
             super.onClosed(webSocket, code, reason)
             Log.d("Transcription-closed", reason)
         }
+
 
         @SuppressLint("RestrictedApi")//this suprress is for getActivity(context) which has a known lint-error
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -94,13 +81,15 @@ class TranscriptionClient(context: Context) {
                 val builder = AlertDialog.Builder(context)
                 //set title for alert dialog
                 builder.setTitle("Transkriberingsfel")
+
                 //set message for alert dialog
-                builder.setMessage("Du har tappat kontakten med transkriberingservern, kontrollera din internetanslutning och starta om samtalet för att återuppta kontakten.")
+                builder.setMessage(
+                    "Du har tappat kontakten med transkriberingservern, kontrollera din internetanslutning och starta om samtalet för att återuppta kontakten."
+                )
                 builder.setIcon(android.R.drawable.ic_dialog_alert)
 
                 //performing cancel action
-                builder.setNeutralButton("Okej") { dialogInterface, which ->
-                }
+                builder.setNeutralButton("Okej") { dialogInterface, which -> }
 
                 // Create the AlertDialog
                 val alertDialog: AlertDialog = builder.create()
@@ -112,9 +101,12 @@ class TranscriptionClient(context: Context) {
 
         }
     }
+
+
     private fun send(jsonString: String){
         webSocket?.send(jsonString)
     }
+
 
     fun sendAnswer(id: String, ownertype: String) {
         Log.d("Transcription-send_answer", ownertype)
@@ -126,6 +118,7 @@ class TranscriptionClient(context: Context) {
         send(msgList.toString())
     }
 
+
     fun sendSound(id: String, sound: ByteArray) {
         Log.d("Transcription-send-sound", "sound")
         //convert sound to string here()
@@ -135,17 +128,6 @@ class TranscriptionClient(context: Context) {
         message.put("Data", sound.toString(Charsets.ISO_8859_1))
         val msgList = listOf(message)
         send(msgList.toString())
-    }
-
-
-
-    fun getAnswer(id: Int): String{
-        if (answers.keys.contains(id)){
-            return answers[id].toString()
-        }
-        else{
-            return ""
-        }
     }
 
 }
